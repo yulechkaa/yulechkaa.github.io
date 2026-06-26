@@ -12,5 +12,19 @@
     "art": "constellation",
     "font": "prata",
     "anim": "glow"
+  },
+  {
+    "date": "2026-06-26",
+    "rhyme": "хохотулечка",
+    "mood": "солнечное игривое",
+    "palette": [
+      "#f7d9c4",
+      "#e7a3b6",
+      "#c8a2d8"
+    ],
+    "style": "dawn",
+    "art": "orbits",
+    "font": "pacifico",
+    "anim": "wave"
   }
 ]
