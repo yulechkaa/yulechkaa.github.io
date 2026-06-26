@@ -1,0 +1,39 @@
+name: Daily Yulechka Rhyme Generator
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Запуск каждую ночь ровно в 00:00 UTC (около 03:00-04:00 по МСК)
+  workflow_dispatch: # Позволяет запускать вручную кнопкой на GitHub для теста
+
+permissions:
+  contents: write # Даем экшенам право пушить код обратно в репозиторий
+
+jobs:
+  build-and-generate:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests edge-tts
+
+    - name: Run script
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      run: python generate.py
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "YulechkaBot"
+        git config --global user.email "bot@github.com"
+        git add data.json history.json audio.mp3
+        git diff-index --quiet HEAD || git commit -m "Automation: new daily rhyme generated"
+        git push
