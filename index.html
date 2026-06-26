@@ -71,8 +71,8 @@
             mix-blend-mode: soft-light;
         }
 
-        /* Генеративный SVG-орнамент дня (маска бережёт центр под текстом) */
-        #art {
+        /* Фоновый слой дня: SVG-орнамент (#art) или живая JS-сцена в песочнице (#scene) */
+        #art, #scene {
             position: fixed;
             inset: 0;
             z-index: -2;
@@ -82,6 +82,7 @@
             -webkit-mask-image: radial-gradient(72% 52% at 50% 47%, rgba(0,0,0,0.18), rgba(0,0,0,0.6) 46%, #000 78%);
                     mask-image: radial-gradient(72% 52% at 50% 47%, rgba(0,0,0,0.18), rgba(0,0,0,0.6) 46%, #000 78%);
         }
+        #scene { border: 0; background: transparent; }
         #art svg { width: 100%; height: 100%; display: block; }
 
         /* Осознанная анимация орнамента — медленная, в одном ритме с дрейфом фона */
@@ -201,7 +202,9 @@
 <body>
 
     <div id="art" aria-hidden="true"></div>
+    <iframe id="scene" aria-hidden="true" sandbox="allow-scripts" referrerpolicy="no-referrer" hidden></iframe>
     <main class="card">
+        <p class="eyebrow">Для Юлечки</p>
         <h1 class="name">Юлечка —</h1>
         <div class="rule"></div>
         <p class="rhyme" id="rhyme">…</p>
@@ -534,6 +537,46 @@
             });
         }
 
+        /* ---------- Живая JS-сцена от Gemini в изолированной песочнице ----------
+           Код выполняется в <iframe sandbox="allow-scripts"> с CSP default-src 'none':
+           нет доступа к странице, нет сети. Gemini доступны: ctx, W(), H(), PALETTE, MOOD, DARK. */
+        function buildSceneDoc(code, palette, mood, dark) {
+            const safe = String(code).replace(/<\/script/gi, "<\\/script");
+            return '<!DOCTYPE html><html><head>'
+                + '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; script-src \'unsafe-inline\'; style-src \'unsafe-inline\'; img-src data: blob:;">'
+                + '<style>html,body{margin:0;height:100%;overflow:hidden;background:transparent}canvas{display:block;width:100vw;height:100vh}</style>'
+                + '</head><body><canvas id="c"></canvas><script>(function(){try{'
+                + 'var PALETTE=' + JSON.stringify(palette) + ',MOOD=' + JSON.stringify(mood) + ',DARK=' + (dark ? 'true' : 'false') + ';'
+                + 'var canvas=document.getElementById("c"),ctx=canvas.getContext("2d"),DPR=Math.min(window.devicePixelRatio||1,2);'
+                + 'function W(){return window.innerWidth}function H(){return window.innerHeight}'
+                + 'function fit(){canvas.width=W()*DPR;canvas.height=H()*DPR;ctx.setTransform(DPR,0,0,DPR,0,0);}'
+                + 'window.addEventListener("resize",fit);fit();'
+                + safe
+                + '}catch(e){}})();<\/script></body></html>';
+        }
+
+        // Выбор фонового слоя: живая сцена (если Gemini её прислал) или SVG/параметрика
+        function renderBackdrop(t) {
+            const art = document.getElementById("art");
+            const scene = document.getElementById("scene");
+            let palette = (Array.isArray(t.palette) ? t.palette : []).map(normHex).filter(Boolean);
+            if (palette.length < 2) palette = FALLBACK.palette.map(normHex);
+            const avg = palette.reduce((s, c) => s + lum(c), 0) / palette.length;
+            const dark = avg < 0.42;
+            const code = (typeof t.scene === "string" && t.scene.trim().length > 20) ? t.scene : null;
+
+            if (code && scene) {
+                const pal = palette.map(c => mix(c, dark ? "#ffffff" : "#2a2024", dark ? 0.16 : 0.28));
+                if (art) { art.style.opacity = 0; art.innerHTML = ""; }
+                scene.srcdoc = buildSceneDoc(code, pal, t.mood || "", dark);
+                scene.hidden = false;
+                requestAnimationFrame(() => { scene.style.opacity = dark ? 0.7 : 0.62; });
+            } else {
+                if (scene) { scene.hidden = true; scene.style.opacity = 0; scene.removeAttribute("srcdoc"); }
+                renderArt(t);
+            }
+        }
+
         function renderArt(t) {
             const host = document.getElementById("art");
             if (!host) return;
@@ -644,7 +687,7 @@
             applyFont(data.font);
             applyAnim(data.anim);
             setRhyme(data.rhyme || FALLBACK.rhyme);
-            renderArt(data);
+            renderBackdrop(data);
             setDate(data.date);
             document.title = `Юлечка — ${data.rhyme || ""}`.trim();
         }

@@ -4,7 +4,6 @@ import sys
 import json
 import time
 import requests
-import subprocess
 from datetime import datetime
 
 # --- Настройки ---
@@ -163,14 +162,27 @@ def main():
    - <animate attributeName="opacity" или "stroke-opacity" ...> для мягкого мерцания (dur 3–8s, с разными
      begin у элементов, чтобы мерцали не разом);
    - анимируй ТОЛЬКО transform / opacity / stroke-* (никаких href, событий, javascript:);
-   - движение МЕДЛЕННОЕ и спокойное, оно НЕ должно отвлекать от слова в центре;
-   - осмысленно по мотиву: созвездие — звёзды мягко мерцают; мандала/орбиты/лучи — медленно вращаются;
-     волны — едва покачиваются. Если сомневаешься — лучше тоньше и медленнее.
+   - движение МЕДЛЕННОЕ и спокойное, оно НЕ должно отвлекать от слова в центре.
+
+10) VERSE — короткое тёплое ДВУСТИШИЕ (ровно 2 строки) в рифму, в которое ОРГАНИЧНО входит
+    фраза «Юлечка-[твоя рифма]». Это текст для голосовой озвучки, поэтому он должен красиво
+    звучать вслух. Верни как массив из 2 строк в поле "verse".
+
+11) SCENE (НЕОБЯЗАТЕЛЬНО, для максимального креатива) — можешь вместо SVG прислать ЖИВУЮ СЦЕНУ:
+    небольшой самодостаточный JS-скрипт анимации на canvas. Он выполняется в ИЗОЛИРОВАННОЙ песочнице
+    (sandbox, без доступа к странице и без сети). Тебе уже доступны переменные:
+    - ctx — 2D-контекст canvas; W() и H() — ширина/высота вьюпорта в CSS-пикселях;
+    - PALETTE — массив hex-цветов дня (используй ТОЛЬКО их); MOOD — строка настроения; DARK — тёмная ли тема.
+    ПРАВИЛА: рисуй генеративную абстракцию в духе настроения; анимируй через requestAnimationFrame;
+    движение МЕДЛЕННОЕ и спокойное, НЕ отвлекающее от текста по центру; фон прозрачный
+    (НЕ заливай весь холст), линии/формы тонкие и полупрозрачные; БЕЗ текста; БЕЗ сети и внешних
+    ресурсов. Не объявляй переменные с именами ctx/canvas/PALETTE/W/H. Если не уверен в качестве —
+    оставь "scene" пустым (тогда покажется SVG). Верни код одной строкой в поле "scene".
 
 НЕДАВНИЕ открытки (НЕ повторяй их настроение/палитру/шрифт/анимацию): {recent_ctx}
 
 Ответ верни СТРОГО в формате JSON без markdown:
-{{"rhyme":"...","mood":"...","palette":["#......","#......","#......"],"style":"bloom","art":"petals","font":"playfair","anim":"cascade","svg":"<svg viewBox=\\"0 0 1000 1000\\" xmlns=\\"http://www.w3.org/2000/svg\\">...</svg>"}}
+{{"rhyme":"...","mood":"...","palette":["#......","#......","#......"],"style":"bloom","art":"petals","font":"playfair","anim":"cascade","verse":["строка1","строка2"],"svg":"<svg viewBox=\\"0 0 1000 1000\\" xmlns=\\"http://www.w3.org/2000/svg\\">...</svg>","scene":""}}
 """
 
     payload = {
@@ -189,9 +201,11 @@ def main():
                     "art":     {"type": "string", "enum": ALLOWED_ART},
                     "font":    {"type": "string", "enum": ALLOWED_FONTS},
                     "anim":    {"type": "string", "enum": ALLOWED_ANIMS},
+                    "verse":   {"type": "array", "items": {"type": "string"}},
                     "svg":     {"type": "string"},
+                    "scene":   {"type": "string"},
                 },
-                "required": ["rhyme", "mood", "palette", "style", "art", "font", "anim"],
+                "required": ["rhyme", "mood", "palette", "style", "art", "font", "anim", "verse"],
             },
         },
     }
@@ -217,12 +231,23 @@ def main():
     font = result.get("font") if result.get("font") in ALLOWED_FONTS else "playfair"
     anim = result.get("anim") if result.get("anim") in ALLOWED_ANIMS else "cascade"
 
+    # Двустишие для озвучки (ровно 2 строки; если модель прислала иначе — подстрахуемся)
+    verse = [str(s).strip() for s in (result.get("verse") or []) if str(s).strip()]
+    if not verse:
+        verse = [f"Юлечка-{new_rhyme}", "самая любимая на свете."]
+    verse = verse[:4]
+
     # SVG: базовая проверка; финально чистит фронтенд. Если плох — "", страница откатится на мотив.
     svg = (result.get("svg") or "").strip()
     low = svg.lower()
     bad = "<script" in low or "</style" in low or "foreignobject" in low or "<iframe" in low
     if not (low.startswith("<svg") and "</svg>" in low) or bad or len(svg) > 80000:
         svg = ""
+
+    # SCENE: JS-сцена. Выполняется в песочнице (sandbox+CSP) на фронте — здесь только лимит размера.
+    scene = (result.get("scene") or "").strip()
+    if len(scene) > 16000:
+        scene = ""
 
     today_str = datetime.now().strftime("%Y-%m-%d")
 
@@ -234,7 +259,9 @@ def main():
         "art": art,
         "font": font,
         "anim": anim,
+        "verse": verse,
         "svg": svg,
+        "scene": scene,
         "date": today_str,
     }
 
@@ -247,15 +274,18 @@ def main():
     with open("history.json", "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
 
-    # 7. Архив открыток (лёгкий, без svg) — память «что было вчера» + контекст для разнообразия
-    archive.append({k: card[k] for k in ("date", "rhyme", "mood", "palette", "style", "art", "font", "anim")})
+    # 7. Архив открыток (лёгкий, без svg/scene) — память «что было вчера» + контекст разнообразия
+    archive.append({k: card[k] for k in ("date", "rhyme", "mood", "palette", "style", "art", "font", "anim", "verse")})
     with open(ARCHIVE_FILE, "w", encoding="utf-8") as f:
         json.dump(archive, f, ensure_ascii=False, indent=2)
 
-    art_src = "Gemini-SVG" if svg else f"параметрика:{art}"
+    art_src = "scene-JS" if scene else ("Gemini-SVG" if svg else f"параметрика:{art}")
     print(f"Юлечка-{new_rhyme} | {mood} | стиль:{style} | арт:{art_src} | шрифт:{font} | аним:{anim} | {palette}")
+    print("Двустишие:", " / ".join(verse))
 
-  
+    # 8. Озвучка вынесена в voice.py (Chatterbox — твой голос, с откатом на edge-tts).
+    #    Воркфлоу запускает её отдельным шагом: python voice.py
+
 
 if __name__ == "__main__":
     main()
