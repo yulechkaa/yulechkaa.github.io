@@ -79,8 +79,8 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 1.6s ease;
-            -webkit-mask-image: radial-gradient(125% 105% at 50% 46%, transparent 0%, transparent 24%, #000 62%);
-                    mask-image: radial-gradient(125% 105% at 50% 46%, transparent 0%, transparent 24%, #000 62%);
+            -webkit-mask-image: radial-gradient(72% 52% at 50% 47%, rgba(0,0,0,0.18), rgba(0,0,0,0.6) 46%, #000 78%);
+                    mask-image: radial-gradient(72% 52% at 50% 47%, rgba(0,0,0,0.18), rgba(0,0,0,0.6) 46%, #000 78%);
         }
         #art svg { width: 100%; height: 100%; display: block; }
 
@@ -173,6 +173,7 @@
 
     <div id="art" aria-hidden="true"></div>
     <main class="card">
+        <p class="eyebrow">Для Юлечки</p>
         <h1 class="name">Юлечка —</h1>
         <div class="rule"></div>
         <p class="rhyme" id="rhyme">…</p>
@@ -442,17 +443,21 @@
             let palette = (Array.isArray(t.palette) ? t.palette : []).map(normHex).filter(Boolean);
             if (palette.length < 2) palette = FALLBACK.palette.map(normHex);
             const avg = palette.reduce((s, c) => s + lum(c), 0) / palette.length;
+            const dark = avg < 0.42;
 
             // 1) Пробуем SVG, который нарисовал сам Gemini
             let svg = sanitizeSVG(t.svg);
             // 2) Если его нет/он битый — откатываемся на параметрический мотив
             if (!svg) {
+                // Углубляем пастельную палитру, чтобы линии читались на фоне
+                const mixTo = dark ? "#ffffff" : "#2a2024";
+                const artPal = palette.map(c => mix(c, mixTo, dark ? 0.18 : 0.32));
                 const motif = ART[t.art] ? t.art : (STYLE_MOTIF[t.style] || "petals");
                 const rnd = mulberry32(hashStr((t.rhyme || "") + "·" + motif));
-                svg = ART[motif](rnd, palette);
+                svg = ART[motif](rnd, artPal);
             }
             host.innerHTML = svg;
-            host.style.opacity = avg < 0.42 ? 0.55 : 0.45;   // на тёмной теме линии видны лучше
+            host.style.opacity = dark ? 0.7 : 0.62;
         }
 
         /* ---------- Вывод рифмы ---------- */
