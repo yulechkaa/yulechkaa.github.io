@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Кто сегодня Юлечка?</title>
+    <title>Для Юлечки</title>
 
-    <!-- Премиум-шрифты с поддержкой кириллицы -->
+    <!-- Базовые премиум-шрифты (с кириллицей). Шрифт слова на день подгружается из JS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            /* Значения по умолчанию — JS подменит их темой дня */
             --canvas: #fbf8f5;
             --ink: #1c1614;
             --ink-soft: #6a5f5a;
             --accent: #b0567a;
             --line: #d9cfca;
             --mesh: none;
+            --rhyme-font: "Playfair Display", serif;   /* JS подменит на шрифт дня */
         }
 
         * { box-sizing: border-box; }
@@ -47,7 +47,7 @@
             content: "";
             position: fixed;
             inset: -30%;
-            z-index: -2;
+            z-index: -3;
             background-image: var(--mesh);
             background-repeat: no-repeat;
             transition: background-image 1.4s ease;
@@ -55,7 +55,7 @@
             will-change: transform;
         }
 
-        /* Виньетка + тонкое зерно для глубины и «дороговизны» */
+        /* Виньетка + тонкое зерно */
         body::after {
             content: "";
             position: fixed;
@@ -71,11 +71,11 @@
             mix-blend-mode: soft-light;
         }
 
-        /* Генеративный SVG-орнамент дня. Маска прячет линии за словом — текст всегда читаем */
+        /* Генеративный SVG-орнамент дня (маска бережёт центр под текстом) */
         #art {
             position: fixed;
             inset: 0;
-            z-index: -1;
+            z-index: -2;
             pointer-events: none;
             opacity: 0;
             transition: opacity 1.6s ease;
@@ -104,7 +104,7 @@
         }
 
         .name {
-            font-family: "Cormorant Garamond", serif;
+            font-family: "Playfair Display", serif;
             font-weight: 500;
             font-style: italic;
             font-size: clamp(1.6rem, 6vw, 2.6rem);
@@ -121,25 +121,28 @@
         }
 
         .rhyme {
-            font-family: "Cormorant Garamond", serif;
+            font-family: var(--rhyme-font);
             font-weight: 500;
             font-size: clamp(3.4rem, 17vw, 7.5rem);
-            line-height: 0.98;
+            line-height: 1.02;
             letter-spacing: -0.01em;
             color: var(--accent);
             margin: 0;
         }
-
-        /* Слово не рвётся внутри себя; перенос возможен только по дефису */
         .rhyme .word { white-space: nowrap; }
 
-        /* Побуквенное появление рифмы */
+        /* Появление по буквам — базовая анимация, набор подменяется классом anim-* */
         .rhyme .ch {
             display: inline-block;
             opacity: 0;
-            transform: translateY(0.32em);
-            animation: chIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation: chRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
+        .rhyme.anim-fade  .ch { animation-name: chFade; }
+        .rhyme.anim-blur  .ch { animation-name: chBlur; }
+        .rhyme.anim-scale .ch { animation-name: chScale; }
+        .rhyme.anim-drop  .ch { animation-name: chDrop; }
+        .rhyme.anim-glow  .ch { animation-name: chGlow; animation-duration: 1.1s; }
+        .rhyme.anim-wave  .ch { animation-name: chWave; }
 
         .date {
             position: fixed;
@@ -154,17 +157,25 @@
         }
 
         @keyframes rise   { to { opacity: 1; transform: translateY(0); } }
-        @keyframes chIn   { to { opacity: 1; transform: none; } }
         @keyframes fadeIn { to { opacity: 0.85; } }
         @keyframes drift {
             from { transform: translate3d(-2%, -1%, 0) scale(1.06) rotate(0deg); }
             to   { transform: translate3d(2%, 2%, 0)  scale(1.13) rotate(3deg); }
         }
 
+        /* Эффекты появления буквы */
+        @keyframes chRise  { from { opacity: 0; transform: translateY(0.32em); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes chFade  { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes chBlur  { from { opacity: 0; filter: blur(16px); } to { opacity: 1; filter: blur(0); } }
+        @keyframes chScale { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
+        @keyframes chDrop  { 0% { opacity: 0; transform: translateY(-0.7em); } 65% { opacity: 1; transform: translateY(0.09em); } 100% { transform: translateY(0); } }
+        @keyframes chGlow  { from { opacity: 0; text-shadow: 0 0 26px currentColor; } to { opacity: 1; text-shadow: 0 0 0 rgba(0,0,0,0); } }
+        @keyframes chWave  { 0% { opacity: 0; transform: translateY(0.55em); } 60% { opacity: 1; transform: translateY(-0.14em); } 100% { transform: translateY(0); } }
+
         @media (prefers-reduced-motion: reduce) {
             body::before { animation: none; }
             .card { animation: none; opacity: 1; transform: none; }
-            .rhyme .ch { animation: none; opacity: 1; transform: none; }
+            .rhyme .ch { animation: none !important; opacity: 1; transform: none; filter: none; }
             .date { animation: none; opacity: 0.85; }
         }
     </style>
@@ -180,7 +191,7 @@
     <div class="date" id="date" hidden></div>
 
     <script>
-        /* ---------- Резервная тема, если data.json недоступен ---------- */
+        /* ---------- Резервная тема ---------- */
         const FALLBACK = {
             rhyme: "красотулечка",
             mood: "нежное",
@@ -188,10 +199,12 @@
             style: "bloom",
             art: "petals",
             svg: "",
+            font: "playfair",
+            anim: "cascade",
             date: null
         };
 
-        /* ---------- Композиции фона: [x%, y%, радиус%] для каждого пятна ---------- */
+        /* ---------- Композиции mesh-фона ---------- */
         const STYLES = {
             aurora: [[12, 18, 62], [88, 8, 58], [50, 92, 72], [92, 78, 52]],
             mesh:   [[18, 22, 58], [82, 18, 58], [22, 82, 58], [80, 78, 58]],
@@ -200,6 +213,22 @@
             bloom:  [[28, 28, 52], [72, 32, 52], [50, 78, 62], [14, 86, 46]],
             frost:  [[8, 8, 52], [92, 12, 52], [48, 52, 72], [86, 92, 52]]
         };
+
+        /* ---------- Шрифты дня (все с кириллицей) ---------- */
+        const FONTS = {
+            playfair:    { fam: "Playfair Display", fb: "serif",      spec: "Playfair+Display:ital,wght@0,500;0,600;1,500" },
+            yeseva:      { fam: "Yeseva One",       fb: "serif",      spec: "Yeseva+One" },
+            prata:       { fam: "Prata",            fb: "serif",      spec: "Prata" },
+            marck:       { fam: "Marck Script",     fb: "cursive",    spec: "Marck+Script" },
+            caveat:      { fam: "Caveat",           fb: "cursive",    spec: "Caveat:wght@500;700" },
+            pacifico:    { fam: "Pacifico",         fb: "cursive",    spec: "Pacifico" },
+            comfortaa:   { fam: "Comfortaa",        fb: "sans-serif", spec: "Comfortaa:wght@500;700" },
+            unbounded:   { fam: "Unbounded",        fb: "sans-serif", spec: "Unbounded:wght@500;700" },
+            philosopher: { fam: "Philosopher",      fb: "serif",      spec: "Philosopher:ital,wght@0,700;1,700" },
+            lobster:     { fam: "Lobster",          fb: "cursive",    spec: "Lobster" }
+        };
+
+        const ANIMS = ["cascade", "fade", "blur", "scale", "drop", "glow", "wave"];
 
         /* ---------- Цветовые утилиты ---------- */
         const HEX = /^#?[0-9a-fA-F]{6}$/;
@@ -242,7 +271,7 @@
         }
         const sat = h => toHsl(toRgb(h))[1];
 
-        /* ---------- Построение темы из палитры Gemini ---------- */
+        /* ---------- Тема из палитры ---------- */
         function applyTheme(t) {
             let palette = (Array.isArray(t.palette) ? t.palette : []).map(normHex).filter(Boolean);
             if (palette.length < 2) palette = FALLBACK.palette.map(normHex);
@@ -251,14 +280,12 @@
             const avg = palette.reduce((s, c) => s + lum(c), 0) / palette.length;
             const dark = avg < 0.42;
 
-            // Усреднённый цвет палитры — лёгкая подложка под холст
             const tint = palette.reduce((acc, c, i) => mix(acc, c, 1 / (i + 1)), palette[0]);
             const canvas  = dark ? mix("#0e0b12", tint, 0.22) : mix("#fbf8f5", tint, 0.10);
             const ink     = dark ? mix("#ffffff", tint, 0.10) : mix("#1c1614", tint, 0.12);
             const inkSoft = mix(ink, canvas, 0.42);
             const line    = mix(ink, canvas, 0.72);
 
-            // Акцент рифмы — самый выразительный цвет с гарантированным контрастом
             let accent = palette.slice().sort((a, b) =>
                 (sat(b) + contrast(b, canvas) / 21) - (sat(a) + contrast(a, canvas) / 21))[0];
             let guard = 0;
@@ -281,7 +308,7 @@
             r.setProperty("--mesh", mesh);
         }
 
-        /* ---------- Генеративный SVG-орнамент (seed из рифмы, мотив от Gemini) ---------- */
+        /* ---------- Генеративный арт (seed из рифмы) ---------- */
         function hashStr(s) {
             let h = 2166136261;
             for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
@@ -299,7 +326,6 @@
             `<svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">${inner}</svg>`;
 
         const ART = {
-            // Созвездие: тонкие точки, связанные ниточками-линиями
             constellation: (rnd, pal) => {
                 const R = (a, b) => a + rnd() * (b - a);
                 const pts = [];
@@ -315,7 +341,6 @@
                 s += pts.map((p, i) => `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${p[2].toFixed(1)}" fill="${pal[i % pal.length]}" fill-opacity="0.7"/>`).join("");
                 return SVG(s);
             },
-            // Цветочная мандала из лепестков-эллипсов
             petals: (rnd, pal) => {
                 const R = (a, b) => a + rnd() * (b - a);
                 const cx = 500, cy = 500; let s = "";
@@ -331,7 +356,6 @@
                 }
                 return SVG(s);
             },
-            // Плавные волны
             waves: (rnd, pal) => {
                 const R = (a, b) => a + rnd() * (b - a); let s = "";
                 const lines = Math.round(R(10, 16));
@@ -343,7 +367,6 @@
                 }
                 return SVG(s);
             },
-            // Орбиты: вложенные повёрнутые эллипсы
             orbits: (rnd, pal) => {
                 const R = (a, b) => a + rnd() * (b - a);
                 const cx = R(380, 620), cy = R(380, 620); let s = "";
@@ -354,7 +377,6 @@
                 }
                 return SVG(s);
             },
-            // Гильош: спирографические узоры, как на дорогой бумаге
             lattice: (rnd, pal) => {
                 const R = (a, b) => a + rnd() * (b - a);
                 const cx = 500, cy = 500; let s = "";
@@ -372,7 +394,6 @@
                 }
                 return SVG(s);
             },
-            // Лучи/сияние из смещённой точки
             rays: (rnd, pal) => {
                 const R = (a, b) => a + rnd() * (b - a);
                 const cx = R(200, 800), cy = R(150, 420); let s = "";
@@ -384,12 +405,9 @@
                 return SVG(s);
             }
         };
-
-        // Если Gemini не задал мотив — подбираем по стилю фона
         const STYLE_MOTIF = { aurora: "rays", mesh: "lattice", dawn: "waves", dusk: "orbits", bloom: "petals", frost: "constellation" };
 
-        // Очистка SVG, который нарисовал сам Gemini: режем всё опасное и непригодное.
-        // Возвращает безопасную разметку или null (тогда сработает параметрический откат).
+        // Чистим SVG от Gemini: убираем опасное, но СОХРАНЯЕМ defs/use и локальные #-ссылки
         function sanitizeSVG(raw) {
             if (typeof raw !== "string") return null;
             const m = raw.match(/<svg[\s\S]*<\/svg>/i);
@@ -401,23 +419,25 @@
             const svg = doc.documentElement;
             if (!svg || svg.nodeName.toLowerCase() !== "svg") return null;
 
-            // Выкидываем потенциально опасные/неуместные узлы
-            svg.querySelectorAll("script,foreignObject,iframe,image,a,use,animate,animateTransform,animateMotion,set,style,text,tspan")
+            // Удаляем только реально опасное/неуместное (use и defs ОСТАВЛЯЕМ!)
+            svg.querySelectorAll("script,foreignObject,iframe,image,a,animate,animateTransform,animateMotion,set,style,text,tspan,textPath")
                 .forEach(n => n.remove());
 
-            // Чистим атрибуты-обработчики и внешние ссылки
             const walk = el => {
-                [...el.attributes].forEach(a => {
-                    const name = a.name.toLowerCase(), val = a.value.toLowerCase();
-                    if (name.startsWith("on")) el.removeAttribute(a.name);
-                    else if (name === "href" || name === "xlink:href") el.removeAttribute(a.name);
-                    else if (val.includes("javascript:") || (val.includes("url(") && val.includes("http"))) el.removeAttribute(a.name);
+                [...el.attributes].forEach(attr => {
+                    const name = attr.name.toLowerCase(), val = attr.value.trim().toLowerCase();
+                    if (name.startsWith("on")) el.removeAttribute(attr.name);
+                    else if (name === "href" || name === "xlink:href") {
+                        if (!val.startsWith("#")) el.removeAttribute(attr.name);   // только локальные ссылки
+                    }
+                    else if (val.includes("javascript:")) el.removeAttribute(attr.name);
+                    else if (val.includes("url(") && val.includes("http")) el.removeAttribute(attr.name);
                 });
                 [...el.children].forEach(walk);
             };
             walk(svg);
 
-            // Убираем сплошную «фоновую» заливку на весь холст — она бы перекрыла градиент
+            // Сплошная фоновая заливка во весь холст — убираем
             svg.querySelectorAll("rect").forEach(r => {
                 const w = parseFloat(r.getAttribute("width") || "0");
                 const h = parseFloat(r.getAttribute("height") || "0");
@@ -426,8 +446,7 @@
                 if ((pct || (w >= 900 && h >= 900)) && fill && fill !== "none") r.remove();
             });
 
-            // Должна остаться реальная графика
-            if (!svg.querySelector("path,circle,ellipse,line,polyline,polygon,rect")) return null;
+            if (!svg.querySelector("path,circle,ellipse,line,polyline,polygon,rect,use")) return null;
 
             if (!svg.getAttribute("viewBox")) svg.setAttribute("viewBox", "0 0 1000 1000");
             svg.setAttribute("preserveAspectRatio", "xMidYMid slice");
@@ -444,11 +463,8 @@
             const avg = palette.reduce((s, c) => s + lum(c), 0) / palette.length;
             const dark = avg < 0.42;
 
-            // 1) Пробуем SVG, который нарисовал сам Gemini
             let svg = sanitizeSVG(t.svg);
-            // 2) Если его нет/он битый — откатываемся на параметрический мотив
             if (!svg) {
-                // Углубляем пастельную палитру, чтобы линии читались на фоне
                 const mixTo = dark ? "#ffffff" : "#2a2024";
                 const artPal = palette.map(c => mix(c, mixTo, dark ? 0.18 : 0.32));
                 const motif = ART[t.art] ? t.art : (STYLE_MOTIF[t.style] || "petals");
@@ -459,37 +475,58 @@
             host.style.opacity = dark ? 0.7 : 0.62;
         }
 
+        /* ---------- Шрифт дня ---------- */
+        function applyFont(key) {
+            const f = FONTS[key] || FONTS.playfair;
+            const id = "font-" + f.spec.replace(/[^a-z]/gi, "").toLowerCase();
+            if (!document.getElementById(id)) {
+                const l = document.createElement("link");
+                l.id = id; l.rel = "stylesheet";
+                l.href = `https://fonts.googleapis.com/css2?family=${f.spec}&display=swap`;
+                document.head.appendChild(l);
+            }
+            document.documentElement.style.setProperty("--rhyme-font", `"${f.fam}", ${f.fb}`);
+            if (document.fonts && document.fonts.load) {
+                document.fonts.load(`1em "${f.fam}"`).then(fitRhyme).catch(() => {});
+            }
+        }
+
+        /* ---------- Анимация появления ---------- */
+        function applyAnim(key) {
+            ANIMS.forEach(a => rhymeEl.classList.remove("anim-" + a));
+            rhymeEl.classList.add("anim-" + (ANIMS.includes(key) ? key : "cascade"));
+        }
+
         /* ---------- Вывод рифмы ---------- */
         const rhymeEl = document.getElementById("rhyme");
 
         function setRhyme(word) {
             rhymeEl.style.fontSize = "";
             rhymeEl.textContent = "";
-            const parts = String(word).split("-");   // составные через дефис могут переноситься
+            const parts = String(word).split("-");
             let i = 0;
             const ch = (text) => {
                 const s = document.createElement("span");
                 s.className = "ch";
                 s.textContent = text;
-                s.style.animationDelay = (0.25 + i++ * 0.03).toFixed(2) + "s";
+                s.style.animationDelay = (0.25 + i++ * 0.04).toFixed(2) + "s";
                 return s;
             };
             parts.forEach((part, pi) => {
                 const w = document.createElement("span");
-                w.className = "word";                 // буквы внутри слова не рвутся
+                w.className = "word";
                 [...part].forEach(c => w.appendChild(ch(c)));
                 if (pi < parts.length - 1) w.appendChild(ch("-"));
                 rhymeEl.appendChild(w);
                 if (pi < parts.length - 1) {
-                    rhymeEl.appendChild(document.createTextNode("​")); // перенос возможен после дефиса
+                    rhymeEl.appendChild(document.createTextNode("​"));
                 }
             });
             fitRhyme();
         }
 
-        // Плавно ужимаем шрифт, пока слово не впишется по ширине (без переноса букв)
         function fitRhyme() {
-            rhymeEl.style.fontSize = "";              // вернуться к размеру из CSS
+            rhymeEl.style.fontSize = "";
             let size = parseFloat(getComputedStyle(rhymeEl).fontSize);
             let guard = 0;
             while (rhymeEl.scrollWidth > rhymeEl.clientWidth + 1 && size > 22 && guard++ < 400) {
@@ -511,14 +548,15 @@
         }
 
         function render(data) {
-            setRhyme(data.rhyme || FALLBACK.rhyme);
             applyTheme(data);
+            applyFont(data.font);
+            applyAnim(data.anim);
+            setRhyme(data.rhyme || FALLBACK.rhyme);
             renderArt(data);
             setDate(data.date);
             document.title = `Юлечка — ${data.rhyme || ""}`.trim();
         }
 
-        // Перерасчёт вписывания при смене размера/ориентации и после загрузки шрифтов
         let resizeTimer;
         window.addEventListener("resize", () => {
             clearTimeout(resizeTimer);

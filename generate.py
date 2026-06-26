@@ -11,7 +11,6 @@ from datetime import datetime
 API_KEY = os.environ.get("GEMINI_API_KEY")
 # Доступные на free-tier модели (RPD>0) от лучшей к запасной — по твоим лимитам в AI Studio.
 # ВНИМАНИЕ: gemini-2.0-flash, gemini-1.5-*, *-pro на этом тарифе = 0 квоты → всегда 429, не использовать.
-# Точные id моделей проверяй в AI Studio → Docs; неизвестный id вернёт 404 и каскад просто пойдёт дальше.
 MODEL = "gemini-flash-latest"           # новейшая Flash, лучший арт; 5 RPM / 250K TPM / 20 RPD
 FALLBACK_MODELS = [
     "gemini-3-flash-preview",            # 5 RPM / 250K TPM / 20 RPD
@@ -21,6 +20,34 @@ MODELS = [MODEL] + [m for m in FALLBACK_MODELS if m != MODEL]
 
 API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 RETRY_STATUS = {429, 500, 502, 503, 504}
+
+# Перечни, согласованные с фронтендом (index.html)
+ALLOWED_STYLES = ["aurora", "mesh", "dawn", "dusk", "bloom", "frost"]
+ALLOWED_ART = ["constellation", "petals", "waves", "orbits", "lattice", "rays"]
+ALLOWED_FONTS = ["playfair", "yeseva", "prata", "marck", "caveat",
+                 "pacifico", "comfortaa", "unbounded", "philosopher", "lobster"]
+ALLOWED_ANIMS = ["cascade", "fade", "blur", "scale", "drop", "glow", "wave"]
+
+HEX = re.compile(r"^#?[0-9a-fA-F]{6}$")
+FALLBACK_PALETTE = ["#f7d9c4", "#e7a3b6", "#c8a2d8"]
+
+ARCHIVE_FILE = "archive.json"
+RECENT_N = 8  # сколько прошлых открыток показываем модели, чтобы она не повторялась
+
+
+def normalize_hex(c):
+    if isinstance(c, str) and HEX.match(c.strip()):
+        return "#" + c.strip().lstrip("#").lower()
+    return None
+
+
+def load_json(path, default):
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        return data
+    except (FileNotFoundError, json.JSONDecodeError):
+        return default
 
 
 def call_gemini(payload):
@@ -39,7 +66,7 @@ def call_gemini(payload):
             if resp.status_code in RETRY_STATUS:
                 ra = resp.headers.get("Retry-After", "")
                 wait = float(ra) if ra.replace(".", "", 1).isdigit() else 5 * (attempt + 1)
-                wait = min(wait, 30)  # не зависаем надолго в CI
+                wait = min(wait, 30)
                 print(f"[{model}] {resp.status_code} (лимит/перегрузка); ждём {wait:.0f}с "
                       f"(попытка {attempt + 1}/3)")
                 time.sleep(wait)
@@ -47,7 +74,7 @@ def call_gemini(payload):
 
             if not resp.ok:
                 print(f"[{model}] {resp.status_code}: {resp.text[:300]}")
-                break  # неретраибельная ошибка — сразу к следующей модели
+                break
 
             data = resp.json()
             cands = data.get("candidates") or []
@@ -64,74 +91,84 @@ def call_gemini(payload):
         print(f"[{model}] не получилось — перехожу к следующей модели")
     return None
 
-ALLOWED_STYLES = ["aurora", "mesh", "dawn", "dusk", "bloom", "frost"]
-ALLOWED_ART = ["constellation", "petals", "waves", "orbits", "lattice", "rays"]
-HEX = re.compile(r"^#?[0-9a-fA-F]{6}$")
-
-# Резервная палитра, если модель пришлёт что-то невалидное
-FALLBACK_PALETTE = ["#f7d9c4", "#e7a3b6", "#c8a2d8"]
-
-
-def normalize_hex(c):
-    if isinstance(c, str) and HEX.match(c.strip()):
-        return "#" + c.strip().lstrip("#").lower()
-    return None
-
 
 def main():
-    # 1. История прошлых рифм
-    with open("history.json", "r", encoding="utf-8") as f:
-        history = json.load(f)
+    # 1. Контекст прошлого: слова (для дедупа) + недавние открытки (чтобы не повторять настроение/палитру)
+    history = load_json("history.json", [])
+    archive = load_json(ARCHIVE_FILE, [])
+    if not isinstance(archive, list):
+        archive = []
+    recent = archive[-RECENT_N:]
+    recent_ctx = json.dumps(
+        [{"mood": r.get("mood"), "palette": r.get("palette"), "font": r.get("font"), "anim": r.get("anim")}
+         for r in recent],
+        ensure_ascii=False,
+    )
 
-    # 2. Промпт: модель задаёт слово, настроение, палитру и стиль фона
+    # 2. Промпт: Gemini — арт-директор всей открытки дня
     prompt = f"""
-Ты — художник и поэт. Каждый день ты создаёшь уникальную «открытку дня» для девушки по имени Юлечка.
+Ты — арт-директор и поэт. Каждый день ты создаёшь УНИКАЛЬНУЮ «открытку дня» для девушки Юлечки.
+Замысел всегда про любовь и нежность к ней — НО у этого чувства бесконечно много оттенков,
+и каждый день открытка должна быть ЗАМЕТНО другой: другое настроение, другая гамма,
+другой шрифт, другой эффект. Удивляй. Избегай однообразия.
 
-1) Придумай ОДНО новое милое, ласковое или забавное слово-рифму к имени "Юлечка"
-   (например: красотулечка, симпатюлечка, капризулечка). Это полноценное или составное
-   через дефис слово, которое идеально звучит во фразе "Юлечка-[слово]".
-   Критически важно: НЕ ИСПОЛЬЗУЙ слова из этого списка прошлых генераций:
-   {json.dumps(history, ensure_ascii=False)}.
+1) РИФМА. Придумай ОДНО новое милое/ласковое/забавное слово-рифму к имени "Юлечка"
+   (например: красотулечка, симпатюлечка, капризулечка). Полноценное или составное через дефис
+   слово, идеально звучащее во фразе "Юлечка-[слово]".
+   НЕ ПОВТОРЯЙ слова из списка прошлых: {json.dumps(history, ensure_ascii=False)}.
 
-2) Подбери НАСТРОЕНИЕ дня — 1-2 слова (например: нежное, игривое, тёплое,
-   мечтательное, искрящееся, уютное).
+2) НАСТРОЕНИЕ дня (1-2 слова). Перебирай ВЕСЬ спектр чувства, а не только «нежное»:
+   нежное, страстное, игривое, мечтательное, искрящееся, тёплое, уютное, романтичное,
+   восхищённое, шаловливое, светлое, трепетное, солнечное, томное, вдохновлённое, озорное,
+   умиротворённое, влюблённое... Сегодня выбери оттенок, ЗАМЕТНО отличный от недавних.
 
-3) Создай гармоничную эстетичную палитру из РОВНО 3 цветов в формате HEX (#RRGGBB),
-   передающую это настроение. Цвета должны изысканно сочетаться, как у дорогого бренда,
-   не быть кислотными или грязными.
+3) ПАЛИТРА — ровно 3 цвета HEX (#RRGGBB), точно под сегодняшнее настроение и заметно
+   отличная от недавних палитр. Гаммы бывают очень разные: пудрово-розовая, закатно-коралловая,
+   сиренево-лиловая, золотисто-персиковая, мятно-розовая, винно-ягодная, небесно-голубая с тёплым
+   акцентом, карамельно-бежевая... Изысканно и «дорого», не кисло и не грязно.
 
-4) Выбери стиль фона (мягкий цветовой градиент), наиболее подходящий настроению,
-   строго из списка: aurora, mesh, dawn, dusk, bloom, frost.
+4) СТИЛЬ фона (мягкий градиент), строго из списка: aurora, mesh, dawn, dusk, bloom, frost.
 
-5) Как арт-директор выбери тип генеративного линейного орнамента (запасной вариант),
-   строго из списка:
-   - constellation — созвездие из точек, связанных тонкими линиями (мечтательное, ночное, искрящееся);
-   - petals — цветочная мандала из лепестков (нежное, романтичное, цветущее);
-   - waves — плавные волны (спокойное, текучее, умиротворённое);
-   - orbits — вложенные орбиты-эллипсы (игривое, лёгкое, кружащее);
-   - lattice — тонкий гильош-узор как на дорогой бумаге (изысканное, благородное);
-   - rays — лучи и сияние (тёплое, солнечное, ликующее).
+5) АРТ — тип запасного линейного орнамента, строго из списка:
+   constellation (созвездие), petals (цветочная мандала), waves (волны),
+   orbits (орбиты), lattice (гильош), rays (лучи).
 
-6) Нарисуй САМ уникальный генеративный линейный SVG-орнамент — изящную абстрактную
-   графику в духе дорогой гравюры/гильоша, которая художественно перекликается с
-   настроением и смыслом рифмы. СТРОГИЕ требования:
-   - верни цельный валидный <svg ...>...</svg> с координатным полем viewBox="0 0 1000 1000";
-   - НИКАКОГО фонового прямоугольника — фон прозрачный; НЕТ текста, растровых картинок,
+6) ШРИФT для слова — подбери под характер настроения, строго из ключей:
+   playfair (драматичный сериф), yeseva (изысканный сериф), prata (тонкий дидон),
+   philosopher (чистый элегантный), marck (рукописный, как любовное письмо),
+   caveat (лёгкий рукописный), pacifico (весёлый скрипт), lobster (ретро-скрипт),
+   comfortaa (мягкий округлый), unbounded (смелый современный).
+   Чередуй: рукописные — для нежного/романтичного/игривого; серифы — для изысканного/мечтательного;
+   округлый/современный — для уютного/озорного/смелого.
+
+7) АНИМАЦИЯ появления слова, строго из списка:
+   cascade (буквы поднимаются по очереди), fade (мягкое проявление),
+   blur (из размытия в фокус), scale (вырастают), drop (падают с лёгким отскоком),
+   glow (проявляются со свечением), wave (волной). Выбирай под настроение и не повторяй недавние.
+
+8) SVG. Нарисуй САМ уникальный генеративный линейный орнамент — изящную абстракцию в духе
+   дорогой гравюры/гильоша, художественно перекликающуюся с настроением и смыслом рифмы.
+   СТРОГО:
+   - цельный валидный <svg ...>...</svg> с viewBox="0 0 1000 1000";
+   - можно использовать <defs> и <use href="#localId"> (локальные ссылки) для красивых повторов;
+   - БЕЗ фонового прямоугольника (фон прозрачный), БЕЗ текста, растровых картинок,
      <script>, <style>, анимаций и внешних ссылок;
-   - используй ТОЛЬКО цвета из палитры выше;
-   - тонкие линии: stroke-width 0.6–1.4, в основном fill="none", полупрозрачные штрихи
-     (stroke-opacity 0.2–0.45);
-   - сбалансированная композиция, заполняющая всё поле, — авторская абстракция,
-     а не случайные штрихи.
+   - используй ТОЛЬКО цвета палитры; тонкие линии stroke-width 0.6–1.4, в основном fill="none",
+     полупрозрачные штрихи (stroke-opacity 0.2–0.45);
+   - сбалансированная композиция, заполняющая всё поле, — авторская абстракция.
+
+НЕДАВНИЕ открытки (НЕ повторяй их настроение/палитру/шрифт/анимацию): {recent_ctx}
 
 Ответ верни СТРОГО в формате JSON без markdown:
-{{"rhyme": "слово", "mood": "настроение", "palette": ["#......", "#......", "#......"], "style": "bloom", "art": "petals", "svg": "<svg viewBox=\\"0 0 1000 1000\\" xmlns=\\"http://www.w3.org/2000/svg\\">...</svg>"}}
+{{"rhyme":"...","mood":"...","palette":["#......","#......","#......"],"style":"bloom","art":"petals","font":"playfair","anim":"cascade","svg":"<svg viewBox=\\"0 0 1000 1000\\" xmlns=\\"http://www.w3.org/2000/svg\\">...</svg>"}}
 """
 
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
             "responseMimeType": "application/json",
+            "temperature": 1.3,   # выше разнообразие изо дня в день
+            "topP": 0.95,
             "responseSchema": {
                 "type": "object",
                 "properties": {
@@ -140,23 +177,23 @@ def main():
                     "palette": {"type": "array", "items": {"type": "string"}},
                     "style":   {"type": "string", "enum": ALLOWED_STYLES},
                     "art":     {"type": "string", "enum": ALLOWED_ART},
+                    "font":    {"type": "string", "enum": ALLOWED_FONTS},
+                    "anim":    {"type": "string", "enum": ALLOWED_ANIMS},
                     "svg":     {"type": "string"},
                 },
-                "required": ["rhyme", "mood", "palette", "style", "art"],
+                "required": ["rhyme", "mood", "palette", "style", "art", "font", "anim"],
             },
         },
     }
 
-    # 3. Запрос к бесплатному API (с повторами и каскадным откатом на другую модель)
+    # 3. Запрос (с повторами и каскадным откатом)
     result = call_gemini(payload)
     if result is None:
-        # Все модели недоступны (обычно — дневная квота free-tier). Не ломаем деплой:
-        # оставляем вчерашний data.json, чтобы на сайте сохранилась прошлая открытка.
         print("Все модели Gemini недоступны (вероятно, лимиты free-tier). "
               "data.json не меняем — сайт покажет прошлую открытку.")
         sys.exit(0)
 
-    # 4. Санитизация ответа (фронтенд тоже подстрахован, но чистим и здесь)
+    # 4. Санитизация ответа (фронтенд тоже подстрахован)
     new_rhyme = result["rhyme"].strip().lower()
     mood = (result.get("mood") or "нежное").strip()
 
@@ -165,45 +202,49 @@ def main():
     if len(palette) < 3:
         palette = FALLBACK_PALETTE
 
-    style = result.get("style")
-    if style not in ALLOWED_STYLES:
-        style = "bloom"
+    style = result.get("style") if result.get("style") in ALLOWED_STYLES else "bloom"
+    art = result.get("art") if result.get("art") in ALLOWED_ART else "petals"
+    font = result.get("font") if result.get("font") in ALLOWED_FONTS else "playfair"
+    anim = result.get("anim") if result.get("anim") in ALLOWED_ANIMS else "cascade"
 
-    art = result.get("art")
-    if art not in ALLOWED_ART:
-        art = "petals"
-
-    # SVG, нарисованный самим Gemini. Базовая проверка; финально его чистит фронтенд.
-    # Если пустой/битый/слишком большой — оставляем "", и страница откатится на мотив art.
+    # SVG: базовая проверка; финально чистит фронтенд. Если плох — "", страница откатится на мотив.
     svg = (result.get("svg") or "").strip()
     low = svg.lower()
     bad = "<script" in low or "</style" in low or "foreignobject" in low or "<iframe" in low
-    if not (low.startswith("<svg") and "</svg>" in low) or bad or len(svg) > 60000:
+    if not (low.startswith("<svg") and "</svg>" in low) or bad or len(svg) > 80000:
         svg = ""
 
     today_str = datetime.now().strftime("%Y-%m-%d")
 
-    # 5. Пишем данные дня
-    with open("data.json", "w", encoding="utf-8") as f:
-        json.dump(
-            {
-                "rhyme": new_rhyme,
-                "mood": mood,
-                "palette": palette,
-                "style": style,
-                "art": art,
-                "svg": svg,
-                "date": today_str,
-            },
-            f, ensure_ascii=False, indent=2,
-        )
+    card = {
+        "rhyme": new_rhyme,
+        "mood": mood,
+        "palette": palette,
+        "style": style,
+        "art": art,
+        "font": font,
+        "anim": anim,
+        "svg": svg,
+        "date": today_str,
+    }
 
+    # 5. Пишем сегодняшнюю открытку
+    with open("data.json", "w", encoding="utf-8") as f:
+        json.dump(card, f, ensure_ascii=False, indent=2)
+
+    # 6. История слов (для дедупа рифм)
     history.append(new_rhyme)
     with open("history.json", "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
 
+    # 7. Архив открыток (лёгкий, без svg) — память «что было вчера» + контекст для разнообразия
+    archive.append({k: card[k] for k in ("date", "rhyme", "mood", "palette", "style", "art", "font", "anim")})
+    with open(ARCHIVE_FILE, "w", encoding="utf-8") as f:
+        json.dump(archive, f, ensure_ascii=False, indent=2)
+
     art_src = "Gemini-SVG" if svg else f"параметрика:{art}"
-    print(f"Сгенерирована рифма: Юлечка-{new_rhyme} | настроение: {mood} | стиль: {style} | арт: {art_src} | палитра: {palette}")
+    print(f"Юлечка-{new_rhyme} | {mood} | стиль:{style} | арт:{art_src} | шрифт:{font} | аним:{anim} | {palette}")
+
 
 
 if __name__ == "__main__":
