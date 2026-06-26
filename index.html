@@ -8,22 +8,20 @@
     <!-- Премиум-шрифты с поддержкой кириллицы -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            /* Палитра подменяется из JS под рифму дня */
-            --hue: 28;
-            --ink: hsl(var(--hue), 24%, 22%);
-            --ink-soft: hsl(var(--hue), 14%, 46%);
-            --accent: hsl(var(--hue), 46%, 40%);
-            --bg-1: hsl(var(--hue), 38%, 96%);
-            --bg-2: hsl(var(--hue), 30%, 90%);
-            --line: hsl(var(--hue), 22%, 80%);
+            /* Значения по умолчанию — JS подменит их темой дня */
+            --canvas: #fbf8f5;
+            --ink: #1c1614;
+            --ink-soft: #6a5f5a;
+            --accent: #b0567a;
+            --line: #d9cfca;
+            --mesh: none;
         }
 
         * { box-sizing: border-box; }
-
         html, body { height: 100%; }
 
         body {
@@ -35,28 +33,48 @@
             padding: clamp(24px, 6vw, 80px);
             font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             color: var(--ink);
+            background-color: var(--canvas);
             text-align: center;
             user-select: none;
+            overflow: hidden;
             -webkit-font-smoothing: antialiased;
             text-rendering: optimizeLegibility;
-            background:
-                radial-gradient(120% 120% at 50% 0%, var(--bg-1) 0%, var(--bg-2) 70%, var(--bg-2) 100%);
-            transition: --hue 1.2s ease;
-            overflow: hidden;
+            transition: background-color 1.4s ease, color 1.4s ease;
         }
 
-        /* Тонкое зерно/виньетка для глубины */
+        /* Живой mesh-градиент дня */
+        body::before {
+            content: "";
+            position: fixed;
+            inset: -30%;
+            z-index: -2;
+            background-image: var(--mesh);
+            background-repeat: no-repeat;
+            transition: background-image 1.4s ease;
+            animation: drift 28s ease-in-out infinite alternate;
+            will-change: transform;
+        }
+
+        /* Виньетка + тонкое зерно для глубины и «дороговизны» */
         body::after {
             content: "";
             position: fixed;
             inset: 0;
+            z-index: -1;
             pointer-events: none;
-            background: radial-gradient(140% 100% at 50% 40%, transparent 55%, rgba(0,0,0,0.06) 100%);
+            background-image:
+                radial-gradient(145% 105% at 50% 38%, transparent 52%, rgba(0,0,0,0.16) 100%),
+                url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+            background-size: cover, 150px 150px;
+            background-repeat: no-repeat, repeat;
+            opacity: 0.9;
+            mix-blend-mode: soft-light;
         }
 
         .card {
             position: relative;
-            max-width: 720px;
+            z-index: 0;
+            max-width: 760px;
             width: 100%;
             opacity: 0;
             transform: translateY(14px);
@@ -69,7 +87,7 @@
             text-transform: uppercase;
             color: var(--ink-soft);
             margin: 0 0 clamp(20px, 5vw, 34px);
-            padding-left: 0.42em; /* компенсация трекинга */
+            padding-left: 0.42em;
         }
 
         .name {
@@ -82,7 +100,6 @@
             margin: 0;
         }
 
-        /* Разделительная черта */
         .rule {
             width: clamp(40px, 12vw, 72px);
             height: 1px;
@@ -101,12 +118,54 @@
             word-break: break-word;
         }
 
-        @keyframes rise {
-            to { opacity: 1; transform: translateY(0); }
+        /* Побуквенное появление рифмы */
+        .rhyme .ch {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(0.32em);
+            animation: chIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+
+        .mood {
+            font-family: "Cormorant Garamond", serif;
+            font-style: italic;
+            font-size: clamp(1rem, 3.4vw, 1.35rem);
+            color: var(--ink-soft);
+            margin: clamp(20px, 5vw, 30px) 0 0;
+            opacity: 0;
+            animation: fadeIn 1s ease 0.7s forwards;
+        }
+        .mood::before, .mood::after {
+            content: "·";
+            margin: 0 0.6em;
+            opacity: 0.6;
+        }
+
+        .date {
+            position: fixed;
+            left: 0; right: 0; bottom: clamp(18px, 4vw, 30px);
+            text-align: center;
+            font-size: clamp(0.62rem, 2vw, 0.72rem);
+            letter-spacing: 0.34em;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            opacity: 0;
+            animation: fadeIn 1s ease 1s forwards;
+        }
+
+        @keyframes rise   { to { opacity: 1; transform: translateY(0); } }
+        @keyframes chIn   { to { opacity: 1; transform: none; } }
+        @keyframes fadeIn { to { opacity: 0.85; } }
+        @keyframes drift {
+            from { transform: translate3d(-2%, -1%, 0) scale(1.06) rotate(0deg); }
+            to   { transform: translate3d(2%, 2%, 0)  scale(1.13) rotate(3deg); }
         }
 
         @media (prefers-reduced-motion: reduce) {
+            body::before { animation: none; }
             .card { animation: none; opacity: 1; transform: none; }
+            .rhyme .ch { animation: none; opacity: 1; transform: none; }
+            .mood, .date { animation: none; opacity: 0.85; }
         }
     </style>
 </head>
@@ -116,31 +175,153 @@
         <h1 class="name">Юлечка —</h1>
         <div class="rule"></div>
         <p class="rhyme" id="rhyme">…</p>
+        <p class="mood" id="mood" hidden></p>
     </main>
+    <div class="date" id="date" hidden></div>
 
     <script>
-        // Уникальный благородный оттенок из строки рифмы
-        function applyHue(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        /* ---------- Резервная тема, если data.json недоступен ---------- */
+        const FALLBACK = {
+            rhyme: "красотулечка",
+            mood: "нежное",
+            palette: ["#f7d9c4", "#e7a3b6", "#c8a2d8"],
+            style: "bloom",
+            date: null
+        };
+
+        /* ---------- Композиции фона: [x%, y%, радиус%] для каждого пятна ---------- */
+        const STYLES = {
+            aurora: [[12, 18, 62], [88, 8, 58], [50, 92, 72], [92, 78, 52]],
+            mesh:   [[18, 22, 58], [82, 18, 58], [22, 82, 58], [80, 78, 58]],
+            dawn:   [[50, -5, 95], [8, 28, 62], [92, 38, 62], [50, 86, 54]],
+            dusk:   [[50, 105, 95], [12, 68, 62], [88, 58, 62], [50, 12, 54]],
+            bloom:  [[28, 28, 52], [72, 32, 52], [50, 78, 62], [14, 86, 46]],
+            frost:  [[8, 8, 52], [92, 12, 52], [48, 52, 72], [86, 92, 52]]
+        };
+
+        /* ---------- Цветовые утилиты ---------- */
+        const HEX = /^#?[0-9a-fA-F]{6}$/;
+        const clamp255 = v => Math.max(0, Math.min(255, Math.round(v)));
+        const normHex = h => HEX.test(h || "") ? "#" + h.replace("#", "").toLowerCase() : null;
+        const toRgb = h => { h = h.replace("#", ""); return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)); };
+        const toHex = a => "#" + a.map(v => clamp255(v).toString(16).padStart(2, "0")).join("");
+        const rgba = (h, a) => { const [r, g, b] = toRgb(h); return `rgba(${r},${g},${b},${a})`; };
+        const lin = c => { c /= 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+        const lum = h => { const [r, g, b] = toRgb(h); return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b); };
+        const mix = (a, b, t) => { const A = toRgb(a), B = toRgb(b); return toHex([0, 1, 2].map(i => A[i] + (B[i] - A[i]) * t)); };
+        const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+
+        function toHsl([r, g, b]) {
+            r /= 255; g /= 255; b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h = 0, s = 0, l = (max + min) / 2;
+            if (max !== min) {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+                else if (max === g) h = (b - r) / d + 2;
+                else h = (r - g) / d + 4;
+                h /= 6;
             }
-            const hue = Math.abs(hash % 360);
-            document.documentElement.style.setProperty('--hue', hue);
+            return [h * 360, s, l];
+        }
+        function hslToHex(h, s, l) {
+            h /= 360;
+            const f = t => {
+                if (t < 0) t += 1; if (t > 1) t -= 1;
+                if (t < 1 / 6) return p + (q - p) * 6 * t;
+                if (t < 1 / 2) return q;
+                if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+                return p;
+            };
+            const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+            const p = 2 * l - q;
+            return toHex([f(h + 1 / 3), f(h), f(h - 1 / 3)].map(v => v * 255));
+        }
+        const sat = h => toHsl(toRgb(h))[1];
+
+        /* ---------- Построение темы из палитры Gemini ---------- */
+        function applyTheme(t) {
+            let palette = (Array.isArray(t.palette) ? t.palette : []).map(normHex).filter(Boolean);
+            if (palette.length < 2) palette = FALLBACK.palette.map(normHex);
+            const style = STYLES[t.style] ? t.style : "bloom";
+
+            const avg = palette.reduce((s, c) => s + lum(c), 0) / palette.length;
+            const dark = avg < 0.42;
+
+            // Усреднённый цвет палитры — лёгкая подложка под холст
+            const tint = palette.reduce((acc, c, i) => mix(acc, c, 1 / (i + 1)), palette[0]);
+            const canvas  = dark ? mix("#0e0b12", tint, 0.22) : mix("#fbf8f5", tint, 0.10);
+            const ink     = dark ? mix("#ffffff", tint, 0.10) : mix("#1c1614", tint, 0.12);
+            const inkSoft = mix(ink, canvas, 0.42);
+            const line    = mix(ink, canvas, 0.72);
+
+            // Акцент рифмы — самый выразительный цвет с гарантированным контрастом
+            let accent = palette.slice().sort((a, b) =>
+                (sat(b) + contrast(b, canvas) / 21) - (sat(a) + contrast(a, canvas) / 21))[0];
+            let guard = 0;
+            while (contrast(accent, canvas) < 3.4 && guard++ < 30) {
+                const [h, s, l] = toHsl(toRgb(accent));
+                accent = hslToHex(h, Math.min(1, s + 0.02), dark ? Math.min(0.94, l + 0.04) : Math.max(0.10, l - 0.04));
+            }
+
+            const alpha = dark ? 0.58 : 0.62;
+            const mesh = STYLES[style].map((b, i) =>
+                `radial-gradient(circle at ${b[0]}% ${b[1]}%, ${rgba(palette[i % palette.length], alpha)} 0%, transparent ${b[2]}%)`
+            ).join(", ");
+
+            const r = document.documentElement.style;
+            r.setProperty("--canvas", canvas);
+            r.setProperty("--ink", ink);
+            r.setProperty("--ink-soft", inkSoft);
+            r.setProperty("--accent", accent);
+            r.setProperty("--line", line);
+            r.setProperty("--mesh", mesh);
         }
 
-        function show(word) {
-            document.getElementById('rhyme').textContent = word;
-            applyHue(word);
+        /* ---------- Вывод текста ---------- */
+        function setRhyme(word) {
+            const el = document.getElementById("rhyme");
+            el.textContent = "";
+            [...word].forEach((ch, i) => {
+                const s = document.createElement("span");
+                s.className = "ch";
+                s.textContent = ch === " " ? " " : ch;
+                s.style.animationDelay = (0.25 + i * 0.03).toFixed(2) + "s";
+                el.appendChild(s);
+            });
+        }
+
+        const MONTHS = ["января","февраля","марта","апреля","мая","июня",
+                        "июля","августа","сентября","октября","ноября","декабря"];
+        function setDate(iso) {
+            if (!iso) return;
+            const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+            if (!m) return;
+            const el = document.getElementById("date");
+            el.textContent = `${+m[3]} ${MONTHS[+m[2] - 1]} ${m[1]}`;
+            el.hidden = false;
+        }
+
+        function render(data) {
+            setRhyme(data.rhyme || FALLBACK.rhyme);
+            applyTheme(data);
+            if (data.mood) {
+                const el = document.getElementById("mood");
+                el.textContent = data.mood;
+                el.hidden = false;
+            }
+            setDate(data.date);
+            document.title = `Юлечка — ${data.rhyme || ""}`.trim();
         }
 
         async function init() {
             try {
                 const res = await fetch(`data.json?t=${Date.now()}`);
-                const data = await res.json();
-                show(data.rhyme);
+                if (!res.ok) throw new Error(res.status);
+                render(await res.json());
             } catch (e) {
-                show("красотулечка");
+                render(FALLBACK);
             }
         }
 
