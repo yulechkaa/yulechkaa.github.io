@@ -255,17 +255,7 @@ def main():
     art_src = "Gemini-SVG" if svg else f"параметрика:{art}"
     print(f"Юлечка-{new_rhyme} | {mood} | стиль:{style} | арт:{art_src} | шрифт:{font} | аним:{anim} | {palette}")
 
-    # 8. Озвучка (голос Светланы). Не валим прогон, если TTS не сработал.
-    try:
-        full_text = f"Юлечка {new_rhyme}"
-        subprocess.run(
-            ["edge-tts", "--voice", "ru-RU-SvetlanaNeural",
-             "--text", full_text, "--write-media", "audio.mp3"],
-            check=True,
-        )
-    except Exception as e:
-        print(f"TTS не удался (оставляю прошлый audio.mp3): {e}")
-
+  
 
 if __name__ == "__main__":
     main()

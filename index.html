@@ -152,7 +152,7 @@
         .rhyme .ch {
             display: inline-block;
             opacity: 0;
-            animation: chRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation: chRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
         }
         .rhyme.anim-fade  .ch { animation-name: chFade; }
         .rhyme.anim-blur  .ch { animation-name: chBlur; }
@@ -185,9 +185,9 @@
         @keyframes chFade  { from { opacity: 0; } to { opacity: 1; } }
         @keyframes chBlur  { from { opacity: 0; filter: blur(16px); } to { opacity: 1; filter: blur(0); } }
         @keyframes chScale { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
-        @keyframes chDrop  { 0% { opacity: 0; transform: translateY(-0.7em); } 65% { opacity: 1; transform: translateY(0.09em); } 100% { transform: translateY(0); } }
+        @keyframes chDrop  { 0% { opacity: 0; transform: translateY(-0.7em); } 65% { opacity: 1; transform: translateY(0.09em); } 100% { opacity: 1; transform: translateY(0); } }
         @keyframes chGlow  { from { opacity: 0; text-shadow: 0 0 26px currentColor; } to { opacity: 1; text-shadow: 0 0 0 rgba(0,0,0,0); } }
-        @keyframes chWave  { 0% { opacity: 0; transform: translateY(0.55em); } 60% { opacity: 1; transform: translateY(-0.14em); } 100% { transform: translateY(0); } }
+        @keyframes chWave  { 0% { opacity: 0; transform: translateY(0.55em); } 60% { opacity: 1; transform: translateY(-0.14em); } 100% { opacity: 1; transform: translateY(0); } }
 
         @media (prefers-reduced-motion: reduce) {
             body::before { animation: none; }
@@ -507,6 +507,33 @@
             });
         }
 
+        // Приводим цвета SVG к палитре дня (структуру цветов сохраняем, гамму — к фоновой)
+        function recolorArt(host, palette, dark) {
+            const mixTo = dark ? "#ffffff" : "#2a2024";
+            const pal = palette.map(c => mix(c, mixTo, dark ? 0.16 : 0.28));
+            const map = new Map();
+            let idx = 0;
+            const pick = v => {
+                if (!map.has(v)) { map.set(v, pal[idx % pal.length]); idx++; }
+                return map.get(v);
+            };
+            host.querySelectorAll("*").forEach(el => {
+                ["stroke", "fill"].forEach(attr => {
+                    const v = (el.getAttribute(attr) || "").trim().toLowerCase();
+                    if (v && v !== "none" && v !== "transparent" && !v.startsWith("url(")) el.setAttribute(attr, pick(v));
+                });
+                let st = el.getAttribute("style");
+                if (st && /(stroke|fill)\s*:/i.test(st)) {
+                    st = st.replace(/(stroke|fill)\s*:\s*([^;]+)/gi, (m, p, val) => {
+                        val = val.trim().toLowerCase();
+                        if (val && val !== "none" && val !== "transparent" && !val.startsWith("url(")) return p + ":" + pick(val);
+                        return m;
+                    });
+                    el.setAttribute("style", st);
+                }
+            });
+        }
+
         function renderArt(t) {
             const host = document.getElementById("art");
             if (!host) return;
@@ -517,10 +544,10 @@
             const rnd = mulberry32(hashStr((t.rhyme || "") + "·art"));
 
             let svg = sanitizeSVG(t.svg);
+            const gemini = !!svg;
             let motifClass = null;
-            if (svg) {
+            if (gemini) {
                 // Если Gemini сам встроил SMIL-анимацию — оставляем ЕЁ, свою не добавляем.
-                // Иначе — мягкое покачивание (мотив рисунка нам неизвестен).
                 motifClass = /<animate/i.test(svg) ? null : "art-gen";
             } else {
                 const mixTo = dark ? "#ffffff" : "#2a2024";
@@ -531,6 +558,7 @@
             }
             host.innerHTML = svg;
             host.style.opacity = dark ? 0.7 : 0.62;
+            if (gemini) recolorArt(host, palette, dark);   // SVG от Gemini красим в палитру дня
             if (motifClass) animateArt(host, motifClass, rnd);
         }
 
@@ -582,6 +610,11 @@
                 }
             });
             fitRhyme();
+            // страховка: после проигрывания анимации гарантируем, что буквы видимы
+            clearTimeout(setRhyme._t);
+            setRhyme._t = setTimeout(() => {
+                rhymeEl.querySelectorAll(".ch").forEach(s => { s.style.opacity = "1"; });
+            }, 2600);
         }
 
         function fitRhyme() {
