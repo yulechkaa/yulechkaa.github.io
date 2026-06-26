@@ -35,6 +35,20 @@ def read_text():
     return f"Юлечка-{rhyme}." if rhyme else "Юлечка, самая любимая."
 
 
+def stress_text(text):
+    """Заранее проставляем ударения (combining acute U+0301), т.к. встроенный стрессер
+    Chatterbox конфликтует по зависимостям. Включается установкой пакета `russtress`.
+    Если пакета нет — возвращаем текст как есть (без явных ударений)."""
+    try:
+        import re
+        from russtress import Accent
+        raw = Accent().put_stress(text)  # ставит апостроф после ударной гласной: "приве'т"
+        return re.sub(r"([аеёиоуыэюяАЕЁИОУЫЭЮЯ])'", "\\1́", raw)
+    except Exception as e:
+        print(f"russtress недоступен ({e}); озвучиваю без явной разметки ударений.")
+        return text
+
+
 def to_mp3(wav_path):
     """Конвертируем wav -> mp3 через ffmpeg; если ffmpeg нет — оставляем wav как audio.* ."""
     try:
@@ -66,7 +80,8 @@ def try_chatterbox(text):
         device = "cuda" if _cuda_available() else "cpu"
         print(f"Chatterbox: устройство={device}, язык={LANG}")
         model = ChatterboxMultilingualTTS.from_pretrained(device=device)
-        wav = model.generate(text, language_id=LANG, audio_prompt_path=REF)
+        spoken = stress_text(text)   # проставляем ударения, если установлен russtress
+        wav = model.generate(spoken, language_id=LANG, audio_prompt_path=REF)
         tmp = "audio_tmp.wav"
         torchaudio.save(tmp, wav, model.sr)
         if not to_mp3(tmp):

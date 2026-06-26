@@ -29,11 +29,11 @@ jobs:
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: python generate.py
-      
+
     - name: Install voice deps
       run: |
         sudo apt-get update && sudo apt-get install -y ffmpeg
-        pip install chatterbox-tts torch torchaudio soundfile
+        pip install chatterbox-tts torch torchaudio soundfile russtress
 
     - name: Voice (твой голос)
       run: python voice.py
