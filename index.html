@@ -115,8 +115,10 @@
             letter-spacing: -0.01em;
             color: var(--accent);
             margin: 0;
-            word-break: break-word;
         }
+
+        /* Слово не рвётся внутри себя; перенос возможен только по дефису */
+        .rhyme .word { white-space: nowrap; }
 
         /* Побуквенное появление рифмы */
         .rhyme .ch {
@@ -124,21 +126,6 @@
             opacity: 0;
             transform: translateY(0.32em);
             animation: chIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-
-        .mood {
-            font-family: "Cormorant Garamond", serif;
-            font-style: italic;
-            font-size: clamp(1rem, 3.4vw, 1.35rem);
-            color: var(--ink-soft);
-            margin: clamp(20px, 5vw, 30px) 0 0;
-            opacity: 0;
-            animation: fadeIn 1s ease 0.7s forwards;
-        }
-        .mood::before, .mood::after {
-            content: "·";
-            margin: 0 0.6em;
-            opacity: 0.6;
         }
 
         .date {
@@ -165,7 +152,7 @@
             body::before { animation: none; }
             .card { animation: none; opacity: 1; transform: none; }
             .rhyme .ch { animation: none; opacity: 1; transform: none; }
-            .mood, .date { animation: none; opacity: 0.85; }
+            .date { animation: none; opacity: 0.85; }
         }
     </style>
 </head>
@@ -175,7 +162,6 @@
         <h1 class="name">Юлечка —</h1>
         <div class="rule"></div>
         <p class="rhyme" id="rhyme">…</p>
-        <p class="mood" id="mood" hidden></p>
     </main>
     <div class="date" id="date" hidden></div>
 
@@ -279,19 +265,46 @@
             r.setProperty("--mesh", mesh);
         }
 
-        /* ---------- Вывод текста ---------- */
+        /* ---------- Вывод рифмы ---------- */
+        const rhymeEl = document.getElementById("rhyme");
+
         function setRhyme(word) {
-            const el = document.getElementById("rhyme");
-            el.textContent = "";
-            [...word].forEach((ch, i) => {
+            rhymeEl.style.fontSize = "";
+            rhymeEl.textContent = "";
+            const parts = String(word).split("-");   // составные через дефис могут переноситься
+            let i = 0;
+            const ch = (text) => {
                 const s = document.createElement("span");
                 s.className = "ch";
-                s.textContent = ch === " " ? " " : ch;
-                s.style.animationDelay = (0.25 + i * 0.03).toFixed(2) + "s";
-                el.appendChild(s);
+                s.textContent = text;
+                s.style.animationDelay = (0.25 + i++ * 0.03).toFixed(2) + "s";
+                return s;
+            };
+            parts.forEach((part, pi) => {
+                const w = document.createElement("span");
+                w.className = "word";                 // буквы внутри слова не рвутся
+                [...part].forEach(c => w.appendChild(ch(c)));
+                if (pi < parts.length - 1) w.appendChild(ch("-"));
+                rhymeEl.appendChild(w);
+                if (pi < parts.length - 1) {
+                    rhymeEl.appendChild(document.createTextNode("​")); // перенос возможен после дефиса
+                }
             });
+            fitRhyme();
         }
 
+        // Плавно ужимаем шрифт, пока слово не впишется по ширине (без переноса букв)
+        function fitRhyme() {
+            rhymeEl.style.fontSize = "";              // вернуться к размеру из CSS
+            let size = parseFloat(getComputedStyle(rhymeEl).fontSize);
+            let guard = 0;
+            while (rhymeEl.scrollWidth > rhymeEl.clientWidth + 1 && size > 22 && guard++ < 400) {
+                size -= 1;
+                rhymeEl.style.fontSize = size + "px";
+            }
+        }
+
+        /* ---------- Дата ---------- */
         const MONTHS = ["января","февраля","марта","апреля","мая","июня",
                         "июля","августа","сентября","октября","ноября","декабря"];
         function setDate(iso) {
@@ -306,13 +319,18 @@
         function render(data) {
             setRhyme(data.rhyme || FALLBACK.rhyme);
             applyTheme(data);
-            if (data.mood) {
-                const el = document.getElementById("mood");
-                el.textContent = data.mood;
-                el.hidden = false;
-            }
             setDate(data.date);
             document.title = `Юлечка — ${data.rhyme || ""}`.trim();
+        }
+
+        // Перерасчёт вписывания при смене размера/ориентации и после загрузки шрифтов
+        let resizeTimer;
+        window.addEventListener("resize", () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(fitRhyme, 120);
+        });
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(fitRhyme);
         }
 
         async function init() {
