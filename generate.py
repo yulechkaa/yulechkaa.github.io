@@ -5,6 +5,7 @@ import subprocess
 from datetime import datetime
 
 # Настройки
+
 API_KEY = os.environ.get("GEMINI_API_KEY")
 URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
 
