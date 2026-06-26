@@ -1,18 +1,68 @@
 import os
 import re
+import sys
 import json
+import time
 import requests
 import subprocess
 from datetime import datetime
 
 # --- Настройки ---
 API_KEY = os.environ.get("GEMINI_API_KEY")
-# Гибридному SVG нужна модель посильнее. Свободные варианты (актуальные лимиты — в Google AI Studio):
-#   gemini-2.5-flash  — самый умный арт-директор/рисовальщик
-#   gemini-2.0-flash  — баланс качества и лимитов (по умолчанию)
-#   gemini-1.5-flash  — самый дешёвый; SVG будет слабее, чаще пойдёт откат на параметрику
-MODEL = "gemini-2.0-flash"
-URL = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={API_KEY}"
+# Доступные на free-tier модели (RPD>0) от лучшей к запасной — по твоим лимитам в AI Studio.
+# ВНИМАНИЕ: gemini-2.0-flash, gemini-1.5-*, *-pro на этом тарифе = 0 квоты → всегда 429, не использовать.
+# Точные id моделей проверяй в AI Studio → Docs; неизвестный id вернёт 404 и каскад просто пойдёт дальше.
+MODEL = "gemini-3-flash"           # новейшая Flash, лучший арт; 5 RPM / 250K TPM / 20 RPD
+FALLBACK_MODELS = [
+    "gemini-2.5-flash",            # 5 RPM / 250K TPM / 20 RPD
+    "gemini-2.5-flash-lite",       # 10 RPM / 250K TPM / 20 RPD — самый щедрый по запасу
+]
+MODELS = [MODEL] + [m for m in FALLBACK_MODELS if m != MODEL]
+
+API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
+RETRY_STATUS = {429, 500, 502, 503, 504}
+
+
+def call_gemini(payload):
+    """Запрос с повторами при 429/5xx и каскадным откатом на другую модель.
+    Возвращает распарсенный JSON-ответ модели или None, если все модели недоступны."""
+    for model in MODELS:
+        url = f"{API_BASE}/{model}:generateContent?key={API_KEY}"
+        for attempt in range(3):
+            try:
+                resp = requests.post(url, json=payload, timeout=90)
+            except requests.RequestException as e:
+                print(f"[{model}] сетевая ошибка: {e}; пауза 5с")
+                time.sleep(5)
+                continue
+
+            if resp.status_code in RETRY_STATUS:
+                ra = resp.headers.get("Retry-After", "")
+                wait = float(ra) if ra.replace(".", "", 1).isdigit() else 5 * (attempt + 1)
+                wait = min(wait, 30)  # не зависаем надолго в CI
+                print(f"[{model}] {resp.status_code} (лимит/перегрузка); ждём {wait:.0f}с "
+                      f"(попытка {attempt + 1}/3)")
+                time.sleep(wait)
+                continue
+
+            if not resp.ok:
+                print(f"[{model}] {resp.status_code}: {resp.text[:300]}")
+                break  # неретраибельная ошибка — сразу к следующей модели
+
+            data = resp.json()
+            cands = data.get("candidates") or []
+            if not cands:
+                print(f"[{model}] пустой ответ (возможно, блокировка): {str(data)[:300]}")
+                break
+            try:
+                text = cands[0]["content"]["parts"][0]["text"]
+                return json.loads(text)
+            except (KeyError, IndexError, json.JSONDecodeError) as e:
+                print(f"[{model}] не разобрал ответ: {e}")
+                break
+
+        print(f"[{model}] не получилось — перехожу к следующей модели")
+    return None
 
 ALLOWED_STYLES = ["aurora", "mesh", "dawn", "dusk", "bloom", "frost"]
 ALLOWED_ART = ["constellation", "petals", "waves", "orbits", "lattice", "rays"]
@@ -97,11 +147,14 @@ def main():
         },
     }
 
-    # 3. Запрос к бесплатному API
-    response = requests.post(URL, json=payload)
-    response.raise_for_status()
-    text_response = response.json()["candidates"][0]["content"]["parts"][0]["text"]
-    result = json.loads(text_response)
+    # 3. Запрос к бесплатному API (с повторами и каскадным откатом на другую модель)
+    result = call_gemini(payload)
+    if result is None:
+        # Все модели недоступны (обычно — дневная квота free-tier). Не ломаем деплой:
+        # оставляем вчерашний data.json, чтобы на сайте сохранилась прошлая открытка.
+        print("Все модели Gemini недоступны (вероятно, лимиты free-tier). "
+              "data.json не меняем — сайт покажет прошлую открытку.")
+        sys.exit(0)
 
     # 4. Санитизация ответа (фронтенд тоже подстрахован, но чистим и здесь)
     new_rhyme = result["rhyme"].strip().lower()
