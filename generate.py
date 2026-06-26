@@ -12,10 +12,10 @@ API_KEY = os.environ.get("GEMINI_API_KEY")
 # Доступные на free-tier модели (RPD>0) от лучшей к запасной — по твоим лимитам в AI Studio.
 # ВНИМАНИЕ: gemini-2.0-flash, gemini-1.5-*, *-pro на этом тарифе = 0 квоты → всегда 429, не использовать.
 # Точные id моделей проверяй в AI Studio → Docs; неизвестный id вернёт 404 и каскад просто пойдёт дальше.
-MODEL = "gemini-3-flash"           # новейшая Flash, лучший арт; 5 RPM / 250K TPM / 20 RPD
+MODEL = "gemini-flash-latest"           # новейшая Flash, лучший арт; 5 RPM / 250K TPM / 20 RPD
 FALLBACK_MODELS = [
-    "gemini-2.5-flash",            # 5 RPM / 250K TPM / 20 RPD
-    "gemini-2.5-flash-lite",       # 10 RPM / 250K TPM / 20 RPD — самый щедрый по запасу
+    "gemini-3-flash-preview",            # 5 RPM / 250K TPM / 20 RPD
+    "gemini-flash-lite-latest",       # 10 RPM / 250K TPM / 20 RPD — самый щедрый по запасу
 ]
 MODELS = [MODEL] + [m for m in FALLBACK_MODELS if m != MODEL]
 

@@ -2,11 +2,11 @@ name: Daily Yulechka Rhyme Generator
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Запуск каждую ночь ровно в 00:00 UTC (около 03:00-04:00 по МСК)
-  workflow_dispatch: # Позволяет запускать вручную кнопкой на GitHub для теста
+    - cron: '0 0 * * *' # Каждую ночь в 00:00 UTC (~03:00 МСК)
+  workflow_dispatch:     # Ручной запуск кнопкой для теста
 
 permissions:
-  contents: write # Даем экшенам право пушить код обратно в репозиторий
+  contents: write
 
 jobs:
   build-and-generate:
@@ -34,6 +34,6 @@ jobs:
       run: |
         git config --global user.name "YulechkaBot"
         git config --global user.email "bot@github.com"
-        git add data.json history.json audio.mp3
-        git diff-index --quiet HEAD || git commit -m "Automation: new daily rhyme generated"
+        git add -A
+        git diff --cached --quiet || git commit -m "Automation: new daily rhyme generated"
         git push
