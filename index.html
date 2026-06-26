@@ -84,6 +84,23 @@
         }
         #art svg { width: 100%; height: 100%; display: block; }
 
+        /* Осознанная анимация орнамента — медленная, в одном ритме с дрейфом фона */
+        #art .art-spin { transform-box: view-box; transform-origin: 50% 50%; will-change: transform; }
+        #art .art-constellation { animation: artSpin 160s linear infinite; }
+        #art .art-petals        { animation: artSpinRev 150s linear infinite; }
+        #art .art-orbits        { animation: artSpin 110s linear infinite; }
+        #art .art-rays          { animation: artSpin 95s  linear infinite; }
+        #art .art-lattice       { animation: artSpinRev 210s linear infinite; }
+        #art .art-waves         { animation: artDrift 26s ease-in-out infinite alternate; }
+        #art .art-gen           { animation: artSway 30s ease-in-out infinite alternate; }
+        #art .tw                { animation: twinkle 4s ease-in-out infinite; }
+
+        @keyframes artSpin    { from { transform: rotate(0deg)    scale(1.45); } to { transform: rotate(360deg)  scale(1.45); } }
+        @keyframes artSpinRev { from { transform: rotate(0deg)    scale(1.45); } to { transform: rotate(-360deg) scale(1.45); } }
+        @keyframes artSway    { from { transform: rotate(-5deg)   scale(1.16); } to { transform: rotate(5deg)    scale(1.16); } }
+        @keyframes artDrift   { from { transform: translateX(-3%) scale(1.12); } to { transform: translateX(3%)  scale(1.12); } }
+        @keyframes twinkle    { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
         .card {
             position: relative;
             z-index: 0;
@@ -177,6 +194,7 @@
             .card { animation: none; opacity: 1; transform: none; }
             .rhyme .ch { animation: none !important; opacity: 1; transform: none; filter: none; }
             .date { animation: none; opacity: 0.85; }
+            #art .art-spin, #art .tw { animation: none !important; }
         }
     </style>
 </head>
@@ -419,8 +437,8 @@
             const svg = doc.documentElement;
             if (!svg || svg.nodeName.toLowerCase() !== "svg") return null;
 
-            // Удаляем только реально опасное/неуместное (use и defs ОСТАВЛЯЕМ!)
-            svg.querySelectorAll("script,foreignObject,iframe,image,a,animate,animateTransform,animateMotion,set,style,text,tspan,textPath")
+            // Удаляем реально опасное (use, defs и SMIL-анимацию ОСТАВЛЯЕМ — её чистим ниже)
+            svg.querySelectorAll("script,foreignObject,iframe,image,a,style,text,tspan,textPath")
                 .forEach(n => n.remove());
 
             const walk = el => {
@@ -446,6 +464,23 @@
                 if ((pct || (w >= 900 && h >= 900)) && fill && fill !== "none") r.remove();
             });
 
+            // Разрешаем безопасную SMIL-анимацию: только transform/opacity/stroke-* и т.п.,
+            // НИКАКИХ href/событий/javascript: — иначе удаляем сам анимирующий узел.
+            const SAFE_ANIM = new Set(["transform", "opacity", "fill", "fill-opacity",
+                "stroke", "stroke-opacity", "stroke-width", "stroke-dashoffset", "stroke-dasharray",
+                "r", "cx", "cy", "x", "y", "x1", "y1", "x2", "y2", "rx", "ry", "width", "height",
+                "d", "points", "offset", "stop-color", "stop-opacity", "gradienttransform"]);
+            const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            svg.querySelectorAll("animate, animateTransform, animateMotion, set").forEach(el => {
+                if (reduceMotion) { el.remove(); return; }   // уважаем «меньше движения»
+                const an = (el.getAttribute("attributeName") || "").trim().toLowerCase();
+                if (an && !SAFE_ANIM.has(an)) { el.remove(); return; }
+                ["values", "from", "to", "by"].forEach(a => {
+                    const v = (el.getAttribute(a) || "").toLowerCase();
+                    if (v.includes("javascript:") || (v.includes("url(") && v.includes("http"))) el.remove();
+                });
+            });
+
             if (!svg.querySelector("path,circle,ellipse,line,polyline,polygon,rect,use")) return null;
 
             if (!svg.getAttribute("viewBox")) svg.setAttribute("viewBox", "0 0 1000 1000");
@@ -455,6 +490,23 @@
             return svg.outerHTML;
         }
 
+        // Оборачиваем содержимое в группу для вращения и заставляем кружки мерцать
+        const SVGNS = "http://www.w3.org/2000/svg";
+        function animateArt(host, motifClass, rnd) {
+            const svg = host.querySelector("svg");
+            if (!svg) return;
+            const g = document.createElementNS(SVGNS, "g");
+            g.setAttribute("class", "art-spin " + motifClass);
+            while (svg.firstChild) g.appendChild(svg.firstChild);
+            svg.appendChild(g);
+            svg.querySelectorAll("circle").forEach(c => {           // мерцание точек/звёзд
+                c.classList.add("tw");
+                const r = rnd();
+                c.style.animationDelay = (r * 4).toFixed(2) + "s";
+                c.style.animationDuration = (3 + r * 3).toFixed(2) + "s";
+            });
+        }
+
         function renderArt(t) {
             const host = document.getElementById("art");
             if (!host) return;
@@ -462,17 +514,24 @@
             if (palette.length < 2) palette = FALLBACK.palette.map(normHex);
             const avg = palette.reduce((s, c) => s + lum(c), 0) / palette.length;
             const dark = avg < 0.42;
+            const rnd = mulberry32(hashStr((t.rhyme || "") + "·art"));
 
             let svg = sanitizeSVG(t.svg);
-            if (!svg) {
+            let motifClass = null;
+            if (svg) {
+                // Если Gemini сам встроил SMIL-анимацию — оставляем ЕЁ, свою не добавляем.
+                // Иначе — мягкое покачивание (мотив рисунка нам неизвестен).
+                motifClass = /<animate/i.test(svg) ? null : "art-gen";
+            } else {
                 const mixTo = dark ? "#ffffff" : "#2a2024";
                 const artPal = palette.map(c => mix(c, mixTo, dark ? 0.18 : 0.32));
                 const motif = ART[t.art] ? t.art : (STYLE_MOTIF[t.style] || "petals");
-                const rnd = mulberry32(hashStr((t.rhyme || "") + "·" + motif));
-                svg = ART[motif](rnd, artPal);
+                svg = ART[motif](mulberry32(hashStr((t.rhyme || "") + "·" + motif)), artPal);
+                motifClass = "art-" + motif;
             }
             host.innerHTML = svg;
             host.style.opacity = dark ? 0.7 : 0.62;
+            if (motifClass) animateArt(host, motifClass, rnd);
         }
 
         /* ---------- Шрифт дня ---------- */

@@ -157,6 +157,16 @@ def main():
      полупрозрачные штрихи (stroke-opacity 0.2–0.45);
    - сбалансированная композиция, заполняющая всё поле, — авторская абстракция.
 
+9) ОЖИВИ орнамент встроенной SMIL-анимацией (НИКАКОГО JavaScript, только теги SVG):
+   - <animateTransform attributeName="transform" type="rotate" ...> для ОЧЕНЬ медленного вращения
+     (dur 30–120s, repeatCount="indefinite"); для вращения вокруг центра: from="0 500 500" to="360 500 500";
+   - <animate attributeName="opacity" или "stroke-opacity" ...> для мягкого мерцания (dur 3–8s, с разными
+     begin у элементов, чтобы мерцали не разом);
+   - анимируй ТОЛЬКО transform / opacity / stroke-* (никаких href, событий, javascript:);
+   - движение МЕДЛЕННОЕ и спокойное, оно НЕ должно отвлекать от слова в центре;
+   - осмысленно по мотиву: созвездие — звёзды мягко мерцают; мандала/орбиты/лучи — медленно вращаются;
+     волны — едва покачиваются. Если сомневаешься — лучше тоньше и медленнее.
+
 НЕДАВНИЕ открытки (НЕ повторяй их настроение/палитру/шрифт/анимацию): {recent_ctx}
 
 Ответ верни СТРОГО в формате JSON без markdown:
@@ -245,6 +255,16 @@ def main():
     art_src = "Gemini-SVG" if svg else f"параметрика:{art}"
     print(f"Юлечка-{new_rhyme} | {mood} | стиль:{style} | арт:{art_src} | шрифт:{font} | аним:{anim} | {palette}")
 
+    # 8. Озвучка (голос Светланы). Не валим прогон, если TTS не сработал.
+    try:
+        full_text = f"Юлечка {new_rhyme}"
+        subprocess.run(
+            ["edge-tts", "--voice", "ru-RU-SvetlanaNeural",
+             "--text", full_text, "--write-media", "audio.mp3"],
+            check=True,
+        )
+    except Exception as e:
+        print(f"TTS не удался (оставляю прошлый audio.mp3): {e}")
 
 
 if __name__ == "__main__":
