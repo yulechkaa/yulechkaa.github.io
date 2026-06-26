@@ -37,3 +37,11 @@ jobs:
         git add -A
         git diff --cached --quiet || git commit -m "Automation: new daily rhyme generated"
         git push
+        
+    - name: Install voice deps
+      run: |
+        sudo apt-get update && sudo apt-get install -y ffmpeg
+        pip install chatterbox-tts torch torchaudio soundfile
+
+    - name: Voice (твой голос)
+      run: python voice.py
