@@ -14,6 +14,7 @@
 
 import os
 import sys
+import re
 import json
 import subprocess
 
@@ -30,39 +31,31 @@ CFG_WEIGHT = 0.3
 TEMPERATURE = 0.85
 # Доп. замедление готового аудио через ffmpeg (1.0 = выкл; 0.92 = на ~8% медленнее, без изменения тона)
 SPEED = 1.0
+# Подавать ли явные ударения (U+0301 из verse_tts). Если на слух хуже — поставь False (сравнить).
+USE_STRESS = True
+
+
+def plus_to_acute(text):
+    """'+' перед ударной гласной (формат от Gemini) → гласная + U+0301 (то, что ждёт Chatterbox)."""
+    return re.sub(r"\+([аеёиоуыэюяАЕЁИОУЫЭЮЯ])", "\\1́", text)
 
 
 def read_text():
+    """Берём verse_tts (с разметкой ударений «+») и переводим в U+0301; иначе обычный verse."""
     try:
         with open("data.json", "r", encoding="utf-8") as f:
             data = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return "Юлечка, самая любимая."
+    vt = data.get("verse_tts")
+    if USE_STRESS and isinstance(vt, list) and any(str(s).strip() for s in vt):
+        joined = " ".join(str(s).strip() for s in vt if str(s).strip())
+        return plus_to_acute(joined)
     verse = data.get("verse")
     if isinstance(verse, list) and verse:
         return " ".join(str(s).strip() for s in verse if str(s).strip())
     rhyme = (data.get("rhyme") or "").strip()
     return f"Юлечка-{rhyme}." if rhyme else "Юлечка, самая любимая."
-
-
-def stress_text(text):
-    """Заранее проставляем ударения (combining acute U+0301), т.к. встроенный стрессер
-    Chatterbox конфликтует по зависимостям. Используем `ruaccent` (современная, с обработкой
-    омографов). Включается установкой пакета `ruaccent`. Если его нет/ошибка — текст как есть."""
-    try:
-        import re
-        from ruaccent import RUAccent
-        acc = RUAccent()
-        acc.load(omograph_model_size="turbo", use_dictionary=True)
-        marked = acc.process_all(text)
-        # поддерживаем оба формата вывода ruaccent → переводим в combining acute U+0301:
-        marked = re.sub(r"\+([аеёиоуыэюяАЕЁИОУЫЭЮЯ])", "\\1́", marked)   # '+' ПЕРЕД гласной
-        marked = re.sub(r"([аеёиоуыэюяАЕЁИОУЫЭЮЯ])'", "\\1́", marked)    # "'" ПОСЛЕ гласной
-        print("Ударения проставлены (ruaccent).")
-        return marked
-    except Exception as e:
-        print(f"ruaccent недоступен ({e}); озвучиваю без явной разметки ударений.")
-        return text
 
 
 def to_mp3(wav_path):
@@ -98,7 +91,7 @@ def try_chatterbox(text):
         device = "cuda" if _cuda_available() else "cpu"
         print(f"Chatterbox: устройство={device}, язык={LANG}")
         model = ChatterboxMultilingualTTS.from_pretrained(device=device)
-        spoken = stress_text(text)   # проставляем ударения, если установлен russtress
+        spoken = text   # ударения уже проставлены в read_text() (из verse_tts)
         kw = dict(language_id=LANG, audio_prompt_path=REF,
                   exaggeration=EXAGGERATION, cfg_weight=CFG_WEIGHT, temperature=TEMPERATURE)
         print(f"Подача: exaggeration={EXAGGERATION}, cfg_weight={CFG_WEIGHT}, temperature={TEMPERATURE}")

@@ -33,7 +33,7 @@ FALLBACK_PALETTE = ["#f7d9c4", "#e7a3b6", "#c8a2d8"]
 ARCHIVE_FILE = "archive.json"
 RECENT_N = 8  # сколько прошлых открыток показываем модели, чтобы она не повторялась
 PROOFREAD = True  # второй проход: лёгкая модель чинит грамматику двустишия
-ART_MODE = "scene"  # "auto" — чередовать svg/scene по дням; "svg" — всегда SVG; "scene" — всегда сцена
+ART_MODE = "auto"  # "auto" — чередовать svg/scene по дням; "svg" — всегда SVG; "scene" — всегда сцена
 
 _T0 = time.monotonic()
 
@@ -58,14 +58,14 @@ def load_json(path, default):
         return default
 
 
-def call_gemini(payload, timeout=60, attempts=3, models=None):
+def call_gemini(payload, timeout=60, attempts=8, models=None):
     """Запрос с повторами при 429/5xx и каскадным откатом на другую модель.
-    Возвращает распарсенный JSON-ответ модели или None, если все модели недоступны.
-    timeout/attempts/models можно сузить для дешёвых вызовов (например, корректора)."""
+    Возвращает распарсенный JSON или None, если все модели недоступны.
+    503 (перегрузка) — временная, поэтому повторов на модель много (attempts)."""
     for model in (models or MODELS):
         url = f"{API_BASE}/{model}:generateContent?key={API_KEY}"
         for attempt in range(attempts):
-            log(f"→ {model}: запрос (попытка {attempt + 1}/{attempts})…")
+            log(f"→ {model}: попытка {attempt + 1}/{attempts}…")
             t = time.monotonic()
             try:
                 resp = requests.post(url, json=payload, timeout=timeout)
@@ -78,7 +78,7 @@ def call_gemini(payload, timeout=60, attempts=3, models=None):
             if resp.status_code in RETRY_STATUS:
                 ra = resp.headers.get("Retry-After", "")
                 wait = float(ra) if ra.replace(".", "", 1).isdigit() else 5 * (attempt + 1)
-                wait = min(wait, 30)
+                wait = min(wait, 45)
                 kind = "перегрузка" if resp.status_code == 503 else "лимит"
                 log(f"  {model}: HTTP {resp.status_code} ({kind}) за {dt:.1f}с; ждём {wait:.0f}с")
                 time.sleep(wait)
@@ -108,21 +108,24 @@ def call_gemini(payload, timeout=60, attempts=3, models=None):
     return None
 
 
-def proofread_verse(verse, rhyme):
-    """Второй проход: чиним грамматику/согласование/пунктуацию, сохраняя смысл, рифму и
-    обязательную фразу «Юлечка-<rhyme>». Низкая температура → стабильная корректность.
-    При любой неудаче возвращаем исходное двустишие."""
+def proofread_verse(verse, verse_tts, rhyme):
+    """Второй проход: чиним грамматику двустишия И возвращаем его версию с разметкой ударений
+    (знак «+» перед ударной гласной) — её озвучит voice.py. Сохраняем смысл, рифму, фразу
+    «Юлечка-<rhyme>». При любой неудаче возвращаем то, что было."""
     if not PROOFREAD:
-        return verse
+        return verse, verse_tts
     text = " / ".join(verse)
     prompt = (
         "Ниже двустишие-поздравление для девушки по имени Юлечка.\n"
         f"«{text}»\n\n"
-        "Проверь и при необходимости ИСПРАВЬ: согласование падежей, родов и чисел, "
-        "грамматику, пунктуацию, естественность звучания. ОБЯЗАТЕЛЬНО сохрани смысл, рифму, "
-        f"ритм и точную фразу «Юлечка-{rhyme}». Если всё уже верно — верни без изменений. "
-        "Ровно 2 строки.\n\n"
-        "Ответ строго JSON без markdown: {\"verse\": [\"строка1\", \"строка2\"]}"
+        "1) Проверь и при необходимости ИСПРАВЬ: согласование падежей, родов и чисел, грамматику, "
+        f"пунктуацию, естественность. ОБЯЗАТЕЛЬНО сохрани смысл, рифму, ритм и точную фразу «Юлечка-{rhyme}». "
+        "Если всё верно — оставь как есть. Ровно 2 строки → поле verse.\n"
+        "2) Сделай verse_tts — те же 2 строки, но перед КАЖДОЙ ударной гласной поставь «+» "
+        "(для синтеза речи). Правильно расставь ударения во всех словах, включая «Юлечка-" + rhyme + "». "
+        "Пример: «Юлечка-крас+отулечка, м+оя любим+ица».\n\n"
+        "Ответ строго JSON без markdown: "
+        "{\"verse\": [\"строка1\", \"строка2\"], \"verse_tts\": [\"строка1\", \"строка2\"]}"
     )
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
@@ -131,20 +134,26 @@ def proofread_verse(verse, rhyme):
             "temperature": 0.2,
             "responseSchema": {
                 "type": "object",
-                "properties": {"verse": {"type": "array", "items": {"type": "string"}}},
-                "required": ["verse"],
+                "properties": {
+                    "verse": {"type": "array", "items": {"type": "string"}},
+                    "verse_tts": {"type": "array", "items": {"type": "string"}},
+                },
+                "required": ["verse", "verse_tts"],
             },
         },
     }
     try:
         # дёшево и быстро: одна лёгкая модель, 1 попытка, короткий таймаут — не растягиваем прогон
-        res = call_gemini(payload, timeout=25, attempts=1, models=["gemini-2.5-flash-lite"])
-        fixed = [str(s).strip() for s in (res.get("verse") or []) if str(s).strip()] if res else []
-        if len(fixed) >= 2:
-            return fixed[:4]
+        res = call_gemini(payload, timeout=25, attempts=1, models=["gemini-2.5-flash-lite"]) or {}
+        v = [str(s).strip() for s in (res.get("verse") or []) if str(s).strip()]
+        vt = [str(s).strip() for s in (res.get("verse_tts") or []) if str(s).strip()]
+        if len(v) >= 2:
+            verse = v[:4]
+        if len(vt) >= 2:
+            verse_tts = vt[:4]
     except Exception as e:
         print(f"Корректор двустишия не сработал ({e}); оставляю исходное.")
-    return verse
+    return verse, verse_tts
 
 
 def main():
@@ -249,6 +258,8 @@ def main():
     корректная пунктуация, живая естественная фраза без натяжек. Двустишие должно идеально
     звучать и читаться вслух, с чёткой рифмой и ровным ритмом. Сначала мысленно проверь грамматику,
     потом отвечай. Верни как массив из 2 строк в поле "verse".
+    ТАКЖЕ верни "verse_tts" — те же 2 строки, но перед КАЖДОЙ ударной гласной поставь «+»
+    (для синтеза речи; правильно расставь ударения во всех словах, включая «Юлечка-[рифма]»).
 
 11) SCENE (НЕОБЯЗАТЕЛЬНО, для максимального креатива) — можешь вместо SVG прислать ЖИВУЮ СЦЕНУ:
     небольшой самодостаточный JS-скрипт анимации на canvas. Он выполняется в ИЗОЛИРОВАННОЙ песочнице
@@ -268,7 +279,7 @@ def main():
 НЕДАВНИЕ открытки (НЕ повторяй их настроение/палитру/шрифт/анимацию): {recent_ctx}
 
 Ответ верни СТРОГО в формате JSON без markdown:
-{{"rhyme":"...","mood":"...","palette":["#......","#......","#......"],"style":"bloom","art":"petals","font":"playfair","anim":"cascade","verse":["строка1","строка2"],"svg":"<svg viewBox=\\"0 0 1000 1000\\" xmlns=\\"http://www.w3.org/2000/svg\\">...</svg>","scene":""}}
+{{"rhyme":"...","mood":"...","palette":["#......","#......","#......"],"style":"bloom","art":"petals","font":"playfair","anim":"cascade","verse":["строка1","строка2"],"verse_tts":["стро+ка1","стро+ка2"],"svg":"<svg viewBox=\\"0 0 1000 1000\\" xmlns=\\"http://www.w3.org/2000/svg\\">...</svg>","scene":""}}
 """
 
     payload = {
@@ -287,10 +298,11 @@ def main():
                     "style":   {"type": "string", "enum": ALLOWED_STYLES},
                     "art":     {"type": "string", "enum": ALLOWED_ART},
                     "font":    {"type": "string", "enum": ALLOWED_FONTS},
-                    "anim":    {"type": "string", "enum": ALLOWED_ANIMS},
-                    "verse":   {"type": "array", "items": {"type": "string"}},
-                    "svg":     {"type": "string"},
-                    "scene":   {"type": "string"},
+                    "anim":      {"type": "string", "enum": ALLOWED_ANIMS},
+                    "verse":     {"type": "array", "items": {"type": "string"}},
+                    "verse_tts": {"type": "array", "items": {"type": "string"}},
+                    "svg":       {"type": "string"},
+                    "scene":     {"type": "string"},
                 },
                 "required": ["rhyme", "mood", "palette", "style", "art", "font", "anim", "verse"],
             },
@@ -318,14 +330,17 @@ def main():
     font = result.get("font") if result.get("font") in ALLOWED_FONTS else "playfair"
     anim = result.get("anim") if result.get("anim") in ALLOWED_ANIMS else "cascade"
 
-    # Двустишие для озвучки (ровно 2 строки; если модель прислала иначе — подстрахуемся)
+    # Двустишие для показа (verse) и для озвучки с ударениями (verse_tts, «+» перед ударной гласной)
     verse = [str(s).strip() for s in (result.get("verse") or []) if str(s).strip()]
     if not verse:
         verse = [f"Юлечка-{new_rhyme},", "самая любимая на свете."]
     verse = verse[:4]
+    verse_tts = [str(s).strip() for s in (result.get("verse_tts") or []) if str(s).strip()][:4]
     log(f"Рифма: Юлечка-{new_rhyme} | настроение: {mood}")
-    log("Корректор двустишия (лёгкая модель)…")
-    verse = proofread_verse(verse, new_rhyme)   # лёгкий второй проход чинит грамматику
+    log("Корректор двустишия + ударения (лёгкая модель)…")
+    verse, verse_tts = proofread_verse(verse, verse_tts, new_rhyme)
+    if not verse_tts:
+        verse_tts = verse   # без ударений лучше, чем без озвучки
 
     # SVG: базовая проверка; финально чистит фронтенд. Если плох — "", страница откатится на мотив.
     svg = (result.get("svg") or "").strip()
@@ -350,6 +365,7 @@ def main():
         "font": font,
         "anim": anim,
         "verse": verse,
+        "verse_tts": verse_tts,
         "svg": svg,
         "scene": scene,
         "date": today_str,
