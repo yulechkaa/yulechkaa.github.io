@@ -49,6 +49,57 @@ def normalize_hex(c):
     return None
 
 
+# --- Ударения: чиним то, что Gemini ставит плохо (выдуманное слово + имя «Юлечка») ---
+VOWELS = "аеёиоуыэюя"
+
+
+def stress_rhyme(rhyme):
+    """Ставит «+» перед ударной гласной рифмы по доминирующему паттерну «…Vлечка/лочка»
+    (красот-У-лечка, симпат-Ю-лечка, слад-У-лечка). Неизвестный паттерн — без метки."""
+    m = re.search(r"([" + VOWELS + r"])(л[еоа]чк)", rhyme.lower())
+    if m:
+        i = m.start(1)
+        return rhyme[:i] + "+" + rhyme[i:]
+    return rhyme
+
+
+def _one_plus(word):
+    """Не больше одного «+» на слово, и только перед гласной (убираем мусорные/лишние)."""
+    word = re.sub(r"\+(?![" + VOWELS + r"])", "", word, flags=re.I)  # «+» не перед гласной — долой
+    parts = word.split("+")
+    if len(parts) <= 2:
+        return word
+    return parts[0] + "+" + "".join(parts[1:])   # оставить только первый «+»
+
+
+def fix_verse_tts(verse_tts, rhyme):
+    """Оставляем пометки Gemini для обычных слов, но «Юлечка» и рифму ставим правильно сами,
+    и глушим двойные ударения."""
+    sr = stress_rhyme(rhyme)
+    rl = rhyme.lower()
+    fixed = []
+    for line in verse_tts:
+        toks = re.split(r"(\s+)", line)
+        for i, tok in enumerate(toks):
+            if not tok.strip():
+                continue
+            sub = tok.split("-")
+            for j, sp in enumerate(sub):
+                m = re.match(r"^([^\w+]*)(.*?)([^\w+]*)$", sp, re.S)
+                pre, core, post = m.group(1), m.group(2), m.group(3)
+                bare = core.replace("+", "").lower()
+                if bare == "юлечка":
+                    core = "+Юлечка"
+                elif bare == rl:
+                    core = sr
+                else:
+                    core = _one_plus(core)
+                sub[j] = pre + core + post
+            toks[i] = "-".join(sub)
+        fixed.append("".join(toks))
+    return fixed
+
+
 def load_json(path, default):
     try:
         with open(path, "r", encoding="utf-8") as f:
@@ -340,7 +391,9 @@ def main():
     log("Корректор двустишия + ударения (лёгкая модель)…")
     verse, verse_tts = proofread_verse(verse, verse_tts, new_rhyme)
     if not verse_tts:
-        verse_tts = verse   # без ударений лучше, чем без озвучки
+        verse_tts = list(verse)   # хотя бы саму фразу «Юлечка-рифма» проставим ниже
+    verse_tts = fix_verse_tts(verse_tts, new_rhyme)   # чиним имя/рифму + двойные ударения
+    log("Ударения (verse_tts): " + " / ".join(verse_tts))
 
     # SVG: базовая проверка; финально чистит фронтенд. Если плох — "", страница откатится на мотив.
     svg = (result.get("svg") or "").strip()
