@@ -10,6 +10,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
 
+    <!-- PWA: установка на экран телефона -->
+    <meta name="theme-color" content="#f4e9e3">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Юлечке">
+
     <style>
         :root {
             --canvas: #fbf8f5;
@@ -198,6 +208,34 @@
         .play:hover { transform: translateX(-50%) scale(1.08); background: rgba(255, 255, 255, 0.28); }
         .play svg { display: block; fill: var(--accent); }
 
+        /* Подсказка «Добавить на экран телефона» — один раз, потом не показывается */
+        .install {
+            position: fixed;
+            top: clamp(14px, 4vw, 26px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-8px);
+            display: flex; align-items: center; gap: 8px;
+            max-width: calc(100vw - 28px);
+            padding: 9px 10px 9px 18px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.62);
+            -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+            color: var(--ink);
+            font-size: clamp(0.78rem, 3vw, 0.9rem);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            z-index: 3;
+        }
+        .install[hidden] { display: none; }
+        .install.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .install-x {
+            border: 0; background: transparent; color: var(--ink-soft);
+            font-size: 1.25rem; line-height: 1; cursor: pointer; padding: 0 4px;
+        }
+
         @keyframes rise   { to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { to { opacity: 0.85; } }
         @keyframes drift {
@@ -236,6 +274,10 @@
     <button id="play" class="play" type="button" aria-label="Послушать" hidden>
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path id="play-icon" d="M8 5v14l11-7z"/></svg>
     </button>
+    <div id="install" class="install" role="button" tabindex="0" hidden>
+        <span id="install-text">Добавить на экран телефона</span>
+        <button id="install-close" class="install-x" type="button" aria-label="Скрыть">×</button>
+    </div>
 
     <script>
         /* ---------- Резервная тема ---------- */
@@ -772,8 +814,59 @@
             }
         }
 
+        // Установка как приложение: предлагаем один раз, после добавления/скрытия — больше нет
+        function setupInstall() {
+            const bar = document.getElementById("install");
+            const text = document.getElementById("install-text");
+            const closeBtn = document.getElementById("install-close");
+            if (!bar) return;
+            const KEY = "pwa-install-dismissed";
+            const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+            if (standalone || localStorage.getItem(KEY) === "1") return;   // уже приложение или скрыли
+
+            let deferred = null;
+            const show = () => { bar.hidden = false; requestAnimationFrame(() => bar.classList.add("show")); };
+            const hide = (remember) => {
+                bar.classList.remove("show");
+                setTimeout(() => { bar.hidden = true; }, 500);
+                if (remember) localStorage.setItem(KEY, "1");
+            };
+
+            closeBtn.addEventListener("click", (e) => { e.stopPropagation(); hide(true); });
+
+            // Android/Chrome: системное предложение установки
+            window.addEventListener("beforeinstallprompt", (e) => {
+                e.preventDefault();
+                deferred = e;
+                text.textContent = "Добавить на экран телефона";
+                show();
+            });
+            window.addEventListener("appinstalled", () => hide(true));
+
+            const trigger = async () => {
+                if (!deferred) return;                 // на iOS бар просто информационный
+                deferred.prompt();
+                const choice = await deferred.userChoice;
+                deferred = null;
+                hide(choice && choice.outcome === "accepted");
+            };
+            bar.addEventListener("click", trigger);
+            bar.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") trigger(); });
+
+            // iOS Safari: beforeinstallprompt не поддерживается — показываем инструкцию
+            if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) {
+                text.textContent = "Добавить: Поделиться → «На экран „Домой“»";
+                show();
+            }
+        }
+
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+        }
+
         init();
         setupAudio();
+        setupInstall();
     </script>
 </body>
 </html>
