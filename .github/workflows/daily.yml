@@ -33,7 +33,7 @@ jobs:
     - name: Install voice deps
       run: |
         sudo apt-get update && sudo apt-get install -y ffmpeg
-        pip install chatterbox-tts torch torchaudio soundfile russtress
+        pip install chatterbox-tts torch torchaudio soundfile ruaccent
 
     - name: Voice (твой голос)
       run: python voice.py

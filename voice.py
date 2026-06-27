@@ -21,6 +21,16 @@ REF = "voice_ref.wav"          # твой образец голоса (зако�
 OUT = "audio.mp3"
 LANG = "ru"
 
+# --- Подача: медленно, с интонацией и выражением ---
+# exaggeration: выразительность/эмоция (0.25–2.0; 0.5 нейтрально, выше = живее и драматичнее)
+# cfg_weight:   темп/манера (0.2–1.0; НИЖЕ = МЕДЛЕННЕЕ, размереннее и ближе к твоему голосу)
+# temperature:  вариативность интонации (0.05–5.0; 0.8 по умолчанию, выше = живее просодия)
+EXAGGERATION = 0.7
+CFG_WEIGHT = 0.3
+TEMPERATURE = 0.85
+# Доп. замедление готового аудио через ffmpeg (1.0 = выкл; 0.92 = на ~8% медленнее, без изменения тона)
+SPEED = 1.0
+
 
 def read_text():
     try:
@@ -50,12 +60,14 @@ def stress_text(text):
 
 
 def to_mp3(wav_path):
-    """Конвертируем wav -> mp3 через ffmpeg; если ffmpeg нет — оставляем wav как audio.* ."""
+    """Конвертируем wav -> mp3 через ffmpeg; если ffmpeg нет — оставляем wav как audio.* .
+    При SPEED != 1.0 дополнительно меняем темп (atempo) без изменения высоты тона."""
     try:
-        subprocess.run(
-            ["ffmpeg", "-y", "-i", wav_path, "-codec:a", "libmp3lame", "-qscale:a", "2", OUT],
-            check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        )
+        args = ["ffmpeg", "-y", "-i", wav_path]
+        if abs(SPEED - 1.0) > 1e-3:
+            args += ["-filter:a", f"atempo={SPEED}"]
+        args += ["-codec:a", "libmp3lame", "-qscale:a", "2", OUT]
+        subprocess.run(args, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         os.remove(wav_path)
         return True
     except Exception as e:
@@ -81,7 +93,15 @@ def try_chatterbox(text):
         print(f"Chatterbox: устройство={device}, язык={LANG}")
         model = ChatterboxMultilingualTTS.from_pretrained(device=device)
         spoken = stress_text(text)   # проставляем ударения, если установлен russtress
-        wav = model.generate(spoken, language_id=LANG, audio_prompt_path=REF)
+        kw = dict(language_id=LANG, audio_prompt_path=REF,
+                  exaggeration=EXAGGERATION, cfg_weight=CFG_WEIGHT, temperature=TEMPERATURE)
+        print(f"Подача: exaggeration={EXAGGERATION}, cfg_weight={CFG_WEIGHT}, temperature={TEMPERATURE}")
+        try:
+            wav = model.generate(spoken, **kw)
+        except TypeError:
+            # старая версия модели без этих параметров — синтез с дефолтами
+            print("Версия Chatterbox без параметров подачи — генерирую с дефолтами.")
+            wav = model.generate(spoken, language_id=LANG, audio_prompt_path=REF)
         tmp = "audio_tmp.wav"
         torchaudio.save(tmp, wav, model.sr)
         if not to_mp3(tmp):
