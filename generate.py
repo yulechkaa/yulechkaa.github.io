@@ -34,6 +34,13 @@ ARCHIVE_FILE = "archive.json"
 RECENT_N = 8  # сколько прошлых открыток показываем модели, чтобы она не повторялась
 PROOFREAD = True  # второй проход: лёгкая модель чинит грамматику двустишия
 
+_T0 = time.monotonic()
+
+
+def log(msg):
+    """Лог со временем от старта — видно, где уходит время."""
+    print(f"[{time.monotonic() - _T0:6.1f}s] {msg}", flush=True)
+
 
 def normalize_hex(c):
     if isinstance(c, str) and HEX.match(c.strip()):
@@ -50,45 +57,53 @@ def load_json(path, default):
         return default
 
 
-def call_gemini(payload):
+def call_gemini(payload, timeout=60, attempts=3, models=None):
     """Запрос с повторами при 429/5xx и каскадным откатом на другую модель.
-    Возвращает распарсенный JSON-ответ модели или None, если все модели недоступны."""
-    for model in MODELS:
+    Возвращает распарсенный JSON-ответ модели или None, если все модели недоступны.
+    timeout/attempts/models можно сузить для дешёвых вызовов (например, корректора)."""
+    for model in (models or MODELS):
         url = f"{API_BASE}/{model}:generateContent?key={API_KEY}"
-        for attempt in range(3):
+        for attempt in range(attempts):
+            log(f"→ {model}: запрос (попытка {attempt + 1}/{attempts})…")
+            t = time.monotonic()
             try:
-                resp = requests.post(url, json=payload, timeout=90)
+                resp = requests.post(url, json=payload, timeout=timeout)
             except requests.RequestException as e:
-                print(f"[{model}] сетевая ошибка: {e}; пауза 5с")
+                log(f"  {model}: сетевая ошибка: {e}; пауза 5с")
                 time.sleep(5)
                 continue
+            dt = time.monotonic() - t
 
             if resp.status_code in RETRY_STATUS:
                 ra = resp.headers.get("Retry-After", "")
                 wait = float(ra) if ra.replace(".", "", 1).isdigit() else 5 * (attempt + 1)
                 wait = min(wait, 30)
-                print(f"[{model}] {resp.status_code} (лимит/перегрузка); ждём {wait:.0f}с "
-                      f"(попытка {attempt + 1}/3)")
+                kind = "перегрузка" if resp.status_code == 503 else "лимит"
+                log(f"  {model}: HTTP {resp.status_code} ({kind}) за {dt:.1f}с; ждём {wait:.0f}с")
                 time.sleep(wait)
                 continue
 
             if not resp.ok:
-                print(f"[{model}] {resp.status_code}: {resp.text[:300]}")
+                log(f"  {model}: HTTP {resp.status_code} за {dt:.1f}с: {resp.text[:200]}")
                 break
 
             data = resp.json()
             cands = data.get("candidates") or []
             if not cands:
-                print(f"[{model}] пустой ответ (возможно, блокировка): {str(data)[:300]}")
+                log(f"  {model}: пустой ответ за {dt:.1f}с: {str(data)[:200]}")
                 break
             try:
                 text = cands[0]["content"]["parts"][0]["text"]
-                return json.loads(text)
+                obj = json.loads(text)
+                log(f"  {model}: ответ за {dt:.1f}с, {len(text)} симв. — ОК")
+                return obj
             except (KeyError, IndexError, json.JSONDecodeError) as e:
-                print(f"[{model}] не разобрал ответ: {e}")
+                fr = (cands[0].get("finishReason") if cands else "") or ""
+                hint = " (ответ обрезан по лимиту токенов!)" if fr == "MAX_TOKENS" else ""
+                log(f"  {model}: не разобрал ответ ({e}); finishReason={fr}{hint}")
                 break
 
-        print(f"[{model}] не получилось — перехожу к следующей модели")
+        log(f"{model}: не вышло — следующая модель")
     return None
 
 
@@ -121,7 +136,8 @@ def proofread_verse(verse, rhyme):
         },
     }
     try:
-        res = call_gemini(payload)
+        # дёшево и быстро: одна лёгкая модель, 1 попытка, короткий таймаут — не растягиваем прогон
+        res = call_gemini(payload, timeout=25, attempts=1, models=["gemini-2.5-flash-lite"])
         fixed = [str(s).strip() for s in (res.get("verse") or []) if str(s).strip()] if res else []
         if len(fixed) >= 2:
             return fixed[:4]
@@ -131,6 +147,7 @@ def proofread_verse(verse, rhyme):
 
 
 def main():
+    log(f"Старт генерации. Модели: {MODELS}")
     # 1. Контекст прошлого: слова (для дедупа) + недавние открытки (чтобы не повторять настроение/палитру)
     history = load_json("history.json", [])
     archive = load_json(ARCHIVE_FILE, [])
@@ -151,8 +168,16 @@ def main():
 другой шрифт, другой эффект. Удивляй. Избегай однообразия.
 
 1) РИФМА. Придумай ОДНО новое милое/ласковое/забавное слово-рифму к имени "Юлечка"
-   (например: красотулечка, симпатюлечка, капризулечка). Полноценное или составное через дефис
-   слово, идеально звучащее во фразе "Юлечка-[слово]".
+   (например: красотулечка, симпатюлечка, капризулечка, лапулечка). Идеально звучит во фразе
+   "Юлечка-[слово]".
+   ТРЕБОВАНИЯ К СЛОВУ:
+   - БЛАГОЗВУЧНОЕ и приятное, образовано от ПОЗИТИВНОГО корня (красота, нежность, радость,
+     солнце, ласка, очарование…). Прочитай вслух — должно ласкать слух.
+   - БЕЗ корявых/неуклюжих основ и случайных неприятных ассоциаций. Плохой пример: «обаянулечка»
+     (слышится «баян»); лучше — «очарулечка», «обаяшечка». Если корень звучит странно — выбери другой.
+   - Длина НЕ больше 12 букв, чтобы крупно помещалось на экране телефона; без чрезмерно длинных
+     слов вроде «фейерверкулечка».
+   - Естественное русское словообразование, без насилия над языком.
    НЕ ПОВТОРЯЙ слова из списка прошлых: {json.dumps(history, ensure_ascii=False)}.
 
 2) НАСТРОЕНИЕ дня (1-2 слова). Перебирай ВЕСЬ спектр чувства, а не только «нежное»:
@@ -221,6 +246,10 @@ def main():
     ресурсов. Не объявляй переменные с именами ctx/canvas/PALETTE/W/H. Если не уверен в качестве —
     оставь "scene" пустым (тогда покажется SVG). Верни код одной строкой в поле "scene".
 
+ВАЖНО ПРО РАЗМЕР ОТВЕТА: дай ТОЛЬКО ОДНО из двух — либо "svg" (п.8), либо "scene" (п.11),
+смотря что лучше подходит сегодняшнему настроению. ВТОРОЕ поле оставь ПУСТОЙ строкой "".
+НЕ заполняй оба сразу — это перегружает ответ и обрывает его. Держи код компактным.
+
 НЕДАВНИЕ открытки (НЕ повторяй их настроение/палитру/шрифт/анимацию): {recent_ctx}
 
 Ответ верни СТРОГО в формате JSON без markdown:
@@ -233,6 +262,7 @@ def main():
             "responseMimeType": "application/json",
             "temperature": 1.3,   # выше разнообразие изо дня в день
             "topP": 0.95,
+            "maxOutputTokens": 16384,   # запас, чтобы большой SVG/сцена не обрезались на полуслове
             "responseSchema": {
                 "type": "object",
                 "properties": {
@@ -253,10 +283,10 @@ def main():
     }
 
     # 3. Запрос (с повторами и каскадным откатом)
+    log("Запрос открытки у Gemini (рифма/палитра/арт/двустишие)…")
     result = call_gemini(payload)
     if result is None:
-        print("Все модели Gemini недоступны (вероятно, лимиты free-tier). "
-              "data.json не меняем — сайт покажет прошлую открытку.")
+        log("Все модели недоступны (лимит/перегрузка). data.json не трогаю — сайт покажет прошлую открытку.")
         sys.exit(0)
 
     # 4. Санитизация ответа (фронтенд тоже подстрахован)
@@ -278,6 +308,8 @@ def main():
     if not verse:
         verse = [f"Юлечка-{new_rhyme},", "самая любимая на свете."]
     verse = verse[:4]
+    log(f"Рифма: Юлечка-{new_rhyme} | настроение: {mood}")
+    log("Корректор двустишия (лёгкая модель)…")
     verse = proofread_verse(verse, new_rhyme)   # лёгкий второй проход чинит грамматику
 
     # SVG: базовая проверка; финально чистит фронтенд. Если плох — "", страница откатится на мотив.
@@ -309,6 +341,7 @@ def main():
     }
 
     # 5. Пишем сегодняшнюю открытку
+    log("Пишу data.json / history.json / archive.json…")
     with open("data.json", "w", encoding="utf-8") as f:
         json.dump(card, f, ensure_ascii=False, indent=2)
 
@@ -323,8 +356,9 @@ def main():
         json.dump(archive, f, ensure_ascii=False, indent=2)
 
     art_src = "scene-JS" if scene else ("Gemini-SVG" if svg else f"параметрика:{art}")
-    print(f"Юлечка-{new_rhyme} | {mood} | стиль:{style} | арт:{art_src} | шрифт:{font} | аним:{anim} | {palette}")
-    print("Двустишие:", " / ".join(verse))
+    log(f"Готово: Юлечка-{new_rhyme} | {mood} | стиль:{style} | арт:{art_src} | шрифт:{font} | аним:{anim} | {palette}")
+    log("Двустишие: " + " / ".join(verse))
+    log("Генератор завершён. Аудио — отдельным шагом (voice.py).")
 
     # 8. Озвучка вынесена в voice.py (Chatterbox — твой голос, с откатом на edge-tts).
     #    Воркфлоу запускает её отдельным шагом: python voice.py

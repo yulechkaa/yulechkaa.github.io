@@ -174,6 +174,30 @@
             animation: fadeIn 1s ease 1s forwards;
         }
 
+        /* Деликатная кнопка прослушивания (появляется, только если есть аудио) */
+        .play {
+            position: fixed;
+            left: 50%;
+            bottom: clamp(58px, 9vw, 84px);
+            transform: translateX(-50%);
+            width: 54px; height: 54px;
+            display: grid; place-items: center;
+            border: 1px solid var(--line);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.16);
+            -webkit-backdrop-filter: blur(8px);
+                    backdrop-filter: blur(8px);
+            cursor: pointer;
+            opacity: 0;
+            transition: transform 0.25s ease, opacity 0.8s ease, background 0.25s ease;
+            z-index: 1;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .play[hidden] { display: none; }
+        .play.show { opacity: 0.92; }
+        .play:hover { transform: translateX(-50%) scale(1.08); background: rgba(255, 255, 255, 0.28); }
+        .play svg { display: block; fill: var(--accent); }
+
         @keyframes rise   { to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { to { opacity: 0.85; } }
         @keyframes drift {
@@ -209,6 +233,9 @@
         <p class="rhyme" id="rhyme">…</p>
     </main>
     <div class="date" id="date" hidden></div>
+    <button id="play" class="play" type="button" aria-label="Послушать" hidden>
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path id="play-icon" d="M8 5v14l11-7z"/></svg>
+    </button>
 
     <script>
         /* ---------- Резервная тема ---------- */
@@ -661,9 +688,16 @@
 
         function fitRhyme() {
             rhymeEl.style.fontSize = "";
+            const avail = rhymeEl.clientWidth;
+            if (!avail) return;
+            const need = rhymeEl.scrollWidth;
+            if (need <= avail) return;
+            // прикидываем размер по соотношению, затем чуть дожимаем — впишется любое слово
             let size = parseFloat(getComputedStyle(rhymeEl).fontSize);
+            size = Math.max(12, Math.floor(size * avail / need) - 1);
+            rhymeEl.style.fontSize = size + "px";
             let guard = 0;
-            while (rhymeEl.scrollWidth > rhymeEl.clientWidth + 1 && size > 22 && guard++ < 400) {
+            while (rhymeEl.scrollWidth > avail + 1 && size > 10 && guard++ < 80) {
                 size -= 1;
                 rhymeEl.style.fontSize = size + "px";
             }
@@ -700,6 +734,34 @@
             document.fonts.ready.then(fitRhyme);
         }
 
+        // Плеер: круглая кнопка появляется, только если audio.mp3 реально загрузился
+        function setupAudio() {
+            const btn = document.getElementById("play");
+            const icon = document.getElementById("play-icon");
+            if (!btn || !icon) return;
+            const PLAY = "M8 5v14l11-7z";
+            const PAUSE = "M7 5h3v14H7zM14 5h3v14h-3z";
+            const audio = new Audio(`audio.mp3?t=${Date.now()}`);
+            audio.preload = "auto";
+            let shown = false;
+            const reveal = () => {
+                if (shown) return;
+                shown = true;
+                btn.hidden = false;
+                requestAnimationFrame(() => btn.classList.add("show"));
+            };
+            audio.addEventListener("loadeddata", reveal);
+            audio.addEventListener("canplay", reveal);
+            audio.addEventListener("error", () => { btn.hidden = true; });
+            btn.addEventListener("click", () => {
+                if (audio.paused) audio.play().catch(() => {});
+                else audio.pause();
+            });
+            audio.addEventListener("play", () => { icon.setAttribute("d", PAUSE); btn.setAttribute("aria-label", "Пауза"); });
+            audio.addEventListener("pause", () => { icon.setAttribute("d", PLAY); btn.setAttribute("aria-label", "Послушать"); });
+            audio.addEventListener("ended", () => { icon.setAttribute("d", PLAY); });
+        }
+
         async function init() {
             try {
                 const res = await fetch(`data.json?t=${Date.now()}`);
@@ -711,6 +773,7 @@
         }
 
         init();
+        setupAudio();
     </script>
 </body>
 </html>
