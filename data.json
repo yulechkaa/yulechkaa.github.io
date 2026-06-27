@@ -1,20 +1,20 @@
 {
-  "rhyme": "обаянулечка",
-  "mood": "таинственное трепетное",
+  "rhyme": "очарулечка",
+  "mood": "томное бархатное",
   "palette": [
-    "#f7d9c4",
-    "#e7a3b6",
-    "#c8a2d8"
+    "#4a1525",
+    "#8c2e43",
+    "#ffb3c1"
   ],
   "style": "dusk",
-  "art": "constellation",
-  "font": "yeseva",
-  "anim": "cascade",
+  "art": "orbits",
+  "font": "marck",
+  "anim": "drop",
   "verse": [
-    "В тихом мерцании сонных планет,",
-    "Юлечка-обаянулечка, ты — мой рассвет."
+    "Шепчет рассвет: «Юлечка-очарулечка,",
+    "Ты — моих чувств золотая шкатулочка»."
   ],
-  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><g><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 500\" to=\"360 500 500\" dur=\"90s\" repeatCount=\"indefinite\"/><circle cx=\"500\" cy=\"500\" r=\"150\" stroke=\"#6E45E2\" stroke-width=\"0.8\" stroke-dasharray=\"5 5\" fill=\"none\" stroke-opacity=\"0.3\"/><circle cx=\"500\" cy=\"500\" r=\"280\" stroke=\"#FFD07F\" stroke-width=\"1\" stroke-dasharray=\"10 15\" fill=\"none\" stroke-opacity=\"0.4\"/><circle cx=\"500\" cy=\"500\" r=\"400\" stroke=\"#6E45E2\" stroke-width=\"1.2\" fill=\"none\" stroke-opacity=\"0.2\"/><path d=\"M 500,100 L 780,350 L 680,720 L 320,720 L 220,350 Z\" stroke=\"#FFD07F\" stroke-width=\"0.8\" fill=\"none\" stroke-opacity=\"0.25\"/><path d=\"M 500,220 L 680,500 L 500,780 L 320,500 Z\" stroke=\"#6E45E2\" stroke-width=\"1\" fill=\"none\" stroke-opacity=\"0.35\"/><g><circle cx=\"500\" cy=\"100\" r=\"4\" fill=\"#FFD07F\"><animate attributeName=\"opacity\" values=\"0.2;1;0.2\" dur=\"4s\" repeatCount=\"indefinite\" begin=\"0s\"/></circle><circle cx=\"780\" cy=\"350\" r=\"5\" fill=\"#6E45E2\"><animate attributeName=\"opacity\" values=\"0.3;0.9;0.3\" dur=\"5s\" repeatCount=\"indefinite\" begin=\"1s\"/></circle><circle cx=\"680\" cy=\"720\" r=\"4\" fill=\"#FFD07F\"><animate attributeName=\"opacity\" values=\"0.1;0.8;0.1\" dur=\"6s\" repeatCount=\"indefinite\" begin=\"2.5s\"/></circle><circle cx=\"320\" cy=\"720\" r=\"5\" fill=\"#6E45E2\"><animate attributeName=\"opacity\" values=\"0.2;1;0.2\" dur=\"4.5s\" repeatCount=\"indefinite\" begin=\"1.5s\"/></circle><circle cx=\"220\" cy=\"350\" r=\"4\" fill=\"#FFD07F\"><animate attributeName=\"opacity\" values=\"0.4;1;0.4\" dur=\"5.5s\" repeatCount=\"indefinite\" begin=\"3s\"/></circle></g></g><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"360 500 500\" to=\"0 500 500\" dur=\"150s\" repeatCount=\"indefinite\"/><path d=\"M 500,150 L 850,500 L 500,850 L 150,500 Z\" stroke=\"#6E45E2\" stroke-width=\"0.6\" stroke-dasharray=\"2 10\" fill=\"none\" stroke-opacity=\"0.3\"/><circle cx=\"500\" cy=\"150\" r=\"3\" fill=\"#6E45E2\"/><circle cx=\"850\" cy=\"500\" r=\"3\" fill=\"#FFD07F\"/><circle cx=\"500\" cy=\"850\" r=\"3\" fill=\"#6E45E2\"/><circle cx=\"150\" cy=\"500\" r=\"3\" fill=\"#FFD07F\"/></g></g></svg>\"}``` This card is uniquely themed around soft cosmic wonder using deep nighttime amethyst, vibrant lilac-violet, and shimmering warm gold, emphasizing starry constellation patterns that turn languidly. The greeting verse pairs a sophisticated night/universe metaphor perfectly with the custom playful diminutive word. No controls tokens are generated outside bounds. All required elements are present.",
+  "svg": "",
   "scene": "",
   "date": "2026-06-27"
 }
