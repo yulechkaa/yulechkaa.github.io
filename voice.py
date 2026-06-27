@@ -47,15 +47,21 @@ def read_text():
 
 def stress_text(text):
     """Заранее проставляем ударения (combining acute U+0301), т.к. встроенный стрессер
-    Chatterbox конфликтует по зависимостям. Включается установкой пакета `russtress`.
-    Если пакета нет — возвращаем текст как есть (без явных ударений)."""
+    Chatterbox конфликтует по зависимостям. Используем `ruaccent` (современная, с обработкой
+    омографов). Включается установкой пакета `ruaccent`. Если его нет/ошибка — текст как есть."""
     try:
         import re
-        from russtress import Accent
-        raw = Accent().put_stress(text)  # ставит апостроф после ударной гласной: "приве'т"
-        return re.sub(r"([аеёиоуыэюяАЕЁИОУЫЭЮЯ])'", "\\1́", raw)
+        from ruaccent import RUAccent
+        acc = RUAccent()
+        acc.load(omograph_model_size="turbo", use_dictionary=True)
+        marked = acc.process_all(text)
+        # поддерживаем оба формата вывода ruaccent → переводим в combining acute U+0301:
+        marked = re.sub(r"\+([аеёиоуыэюяАЕЁИОУЫЭЮЯ])", "\\1́", marked)   # '+' ПЕРЕД гласной
+        marked = re.sub(r"([аеёиоуыэюяАЕЁИОУЫЭЮЯ])'", "\\1́", marked)    # "'" ПОСЛЕ гласной
+        print("Ударения проставлены (ruaccent).")
+        return marked
     except Exception as e:
-        print(f"russtress недоступен ({e}); озвучиваю без явной разметки ударений.")
+        print(f"ruaccent недоступен ({e}); озвучиваю без явной разметки ударений.")
         return text
 
 
