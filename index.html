@@ -856,9 +856,20 @@
             bar.addEventListener("click", trigger);
             bar.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") trigger(); });
 
-            // iOS Safari: beforeinstallprompt не поддерживается — показываем инструкцию
-            if (/iphone|ipad|ipod/i.test(navigator.userAgent) && !standalone) {
-                text.textContent = "Добавить: Поделиться → «На экран „Домой“»";
+            // iOS: системного предложения нет (ограничение Apple) — только вручную через «Поделиться».
+            // iOS не сообщает, добавлено ли уже на экран, поэтому в Safari не назойливо:
+            // показываем максимум 3 раза (потом сами прячем); «×» прячет навсегда.
+            const ua = navigator.userAgent;
+            const isIOS = /iphone|ipad|ipod/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(ua));
+            if (isIOS && !standalone) {
+                const CKEY = "pwa-ios-hint-count";
+                const seen = +(localStorage.getItem(CKEY) || 0);
+                if (seen >= 3) return;
+                localStorage.setItem(CKEY, String(seen + 1));
+                const inSafari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|YaBrowser/.test(ua);
+                text.textContent = inSafari
+                    ? "Установить: «Поделиться» ↑, затем «На экран „Домой“»"
+                    : "Откройте эту страницу в Safari, чтобы добавить на экран";
                 show();
             }
         }
