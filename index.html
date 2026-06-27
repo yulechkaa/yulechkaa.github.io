@@ -783,7 +783,9 @@
             if (!btn || !icon) return;
             const PLAY = "M8 5v14l11-7z";
             const PAUSE = "M7 5h3v14H7zM14 5h3v14h-3z";
-            const audio = new Audio(`audio.mp3?t=${Date.now()}`);
+            const src = `audio.mp3?t=${Date.now()}`;
+            const audio = new Audio();
+            audio.src = src;
             audio.preload = "auto";
             let shown = false;
             const reveal = () => {
@@ -792,9 +794,10 @@
                 btn.hidden = false;
                 requestAnimationFrame(() => btn.classList.add("show"));
             };
+            // iOS Safari не шлёт canplay/loadeddata без жеста — показываем по факту наличия файла
+            fetch(src, { method: "HEAD" }).then((r) => { if (r.ok) reveal(); }).catch(() => {});
             audio.addEventListener("loadeddata", reveal);
             audio.addEventListener("canplay", reveal);
-            audio.addEventListener("error", () => { btn.hidden = true; });
             btn.addEventListener("click", () => {
                 if (audio.paused) audio.play().catch(() => {});
                 else audio.pause();
