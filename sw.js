@@ -1,6 +1,7 @@
-/* Service worker: нужен для установки как приложения + офлайн-доступ.
-   data.json и audio.mp3 берём из сети (всегда свежие), остальное — из кэша. */
-const CACHE = "yulechka-v1";
+/* Service worker: установка как приложение + офлайн-резерв.
+   ВАЖНО: network-first — всегда отдаём свежую версию (иначе обновления кода/данных
+   застревали бы в кэше). Кэш используется только как запасной вариант офлайн. */
+const CACHE = "yulechka-v2";
 const CORE = ["./", "./index.html", "./manifest.webmanifest",
               "./icon-192.png", "./icon-512.png"];
 
@@ -22,27 +23,14 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
     const req = e.request;
-    if (req.method !== "GET") return;
-    const url = new URL(req.url);
-
-    // Свежие данные дня и аудио — сеть, с откатом на кэш
-    if (url.pathname.endsWith("data.json") || url.pathname.endsWith("audio.mp3")) {
-        e.respondWith(
-            fetch(req).then((r) => {
-                const cp = r.clone();
-                caches.open(CACHE).then((c) => c.put(req, cp));
-                return r;
-            }).catch(() => caches.match(req))
-        );
-        return;
-    }
-
-    // Остальное — из кэша, иначе сеть (и докэшируем)
+    if (req.method !== "GET") return;        // HEAD/POST — мимо SW (важно для проверки аудио)
     e.respondWith(
-        caches.match(req).then((c) => c || fetch(req).then((r) => {
-            const cp = r.clone();
-            caches.open(CACHE).then((ch) => ch.put(req, cp));
-            return r;
-        }).catch(() => c))
+        fetch(req)
+            .then((r) => {
+                const cp = r.clone();
+                caches.open(CACHE).then((c) => c.put(req, cp)).catch(() => {});
+                return r;
+            })
+            .catch(() => caches.match(req))    // нет сети — отдаём из кэша
     );
 });
