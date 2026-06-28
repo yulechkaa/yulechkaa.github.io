@@ -63,41 +63,32 @@ def stress_rhyme(rhyme):
     return rhyme
 
 
-def _one_plus(word):
-    """Не больше одного «+» на слово, и только перед гласной (убираем мусорные/лишние)."""
-    word = re.sub(r"\+(?![" + VOWELS + r"])", "", word, flags=re.I)  # «+» не перед гласной — долой
-    parts = word.split("+")
-    if len(parts) <= 2:
-        return word
-    return parts[0] + "+" + "".join(parts[1:])   # оставить только первый «+»
-
-
-def fix_verse_tts(verse_tts, rhyme):
-    """Оставляем пометки Gemini для обычных слов, но «Юлечка» и рифму ставим правильно сами,
-    и глушим двойные ударения."""
+def fix_verse_tts(verse, rhyme):
+    """Разметку ударений строим САМИ из чистого текста и помечаем ТОЛЬКО «Юлечка» и рифму —
+    Gemini ошибается даже в обычных словах. Остальные слова оставляем без меток
+    (Chatterbox прочитает их по своей просодии, для словарных слов это надёжнее)."""
     sr = stress_rhyme(rhyme)
     rl = rhyme.lower()
-    fixed = []
-    for line in verse_tts:
+    out = []
+    for line in verse:
+        line = line.replace("+", "")          # снять любые чужие пометки
         toks = re.split(r"(\s+)", line)
         for i, tok in enumerate(toks):
             if not tok.strip():
                 continue
             sub = tok.split("-")
             for j, sp in enumerate(sub):
-                m = re.match(r"^([^\w+]*)(.*?)([^\w+]*)$", sp, re.S)
+                m = re.match(r"^([^\w]*)(.*?)([^\w]*)$", sp, re.S)
                 pre, core, post = m.group(1), m.group(2), m.group(3)
-                bare = core.replace("+", "").lower()
-                if bare == "юлечка":
+                low = core.lower()
+                if low == "юлечка":
                     core = "+Юлечка"
-                elif bare == rl:
+                elif low == rl:
                     core = sr
-                else:
-                    core = _one_plus(core)
                 sub[j] = pre + core + post
             toks[i] = "-".join(sub)
-        fixed.append("".join(toks))
-    return fixed
+        out.append("".join(toks))
+    return out
 
 
 def load_json(path, default):
@@ -159,24 +150,23 @@ def call_gemini(payload, timeout=60, attempts=8, models=None):
     return None
 
 
-def proofread_verse(verse, verse_tts, rhyme):
-    """Второй проход: чиним грамматику двустишия И возвращаем его версию с разметкой ударений
-    (знак «+» перед ударной гласной) — её озвучит voice.py. Сохраняем смысл, рифму, фразу
-    «Юлечка-<rhyme>». При любой неудаче возвращаем то, что было."""
+def proofread_verse(verse, rhyme):
+    """Второй проход: чиним грамматику/согласование/пунктуацию двустишия и убираем «рифму
+    слова с самим собой». Сохраняем смысл и точную фразу «Юлечка-<rhyme>». Ударения НЕ трогаем —
+    их ставит fix_verse_tts(). При любой неудаче возвращаем исходное."""
     if not PROOFREAD:
-        return verse, verse_tts
+        return verse
     text = " / ".join(verse)
     prompt = (
         "Ниже двустишие-поздравление для девушки по имени Юлечка.\n"
         f"«{text}»\n\n"
-        "1) Проверь и при необходимости ИСПРАВЬ: согласование падежей, родов и чисел, грамматику, "
-        f"пунктуацию, естественность. ОБЯЗАТЕЛЬНО сохрани смысл, рифму, ритм и точную фразу «Юлечка-{rhyme}». "
-        "Если всё верно — оставь как есть. Ровно 2 строки → поле verse.\n"
-        "2) Сделай verse_tts — те же 2 строки, но перед КАЖДОЙ ударной гласной поставь «+» "
-        "(для синтеза речи). Правильно расставь ударения во всех словах, включая «Юлечка-" + rhyme + "». "
-        "Пример: «Юлечка-крас+отулечка, м+оя любим+ица».\n\n"
-        "Ответ строго JSON без markdown: "
-        "{\"verse\": [\"строка1\", \"строка2\"], \"verse_tts\": [\"строка1\", \"строка2\"]}"
+        "Проверь и при необходимости ИСПРАВЬ: согласование падежей, родов и чисел, грамматику, "
+        f"пунктуацию, естественность. ОБЯЗАТЕЛЬНО сохрани смысл, ритм и точную фразу «Юлечка-{rhyme}». "
+        "ВАЖНО: строки НЕ должны рифмоваться одинаковым словом — концы строк должны быть РАЗНЫМИ "
+        "словами с созвучным окончанием (никаких «солнцулечка/солнцулечка»). Если рифма ленивая — "
+        "перепиши первую строку так, чтобы она оканчивалась другим словом, созвучным рифме. "
+        "Ровно 2 строки.\n\n"
+        "Ответ строго JSON без markdown: {\"verse\": [\"строка1\", \"строка2\"]}"
     )
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
@@ -185,11 +175,8 @@ def proofread_verse(verse, verse_tts, rhyme):
             "temperature": 0.2,
             "responseSchema": {
                 "type": "object",
-                "properties": {
-                    "verse": {"type": "array", "items": {"type": "string"}},
-                    "verse_tts": {"type": "array", "items": {"type": "string"}},
-                },
-                "required": ["verse", "verse_tts"],
+                "properties": {"verse": {"type": "array", "items": {"type": "string"}}},
+                "required": ["verse"],
             },
         },
     }
@@ -197,14 +184,11 @@ def proofread_verse(verse, verse_tts, rhyme):
         # дёшево и быстро: одна лёгкая модель, 1 попытка, короткий таймаут — не растягиваем прогон
         res = call_gemini(payload, timeout=25, attempts=1, models=["gemini-2.5-flash-lite"]) or {}
         v = [str(s).strip() for s in (res.get("verse") or []) if str(s).strip()]
-        vt = [str(s).strip() for s in (res.get("verse_tts") or []) if str(s).strip()]
         if len(v) >= 2:
-            verse = v[:4]
-        if len(vt) >= 2:
-            verse_tts = vt[:4]
+            return v[:4]
     except Exception as e:
         print(f"Корректор двустишия не сработал ({e}); оставляю исходное.")
-    return verse, verse_tts
+    return verse
 
 
 def main():
@@ -307,10 +291,11 @@ def main():
     фраза «Юлечка-[твоя рифма]». Это текст для голосовой озвучки.
     КРИТИЧЕСКИ ВАЖНО: безупречно грамотный русский — верное согласование падежей, родов и чисел,
     корректная пунктуация, живая естественная фраза без натяжек. Двустишие должно идеально
-    звучать и читаться вслух, с чёткой рифмой и ровным ритмом. Сначала мысленно проверь грамматику,
-    потом отвечай. Верни как массив из 2 строк в поле "verse".
-    ТАКЖЕ верни "verse_tts" — те же 2 строки, но перед КАЖДОЙ ударной гласной поставь «+»
-    (для синтеза речи; правильно расставь ударения во всех словах, включая «Юлечка-[рифма]»).
+    звучать и читаться вслух, с чёткой рифмой и ровным ритмом.
+    ЗАПРЕЩЕНО рифмовать слово само с собой: концы двух строк — РАЗНЫЕ слова с созвучным окончанием
+    (плохо: «солнцулечка / солнцулечка»). Фраза «Юлечка-[рифма]» встречается ОДИН раз, а вторая
+    строка оканчивается ДРУГИМ словом в рифму. Сначала мысленно проверь грамматику и рифму, потом
+    отвечай. Верни как массив из 2 строк в поле "verse".
 
 11) SCENE (НЕОБЯЗАТЕЛЬНО, для максимального креатива) — можешь вместо SVG прислать ЖИВУЮ СЦЕНУ:
     небольшой самодостаточный JS-скрипт анимации на canvas. Он выполняется в ИЗОЛИРОВАННОЙ песочнице
@@ -330,7 +315,7 @@ def main():
 НЕДАВНИЕ открытки (НЕ повторяй их настроение/палитру/шрифт/анимацию): {recent_ctx}
 
 Ответ верни СТРОГО в формате JSON без markdown:
-{{"rhyme":"...","mood":"...","palette":["#......","#......","#......"],"style":"bloom","art":"petals","font":"playfair","anim":"cascade","verse":["строка1","строка2"],"verse_tts":["стро+ка1","стро+ка2"],"svg":"<svg viewBox=\\"0 0 1000 1000\\" xmlns=\\"http://www.w3.org/2000/svg\\">...</svg>","scene":""}}
+{{"rhyme":"...","mood":"...","palette":["#......","#......","#......"],"style":"bloom","art":"petals","font":"playfair","anim":"cascade","verse":["строка1","строка2"],"svg":"<svg viewBox=\\"0 0 1000 1000\\" xmlns=\\"http://www.w3.org/2000/svg\\">...</svg>","scene":""}}
 """
 
     payload = {
@@ -351,7 +336,6 @@ def main():
                     "font":    {"type": "string", "enum": ALLOWED_FONTS},
                     "anim":      {"type": "string", "enum": ALLOWED_ANIMS},
                     "verse":     {"type": "array", "items": {"type": "string"}},
-                    "verse_tts": {"type": "array", "items": {"type": "string"}},
                     "svg":       {"type": "string"},
                     "scene":     {"type": "string"},
                 },
@@ -386,13 +370,10 @@ def main():
     if not verse:
         verse = [f"Юлечка-{new_rhyme},", "самая любимая на свете."]
     verse = verse[:4]
-    verse_tts = [str(s).strip() for s in (result.get("verse_tts") or []) if str(s).strip()][:4]
     log(f"Рифма: Юлечка-{new_rhyme} | настроение: {mood}")
-    log("Корректор двустишия + ударения (лёгкая модель)…")
-    verse, verse_tts = proofread_verse(verse, verse_tts, new_rhyme)
-    if not verse_tts:
-        verse_tts = list(verse)   # хотя бы саму фразу «Юлечка-рифма» проставим ниже
-    verse_tts = fix_verse_tts(verse_tts, new_rhyme)   # чиним имя/рифму + двойные ударения
+    log("Корректор двустишия (лёгкая модель)…")
+    verse = proofread_verse(verse, new_rhyme)            # грамматика + защита от само-рифмы
+    verse_tts = fix_verse_tts(verse, new_rhyme)          # ударения ставим САМИ (Юлечка + рифма)
     log("Ударения (verse_tts): " + " / ".join(verse_tts))
 
     # SVG: базовая проверка; финально чистит фронтенд. Если плох — "", страница откатится на мотив.

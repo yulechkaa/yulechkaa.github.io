@@ -22,39 +22,131 @@ REF = "voice_ref.wav"          # твой образец голоса (зако�
 OUT = "audio.mp3"
 LANG = "ru"
 
-# --- Подача: медленно, с интонацией и выражением ---
-# exaggeration: выразительность/эмоция (0.25–2.0; 0.5 нейтрально, выше = живее и драматичнее)
-# cfg_weight:   темп/манера (0.2–1.0; НИЖЕ = МЕДЛЕННЕЕ, размереннее и ближе к твоему голосу)
-# temperature:  вариативность интонации (0.05–5.0; 0.8 по умолчанию, выше = живее просодия)
-EXAGGERATION = 0.8
-CFG_WEIGHT = 0.2
-TEMPERATURE = 0.85
+# --- Подача. Пресет «похожесть-first» (ближе к твоему голосу) ---
+# exaggeration: эмоция (0.25–2.0). НИЖЕ = ближе к оригиналу; выше = ярче, но тембр «уплывает».
+# cfg_weight:   манера/темп (0.2–1.0). НИЖЕ = ближе к клону и медленнее.
+# temperature:  вариативность (0.05–5.0). НИЖЕ = стабильнее, меньше уходит от голоса.
+# Хочешь выразительнее (ценой похожести) — подними exaggeration к 0.7.
+EXAGGERATION = 0.5
+CFG_WEIGHT = 0.3
+TEMPERATURE = 0.7
 # Доп. замедление готового аудио через ffmpeg (1.0 = выкл; 0.92 = на ~8% медленнее, без изменения тона)
 SPEED = 1.0
 # Подавать ли явные ударения (U+0301 из verse_tts). Если на слух хуже — поставь False (сравнить).
 USE_STRESS = True
 
 
-def plus_to_acute(text):
-    """'+' перед ударной гласной (формат от Gemini) → гласная + U+0301 (то, что ждёт Chatterbox)."""
-    return re.sub(r"\+([аеёиоуыэюяАЕЁИОУЫЭЮЯ])", "\\1́", text)
+VOW = "аеёиоуыэюяАЕЁИОУЫЭЮЯ"
+
+
+def marks_to_acute(text):
+    """Любые пометки ударения → U+0301: «+» ПЕРЕД гласной и «'» ПОСЛЕ гласной."""
+    text = re.sub(r"\+([" + VOW + r"])", "\\1́", text)
+    text = re.sub(r"([" + VOW + r"])'", "\\1́", text)
+    return text
+
+
+def _stress_rhyme(rhyme):
+    """«+» перед ударной гласной рифмы по паттерну «…Vлечка/лочка» (слад-У-лечка)."""
+    m = re.search(r"([аеёиоуыэюя])(л[еоа]чк)", rhyme.lower())
+    return rhyme[:m.start(1)] + "+" + rhyme[m.start(1):] if m else rhyme
+
+
+def _override_phrase(line, rhyme):
+    """В уже размеченной строке ставим НАШИ ударения в «Юлечка» и в самой рифме
+    (даже хороший стрессер ошибается — слово выдуманное)."""
+    sr = _stress_rhyme(rhyme)
+    rl = rhyme.lower()
+    toks = re.split(r"(\s+)", line)
+    for i, tok in enumerate(toks):
+        if not tok.strip():
+            continue
+        sub = tok.split("-")
+        for j, sp in enumerate(sub):
+            m = re.match(r"^([^\w]*)(.*?)([^\w]*)$", sp, re.S)
+            pre, core, post = m.group(1), m.group(2), m.group(3)
+            low = core.replace("+", "").replace("'", "").lower()
+            if low == "юлечка":
+                core = "+Юлечка"
+            elif low == rl:
+                core = sr
+            sub[j] = pre + core + post
+        toks[i] = "-".join(sub)
+    return "".join(toks)
+
+
+def _patch_onnx_ttids():
+    """Чиним ошибку ruaccent 'token_type_ids missing': подкладываем нули, если модель их просит."""
+    try:
+        import numpy as np
+        import onnxruntime as ort
+        if getattr(ort.InferenceSession, "_ttids_patched", False):
+            return
+        orig = ort.InferenceSession.run
+
+        def run(self, output_names, input_feed, run_options=None):
+            try:
+                need = {i.name for i in self.get_inputs()}
+                if "token_type_ids" in need and "token_type_ids" not in input_feed and "input_ids" in input_feed:
+                    input_feed = dict(input_feed)
+                    input_feed["token_type_ids"] = np.zeros_like(input_feed["input_ids"])
+            except Exception:
+                pass
+            return orig(self, output_names, input_feed, run_options)
+
+        ort.InferenceSession.run = run
+        ort.InferenceSession._ttids_patched = True
+    except Exception:
+        pass
+
+
+_ACC = None
+
+
+def _ruaccent_lines(verse, rhyme):
+    """Ударения во ВСЕХ словах через ruaccent, затем перекрываем «Юлечка»+рифму нашими."""
+    global _ACC
+    if _ACC is None:
+        _patch_onnx_ttids()
+        from ruaccent import RUAccent
+        acc = RUAccent()
+        acc.load(omograph_model_size="turbo", use_dictionary=True)
+        _ACC = acc
+    return [_override_phrase(_ACC.process_all(l), rhyme) for l in verse]
 
 
 def read_text():
-    """Берём verse_tts (с разметкой ударений «+») и переводим в U+0301; иначе обычный verse."""
+    """Текст для синтеза с ударениями. Приоритет:
+    1) ruaccent (все слова) + наше правило для «Юлечка/рифмы»;
+    2) verse_tts из data.json (помечены только «Юлечка» и рифма);
+    3) обычный verse без ударений."""
     try:
         with open("data.json", "r", encoding="utf-8") as f:
             data = json.load(f)
     except (FileNotFoundError, json.JSONDecodeError):
         return "Юлечка, самая любимая."
-    vt = data.get("verse_tts")
-    if USE_STRESS and isinstance(vt, list) and any(str(s).strip() for s in vt):
-        joined = " ".join(str(s).strip() for s in vt if str(s).strip())
-        return plus_to_acute(joined)
-    verse = data.get("verse")
-    if isinstance(verse, list) and verse:
-        return " ".join(str(s).strip() for s in verse if str(s).strip())
+
+    verse = [str(s).strip() for s in (data.get("verse") or []) if str(s).strip()]
     rhyme = (data.get("rhyme") or "").strip()
+
+    if not USE_STRESS:
+        return " ".join(verse) if verse else (f"Юлечка-{rhyme}." if rhyme else "Юлечка, самая любимая.")
+
+    # 1) ruaccent — ударения на все слова
+    if verse:
+        try:
+            lines = _ruaccent_lines(verse, rhyme)
+            print("Ударения: ruaccent (все слова) + правило для рифмы.")
+            return marks_to_acute(" ".join(lines))
+        except Exception as e:
+            print(f"ruaccent недоступен ({e}); ставлю ударения только на «Юлечка» и рифму.")
+
+    # 2) verse_tts (помечены только Юлечка+рифма)
+    vt = [str(s).strip() for s in (data.get("verse_tts") or []) if str(s).strip()]
+    if vt:
+        return marks_to_acute(" ".join(vt))
+    if verse:
+        return marks_to_acute(" ".join(_override_phrase(l, rhyme) for l in verse))
     return f"Юлечка-{rhyme}." if rhyme else "Юлечка, самая любимая."
 
 
