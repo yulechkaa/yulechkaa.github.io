@@ -41,12 +41,23 @@ def main():
     with open(KEY_FILE, "w", encoding="utf-8") as f:
         f.write(key + "\n")
 
+    # Рифму и двустишие НЕ раскрываем — только интрига, чтобы открыть страничку.
+    # Тизер чередуется по дате, чтобы не приедался.
+    teasers = [
+        "Новая открытка уже ждёт тебя ✨",
+        "Там появилось кое-что новенькое… 👀",
+        "Сегодняшнее слово дня — загляни 💫",
+        "Открытка дня готова. Интересно, какая? 🎁",
+        "Тебя ждёт новая рифма 🌸",
+        "Свежая открытка — только для тебя 💐",
+        "Угадаешь, какое сегодня слово? 😉",
+    ]
     data = load("data.json", {})
-    rhyme = (data.get("rhyme") or "").strip()
-    verse = [str(s).strip() for s in (data.get("verse") or []) if str(s).strip()]
+    date_str = (data.get("date") or "").strip()
+    day_seed = sum(ord(c) for c in date_str)
     payload = json.dumps({
-        "title": f"Юлечка-{rhyme} 💌" if rhyme else "Для Юлечки 💌",
-        "body": " ".join(verse) or "Новая открытка дня ждёт тебя",
+        "title": "Для Юлечки 💌",
+        "body": teasers[day_seed % len(teasers)],
         "url": "./",
     }, ensure_ascii=False)
 
