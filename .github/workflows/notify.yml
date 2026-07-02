@@ -1,0 +1,36 @@
+name: Daily push notification
+
+on:
+  schedule:
+    - cron: '0 9 * * *'   # 09:00 UTC = 12:00 МСК (генерация проходит ночью, открытка уже свежая)
+  workflow_dispatch:       # Ручной запуск для теста
+
+permissions:
+  contents: write
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pywebpush
+
+      - name: Send push
+        env:
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+        run: python notify.py
+
+      - name: Commit cleaned subscriptions
+        run: |
+          git config --global user.name "YulechkaBot"
+          git config --global user.email "bot@github.com"
+          git add subscriptions.json
+          git diff --cached --quiet || (git commit -m "Push: вычищены умершие подписки" && git push)
