@@ -357,6 +357,9 @@
         <span id="install-text">Добавить на экран телефона</span>
         <button id="install-close" class="install-x" type="button" aria-label="Скрыть">×</button>
     </div>
+    <div id="share-hint" class="install" role="button" tabindex="0" hidden>
+        <span>Уведомления включены! Нажми, чтобы отправить код&nbsp;💌</span>
+    </div>
 
     <script>
         /* ---------- Резервная тема ---------- */
@@ -1056,18 +1059,22 @@
             btn.hidden = false;
             requestAnimationFrame(() => btn.classList.add("show"));
 
-            btn.addEventListener("click", async () => {
+            const bar = document.getElementById("share-hint");
+            const done = () => {
+                localStorage.setItem(SENT_KEY, "1");
+                btn.classList.remove("show");
+                setTimeout(() => { btn.hidden = true; }, 800);
+                if (bar) {
+                    bar.classList.remove("show");
+                    setTimeout(() => { bar.hidden = true; }, 500);
+                }
+            };
+
+            // Отправка кода. ВАЖНО: share/clipboard на iOS работают только в момент
+            // свежего нажатия — эту функцию зовём строго из обработчика клика, без await до неё.
+            const sendCode = async () => {
+                const text = JSON.stringify(sub.toJSON());
                 try {
-                    const perm = await Notification.requestPermission();
-                    if (perm !== "granted") return;
-                    if (!sub) {
-                        sub = await reg.pushManager.subscribe({
-                            userVisibleOnly: true,
-                            applicationServerKey: urlB64ToU8(VAPID_PUBLIC),
-                        });
-                    }
-                    const text = JSON.stringify(sub.toJSON());
-                    // Код подписки нужно один раз доставить владельцу сайта
                     if (navigator.share) {
                         await navigator.share({ title: "Код подписки на открытки", text });
                     } else if (navigator.clipboard) {
@@ -1076,11 +1083,39 @@
                     } else {
                         prompt("Скопируй код подписки и отправь создателю сайта:", text);
                     }
-                    // Код ушёл — колокольчик прячем насовсем (share при отмене бросает AbortError,
-                    // так что сюда попадаем только после реальной отправки/копирования)
-                    localStorage.setItem(SENT_KEY, "1");
-                    btn.classList.remove("show");
-                    setTimeout(() => { btn.hidden = true; }, 800);
+                } catch (e) {
+                    if (e && e.name === "AbortError") return;   // передумали — оставляем всё как есть
+                    // share/clipboard заблокированы — показываем код напрямую, его можно скопировать
+                    prompt("Скопируй код подписки и отправь создателю сайта:", text);
+                }
+                done();
+            };
+
+            const showShareBar = () => {
+                if (!bar) { sendCode(); return; }
+                bar.hidden = false;
+                requestAnimationFrame(() => bar.classList.add("show"));
+            };
+            if (bar) {
+                bar.addEventListener("click", () => { if (sub) sendCode(); });
+                bar.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && sub) sendCode(); });
+            }
+
+            btn.addEventListener("click", async () => {
+                try {
+                    // Разрешение уже есть и подписка готова — жест ещё свежий, делимся сразу
+                    if (Notification.permission === "granted" && sub) { sendCode(); return; }
+                    const perm = await Notification.requestPermission();
+                    if (perm !== "granted") return;
+                    if (!sub) {
+                        sub = await reg.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: urlB64ToU8(VAPID_PUBLIC),
+                        });
+                    }
+                    // После диалога разрешения жест «протух» — share бы молча не сработал (iOS).
+                    // Показываем плашку: её нажатие — новый жест, и шэринг откроется.
+                    showShareBar();
                 } catch (e) { console.warn("push subscribe:", e); }
             });
         }
