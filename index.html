@@ -156,6 +156,8 @@
             letter-spacing: -0.01em;
             color: var(--accent);
             margin: 0;
+            cursor: pointer;             /* тап по слову переигрывает появление букв */
+            -webkit-tap-highlight-color: transparent;
         }
         .rhyme .word { white-space: nowrap; }
 
@@ -207,6 +209,48 @@
         .play.show { opacity: 0.92; }
         .play:hover { transform: translateX(-50%) scale(1.08); background: rgba(255, 255, 255, 0.28); }
         .play svg { display: block; fill: var(--accent); }
+
+        /* Кольцо прогресса воспроизведения вокруг кнопки */
+        .play .ring {
+            position: absolute;
+            inset: -1px;
+            width: calc(100% + 2px);
+            height: calc(100% + 2px);
+            transform: rotate(-90deg);
+            pointer-events: none;
+            fill: none;
+        }
+        .play .ring circle {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 2;
+            stroke-linecap: round;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        /* Стрелки листания прошлых дней (появляются, когда архив загружен) */
+        .nav {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px; height: 44px;
+            display: grid; place-items: center;
+            border: 0; padding: 0;
+            background: transparent;
+            color: var(--ink-soft);
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.5s ease, transform 0.25s ease, visibility 0.5s;
+            z-index: 2;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .nav[hidden] { display: none; }
+        .nav.show { opacity: 0.4; }
+        .nav.show:hover { opacity: 0.9; transform: translateY(-50%) scale(1.12); }
+        .nav-prev { left: clamp(4px, 2.5vw, 26px); }
+        .nav-next { right: clamp(4px, 2.5vw, 26px); }
+        .nav svg { display: block; stroke: currentColor; }
 
         /* Подсказка «Добавить на экран телефона» — один раз, потом не показывается */
         .install {
@@ -272,7 +316,14 @@
     </main>
     <div class="date" id="date" hidden></div>
     <button id="play" class="play" type="button" aria-label="Послушать" hidden>
+        <svg class="ring" viewBox="0 0 56 56" aria-hidden="true"><circle id="play-ring" cx="28" cy="28" r="26.5"/></svg>
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path id="play-icon" d="M8 5v14l11-7z"/></svg>
+    </button>
+    <button id="nav-prev" class="nav nav-prev" type="button" aria-label="Прошлый день" hidden>
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button id="nav-next" class="nav nav-next" type="button" aria-label="Следующий день" hidden>
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
     </button>
     <div id="install" class="install" role="button" tabindex="0" hidden>
         <span id="install-text">Добавить на экран телефона</span>
@@ -758,6 +809,7 @@
         }
 
         function render(data) {
+            currentCard = data;
             applyTheme(data);
             applyFont(data.font);
             applyAnim(data.anim);
@@ -765,7 +817,75 @@
             renderBackdrop(data);
             setDate(data.date);
             document.title = `Юлечка — ${data.rhyme || ""}`.trim();
+            // аудио озвучено только для сегодняшней (последней) открытки
+            if (audioCtl) audioCtl.setToday(idx === cards.length - 1);
         }
+
+        /* ---------- Листание прошлых дней (архив) ---------- */
+        let cards = [FALLBACK];        // прошлые дни + сегодня (последняя)
+        let idx = 0;
+        let currentCard = FALLBACK;
+        let audioCtl = null;           // выставляется в setupAudio()
+
+        function show(i) {
+            if (i < 0 || i >= cards.length || i === idx) return;
+            idx = i;
+            render(cards[idx]);
+            updateNav();
+        }
+
+        function updateNav() {
+            const prev = document.getElementById("nav-prev");
+            const next = document.getElementById("nav-next");
+            if (!prev || !next) return;
+            const many = cards.length > 1;
+            prev.hidden = next.hidden = !many;
+            if (!many) return;
+            requestAnimationFrame(() => { prev.classList.add("show"); next.classList.add("show"); });
+            prev.style.visibility = idx === 0 ? "hidden" : "";
+            next.style.visibility = idx === cards.length - 1 ? "hidden" : "";
+        }
+
+        async function loadArchive(today) {
+            try {
+                const res = await fetch(`archive.json?t=${Date.now()}`);
+                if (!res.ok) return;
+                const arch = await res.json();
+                if (!Array.isArray(arch)) return;
+                // последняя открытка каждого прошлого дня (сегодняшняя берётся из data.json)
+                const byDate = new Map();
+                arch.forEach(c => { if (c && c.date && Array.isArray(c.palette)) byDate.set(c.date, c); });
+                if (today.date) byDate.delete(today.date);
+                const past = [...byDate.values()].sort((a, b) => (a.date < b.date ? -1 : 1));
+                if (!past.length) return;
+                cards = [...past, today];
+                idx = cards.length - 1;
+                updateNav();
+            } catch (e) { /* архива может не быть — просто без листания */ }
+        }
+
+        document.getElementById("nav-prev").addEventListener("click", () => show(idx - 1));
+        document.getElementById("nav-next").addEventListener("click", () => show(idx + 1));
+        window.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowLeft") show(idx - 1);
+            else if (e.key === "ArrowRight") show(idx + 1);
+        });
+
+        // Свайп: влево — к более новым, вправо — к прошлым
+        let swX = null, swY = null;
+        window.addEventListener("touchstart", (e) => {
+            swX = e.touches[0].clientX; swY = e.touches[0].clientY;
+        }, { passive: true });
+        window.addEventListener("touchend", (e) => {
+            if (swX === null) return;
+            const dx = e.changedTouches[0].clientX - swX;
+            const dy = e.changedTouches[0].clientY - swY;
+            swX = swY = null;
+            if (Math.abs(dx) > 56 && Math.abs(dx) > Math.abs(dy) * 1.6) show(idx + (dx < 0 ? 1 : -1));
+        }, { passive: true });
+
+        // Тап по слову дня — буквы переигрывают анимацию появления
+        rhymeEl.addEventListener("click", () => setRhyme(currentCard.rhyme || FALLBACK.rhyme));
 
         let resizeTimer;
         window.addEventListener("resize", () => {
@@ -776,10 +896,12 @@
             document.fonts.ready.then(fitRhyme);
         }
 
-        // Плеер: круглая кнопка появляется, только если audio.mp3 реально загрузился
+        // Плеер: круглая кнопка появляется, только если audio.mp3 реально загрузился,
+        // и только на сегодняшней открытке (для прошлых дней озвучки нет)
         function setupAudio() {
             const btn = document.getElementById("play");
             const icon = document.getElementById("play-icon");
+            const ring = document.getElementById("play-ring");
             if (!btn || !icon) return;
             const PLAY = "M8 5v14l11-7z";
             const PAUSE = "M7 5h3v14H7zM14 5h3v14h-3z";
@@ -787,13 +909,28 @@
             const audio = new Audio();
             audio.src = src;
             audio.preload = "auto";
-            let shown = false;
-            const reveal = () => {
-                if (shown) return;
-                shown = true;
-                btn.hidden = false;
-                requestAnimationFrame(() => btn.classList.add("show"));
+
+            let ready = false;      // файл реально есть
+            let onToday = true;     // смотрим сегодняшнюю открытку
+            const applyVis = () => {
+                if (ready && onToday) {
+                    btn.hidden = false;
+                    requestAnimationFrame(() => btn.classList.add("show"));
+                } else {
+                    btn.classList.remove("show");
+                    btn.hidden = true;
+                }
             };
+            const reveal = () => { if (!ready) { ready = true; applyVis(); } };
+            audioCtl = {
+                setToday(v) {
+                    if (onToday === v) return;
+                    onToday = v;
+                    if (!v && !audio.paused) audio.pause();
+                    applyVis();
+                }
+            };
+
             // iOS Safari не шлёт canplay/loadeddata без жеста — показываем по факту наличия файла
             fetch(src, { method: "HEAD" }).then((r) => { if (r.ok) reveal(); }).catch(() => {});
             audio.addEventListener("loadeddata", reveal);
@@ -802,19 +939,47 @@
                 if (audio.paused) audio.play().catch(() => {});
                 else audio.pause();
             });
-            audio.addEventListener("play", () => { icon.setAttribute("d", PAUSE); btn.setAttribute("aria-label", "Пауза"); });
-            audio.addEventListener("pause", () => { icon.setAttribute("d", PLAY); btn.setAttribute("aria-label", "Послушать"); });
-            audio.addEventListener("ended", () => { icon.setAttribute("d", PLAY); });
+
+            // Кольцо прогресса вокруг кнопки
+            const C = 2 * Math.PI * 26.5;
+            let raf = 0;
+            if (ring) {
+                ring.style.strokeDasharray = C.toFixed(1);
+                ring.style.strokeDashoffset = C.toFixed(1);
+            }
+            const tick = () => {
+                if (ring && audio.duration) {
+                    ring.style.strokeDashoffset = (C * (1 - audio.currentTime / audio.duration)).toFixed(1);
+                }
+                raf = requestAnimationFrame(tick);
+            };
+
+            audio.addEventListener("play", () => {
+                icon.setAttribute("d", PAUSE); btn.setAttribute("aria-label", "Пауза");
+                if (ring) ring.style.opacity = 0.9;
+                cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
+            });
+            audio.addEventListener("pause", () => {
+                icon.setAttribute("d", PLAY); btn.setAttribute("aria-label", "Послушать");
+                cancelAnimationFrame(raf);
+            });
+            audio.addEventListener("ended", () => {
+                icon.setAttribute("d", PLAY);
+                cancelAnimationFrame(raf);
+                if (ring) { ring.style.opacity = 0; ring.style.strokeDashoffset = C.toFixed(1); }
+            });
         }
 
         async function init() {
+            let today = FALLBACK;
             try {
                 const res = await fetch(`data.json?t=${Date.now()}`);
-                if (!res.ok) throw new Error(res.status);
-                render(await res.json());
-            } catch (e) {
-                render(FALLBACK);
-            }
+                if (res.ok) today = await res.json();
+            } catch (e) { /* оставляем FALLBACK */ }
+            cards = [today];
+            idx = 0;
+            render(today);
+            loadArchive(today);   // фоном: появятся стрелки и свайп по прошлым дням
         }
 
         // Установка как приложение: предлагаем один раз, после добавления/скрытия — больше нет
