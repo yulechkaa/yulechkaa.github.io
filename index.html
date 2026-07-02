@@ -1037,6 +1037,14 @@
             let sub = null;
             try { sub = await reg.pushManager.getSubscription(); } catch (e) {}
 
+            // Уже подписались и отправили код с этого устройства — кнопка больше не нужна.
+            // Если подписка при этом исчезла (сняли разрешение) — покажем колокольчик заново.
+            const SENT_KEY = "push-code-sent";
+            if (localStorage.getItem(SENT_KEY) === "1") {
+                if (sub) return;
+                localStorage.removeItem(SENT_KEY);
+            }
+
             // Если эта подписка уже закоммичена в subscriptions.json — всё настроено, кнопка не нужна
             let known = [];
             try {
@@ -1068,6 +1076,11 @@
                     } else {
                         prompt("Скопируй код подписки и отправь создателю сайта:", text);
                     }
+                    // Код ушёл — колокольчик прячем насовсем (share при отмене бросает AbortError,
+                    // так что сюда попадаем только после реальной отправки/копирования)
+                    localStorage.setItem(SENT_KEY, "1");
+                    btn.classList.remove("show");
+                    setTimeout(() => { btn.hidden = true; }, 800);
                 } catch (e) { console.warn("push subscribe:", e); }
             });
         }
