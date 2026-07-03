@@ -92,7 +92,9 @@
             -webkit-mask-image: radial-gradient(72% 52% at 50% 47%, rgba(0,0,0,0.18), rgba(0,0,0,0.6) 46%, #000 78%);
                     mask-image: radial-gradient(72% 52% at 50% 47%, rgba(0,0,0,0.18), rgba(0,0,0,0.6) 46%, #000 78%);
         }
-        #scene { border: 0; background: transparent; }
+        /* iframe — replaced-элемент: inset:0 сам по себе его НЕ растягивает
+           (при width:auto остаётся встроенный размер 300×150 в углу) */
+        #scene { border: 0; background: transparent; width: 100%; height: 100%; }
         #art svg { width: 100%; height: 100%; display: block; }
 
         /* Осознанная анимация орнамента — медленная, в одном ритме с дрейфом фона */
