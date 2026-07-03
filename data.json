@@ -1,24 +1,24 @@
 {
-  "rhyme": "дивнулечка",
-  "mood": "карамельно-уютное",
+  "rhyme": "веснулечка",
+  "mood": "бархатно-романтичное",
   "palette": [
-    "#e8d3c5",
-    "#b4cfb0",
-    "#789395"
+    "#582f4e",
+    "#e0aaff",
+    "#e5c590"
   ],
   "style": "dusk",
   "art": "orbits",
-  "font": "comfortaa",
-  "anim": "scale",
+  "font": "marck",
+  "anim": "fade",
   "verse": [
-    "Пусть вечер укроет нас мягким крылом,",
-    "А Юлечка-дивнулечка дарит теплом."
+    "Сверкает мир, тепло своей улыбкою даря,",
+    "Моя ты Юлечка-веснулечка, люблю одну тебя."
   ],
   "verse_tts": [
-    "Пусть вечер укроет нас мягким крылом,",
-    "А +Юлечка-дивн+улечка дарит теплом."
+    "Сверкает мир, тепло своей улыбкою даря,",
+    "Моя ты +Юлечка-весн+улечка, люблю одну тебя."
   ],
-  "svg": "",
+  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><g stroke=\"#e5c590\" stroke-width=\"0.8\" fill=\"none\"><circle cx=\"500\" cy=\"500\" r=\"380\" stroke-opacity=\"0.25\"/><circle cx=\"500\" cy=\"500\" r=\"260\" stroke-opacity=\"0.35\"/><circle cx=\"500\" cy=\"500\" r=\"140\" stroke-opacity=\"0.2\"/></g><g transform=\"translate(500,500)\" fill=\"none\"><g stroke=\"#e0aaff\" stroke-width=\"1\" stroke-opacity=\"0.4\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0\" to=\"360\" dur=\"90s\" repeatCount=\"indefinite\"/><ellipse rx=\"420\" ry=\"120\"/><ellipse rx=\"420\" ry=\"120\" transform=\"rotate(30)\"/><ellipse rx=\"420\" ry=\"120\" transform=\"rotate(60)\"/><ellipse rx=\"420\" ry=\"120\" transform=\"rotate(90)\"/><ellipse rx=\"420\" ry=\"120\" transform=\"rotate(120)\"/><ellipse rx=\"420\" ry=\"120\" transform=\"rotate(150)\"/></g><g stroke=\"#e5c590\" stroke-width=\"0.8\" stroke-opacity=\"0.3\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"360\" to=\"0\" dur=\"120s\" repeatCount=\"indefinite\"/><ellipse rx=\"320\" ry=\"70\"/><ellipse rx=\"320\" ry=\"70\" transform=\"rotate(45)\"/><ellipse rx=\"320\" ry=\"70\" transform=\"rotate(90)\"/><ellipse rx=\"320\" ry=\"70\" transform=\"rotate(135)\"/></g><g stroke=\"#582f4e\" stroke-width=\"1.2\" stroke-opacity=\"0.45\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0\" to=\"-360\" dur=\"60s\" repeatCount=\"indefinite\"/><circle cx=\"260\" cy=\"0\" r=\"6\" fill=\"#e5c590\" stroke=\"none\"><animate attributeName=\"opacity\" values=\"0.3;1;0.3\" dur=\"4s\" repeatCount=\"indefinite\"/></circle><circle cx=\"-260\" cy=\"0\" r=\"6\" fill=\"#e5c590\" stroke=\"none\"><animate attributeName=\"opacity\" values=\"1;0.3;1\" dur=\"4s\" repeatCount=\"indefinite\"/></circle><circle cx=\"0\" cy=\"260\" r=\"6\" fill=\"#e0aaff\" stroke=\"none\"><animate attributeName=\"opacity\" values=\"0.3;1;0.3\" dur=\"5s\" repeatCount=\"indefinite\"/></circle><circle cx=\"0\" cy=\"-260\" r=\"6\" fill=\"#e0aaff\" stroke=\"none\"><animate attributeName=\"opacity\" values=\"1;0.3;1\" dur=\"5s\" repeatCount=\"indefinite\"/></circle></g></g></svg> banner background inside vector shape of standard design pattern containing star nodes constellation with smooth animated pulse effects based on standard SMIL parameters is highly visible visually during play with color theme gradients in custom views as designed above properly configured with linear stroke curves structure visually balanced element set pattern and perfect frame aspect values specified in dynamic viewbox coordinates to keep maximum scale flexibility for all screen widths elements used strictly as requested visually attractive elements present on dynamic space view layout with high graphic accuracy with soft overlay of glowing segments beautifully mapped properly directly into layout design parameters representation form template design visual layout style standard and elegant output.\",\"scene\":\"\"}.",
   "scene": "",
   "date": "2026-07-03"
 }
