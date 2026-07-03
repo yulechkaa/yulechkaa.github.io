@@ -43,7 +43,9 @@ def marks_to_acute(text):
     """Любые пометки ударения → U+0301: «+» ПЕРЕД гласной и «'» ПОСЛЕ гласной."""
     text = re.sub(r"\+([" + VOW + r"])", "\\1́", text)
     text = re.sub(r"([" + VOW + r"])'", "\\1́", text)
-    return text
+    # Страховка: уцелевший «+» (не перед гласной, задвоенная метка и т.п.) TTS
+    # читает вслух как «плюс» — вычищаем всё, что не сконвертировалось
+    return text.replace("+", "")
 
 
 def _stress_rhyme(rhyme):
@@ -75,6 +77,12 @@ def _override_phrase(line, rhyme):
             m = re.match(r"^([^\w]*)(.*?)([^\w]*)$", sp, re.S)
             pre, core, post = m.group(1), m.group(2), m.group(3)
             low = core.replace("+", "").replace("'", "").replace("́", "").lower()
+            if low in ("юлечка", rl) or low in STRESS_OVERRIDES:
+                # ruaccent мог уже поставить метку ПЕРЕД словом («+юлечка» — ударная
+                # первая гласная), и она попадает в pre. Перекрываем своим ударением —
+                # чужие метки вычищаем, иначе получится «++Юлечка» и TTS скажет «плюс»
+                strip = lambda s: s.replace("+", "").replace("'", "").replace("́", "")
+                pre, post = strip(pre), strip(post)
             if low == "юлечка":
                 core = "+Юлечка"
             elif low == rl:
