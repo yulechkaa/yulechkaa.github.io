@@ -763,6 +763,14 @@
                 const l = document.createElement("link");
                 l.id = id; l.rel = "stylesheet";
                 l.href = `https://fonts.googleapis.com/css2?family=${f.spec}&display=swap`;
+                // ВАЖНО: пока стилшит не загружен, @font-face ещё не объявлен и
+                // document.fonts.load(...) резолвится мгновенно и впустую — слово мерилось
+                // запасным шрифтом и вылезало за экран. Ждём сам файл шрифта после onload.
+                l.addEventListener("load", () => {
+                    if (document.fonts && document.fonts.load) {
+                        document.fonts.load(`1em "${f.fam}"`).then(fitRhyme).catch(() => {});
+                    }
+                });
                 document.head.appendChild(l);
             }
             document.documentElement.style.setProperty("--rhyme-font", `"${f.fam}", ${f.fb}`);
@@ -925,6 +933,10 @@
         });
         if (document.fonts && document.fonts.ready) {
             document.fonts.ready.then(fitRhyme);
+        }
+        // Страховка: любой дозагрузившийся шрифт (в т.ч. шрифт дня) → перемеряем слово
+        if (document.fonts && document.fonts.addEventListener) {
+            document.fonts.addEventListener("loadingdone", () => fitRhyme());
         }
 
         // Плеер: круглая кнопка появляется, только если audio.mp3 реально загрузился,

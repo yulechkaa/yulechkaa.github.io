@@ -52,9 +52,18 @@ def _stress_rhyme(rhyme):
     return rhyme[:m.start(1)] + "+" + rhyme[m.start(1):] if m else rhyme
 
 
+# Ручные исключения: ruaccent путает омографы, а в наших стихах контекст почти всегда один
+# («дарит теплом» — творительный от «тепло», а не «в тёплом»). Пополнять по мере находок.
+STRESS_OVERRIDES = {
+    "теплом": "тепл+ом",
+    "добром": "добр+ом",
+    "серебром": "серебр+ом",
+}
+
+
 def _override_phrase(line, rhyme):
-    """В уже размеченной строке ставим НАШИ ударения в «Юлечка» и в самой рифме
-    (даже хороший стрессер ошибается — слово выдуманное)."""
+    """В уже размеченной строке ставим НАШИ ударения в «Юлечка», в самой рифме
+    (даже хороший стрессер ошибается — слово выдуманное) и в словах-исключениях."""
     sr = _stress_rhyme(rhyme)
     rl = rhyme.lower()
     toks = re.split(r"(\s+)", line)
@@ -65,11 +74,17 @@ def _override_phrase(line, rhyme):
         for j, sp in enumerate(sub):
             m = re.match(r"^([^\w]*)(.*?)([^\w]*)$", sp, re.S)
             pre, core, post = m.group(1), m.group(2), m.group(3)
-            low = core.replace("+", "").replace("'", "").lower()
+            low = core.replace("+", "").replace("'", "").replace("́", "").lower()
             if low == "юлечка":
                 core = "+Юлечка"
             elif low == rl:
                 core = sr
+            elif low in STRESS_OVERRIDES:
+                fixed = STRESS_OVERRIDES[low]
+                if core[:1].isupper():
+                    k = 1 if fixed.startswith("+") else 0
+                    fixed = fixed[:k] + fixed[k].upper() + fixed[k + 1:]
+                core = fixed
             sub[j] = pre + core + post
         toks[i] = "-".join(sub)
     return "".join(toks)
@@ -110,7 +125,18 @@ def _ruaccent_lines(verse, rhyme):
         _patch_onnx_ttids()
         from ruaccent import RUAccent
         acc = RUAccent()
-        acc.load(omograph_model_size="turbo", use_dictionary=True)
+        # Омографы («теплом», «замок»…) turbo решает плохо — берём модель посильнее,
+        # с откатом на turbo, если в установленной версии её нет
+        err = None
+        for size in ("turbo3.1", "turbo2", "turbo"):
+            try:
+                acc.load(omograph_model_size=size, use_dictionary=True)
+                print(f"ruaccent: омограф-модель «{size}».")
+                break
+            except Exception as e:
+                err = e
+        else:
+            raise err
         _ACC = acc
     return [_override_phrase(_ACC.process_all(l), rhyme) for l in verse]
 
