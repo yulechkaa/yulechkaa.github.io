@@ -442,7 +442,13 @@ def main():
     if len(scene) > 16000:
         scene = ""
 
-    today_str = datetime.now().strftime("%Y-%m-%d")
+    # Дата всегда по Москве: раннеры живут в UTC, а cron может опоздать на часы —
+    # без явной зоны открытка около полуночи получала бы соседнюю дату
+    try:
+        from zoneinfo import ZoneInfo
+        today_str = datetime.now(ZoneInfo("Europe/Moscow")).strftime("%Y-%m-%d")
+    except Exception:
+        today_str = datetime.now().strftime("%Y-%m-%d")
 
     concept = (result.get("concept") or "").strip()[:200]
 
