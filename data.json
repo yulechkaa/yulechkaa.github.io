@@ -1,25 +1,25 @@
 {
-  "rhyme": "сердечулечка",
-  "mood": "хрустально-трепетное",
-  "concept": "Геодезический каркас хрустального многогранника, вращающийся в облаке мерцающей пыли",
+  "rhyme": "улыбнулечка",
+  "mood": "искрящееся",
+  "concept": "Астролябия в стиле ар-деко с тонкими пересекающимися лучами, концентрическими орбитами и мелкими мерцающими искрами.",
   "palette": [
-    "#b2ebf2",
-    "#ffccbc",
-    "#d1c4e9"
+    "#ff758f",
+    "#ffb5a7",
+    "#72efdd"
   ],
-  "style": "frost",
-  "art": "orbits",
-  "font": "prata",
-  "anim": "glow",
+  "style": "bloom",
+  "art": "rays",
+  "font": "pacifico",
+  "anim": "wave",
   "verse": [
-    "Словно нежный хрусталь, чистый свет из небес,",
-    "Ты несешь, Юлечка-сердечулечка, время чудес."
+    "Ты украсишь улыбкою весь этот мир,",
+    "Юлечка-улыбнулечка, мой ориентир!"
   ],
   "verse_tts": [
-    "Словно нежный хрусталь, чистый свет из небес,",
-    "Ты несешь, +Юлечка-сердеч+улечка, время чудес."
+    "Ты украсишь улыбкою весь этот мир,",
+    "+Юлечка-улыбн+улечка, мой ориентир!"
   ],
-  "svg": "",
-  "scene": "let t=0,pts=[];for(let i=0;i<12;i++){let f=Math.acos(-1+2*i/12),th=Math.sqrt(12*Math.PI)*f;pts.push({x:Math.cos(th)*Math.sin(f),y:Math.sin(th)*Math.sin(f),z:Math.cos(f)})}function dr(){ctx.clearRect(0,0,W(),H());t+=0.003;let cx=W()/2,cy=H()/2,sz=Math.min(W(),H())*0.28;ctx.lineWidth=0.8;for(let i=0;i<12;i++){for(let j=i+1;j<12;j++){let p1=pts[i],p2=pts[j];if(Math.hypot(p1.x-p2.x,p1.y-p2.y,p1.z-p2.z)<1.2){let cY=Math.cos(t),sY=Math.sin(t),cX=Math.cos(t*0.5),sX=Math.sin(t*0.5);let z1=p1.x*sY+p1.z*cY,nx1=p1.x*cY-p1.z*sY,ny1=p1.y*cX-z1*sX,rz1=p1.y*sX+z1*cX;let z2=p2.x*sY+p2.z*cY,nx2=p2.x*cY-p2.z*sY,ny2=p2.y*cX-z2*sX,rz2=p2.y*sX+z2*cX;ctx.strokeStyle=PALETTE[0];ctx.globalAlpha=Math.max(0,(rz1+rz2+2)/4)*0.4;ctx.beginPath();ctx.moveTo(cx+nx1*sz,cy+ny1*sz);ctx.lineTo(cx+nx2*sz,cy+ny2*sz);ctx.stroke()}}}for(let i=0;i<25;i++){let a=i*13.5+t*0.1,r=(i*7%180)+120;ctx.fillStyle=PALETTE[i%PALETTE.length];ctx.globalAlpha=0.4;ctx.beginPath();ctx.arc(cx+Math.cos(a)*r,cy+Math.sin(a)*r,(i%3+1)*(Math.sin(t*2+i)*0.3+0.7),0,Math.PI*2);ctx.fill()}requestAnimationFrame(dr)}dr();",
-  "date": "2026-07-04"
+  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"grad1\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#FF758F\" /><stop offset=\"100%\" stop-color=\"#72EFDD\" /></linearGradient><linearGradient id=\"grad2\" x1=\"0%\" y1=\"100%\" x2=\"100%\" y2=\"0%\"><stop offset=\"0%\" stop-color=\"#FFB5A7\" stop-opacity=\"0.8\" /><stop offset=\"100%\" stop-color=\"#FF758F\" stop-opacity=\"0.2\" /></linearGradient><radialGradient id=\"glow\" cx=\"50%\" cy=\"50%\" r=\"50%\"><stop offset=\"0%\" stop-color=\"#72EFDD\" stop-opacity=\"0.3\" /><stop offset=\"100%\" stop-color=\"#72EFDD\" stop-opacity=\"0\" /></radialGradient></defs><circle cx=\"500\" cy=\"500\" r=\"350\" fill=\"url(#glow)\" /><g transform=\"translate(500, 500)\"><circle cx=\"0\" cy=\"0\" r=\"420\" fill=\"none\" stroke=\"url(#grad1)\" stroke-width=\"1.5\" stroke-dasharray=\"8 8\" opacity=\"0.6\" /><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0\" to=\"360\" dur=\"100s\" repeatCount=\"indefinite\" /><circle cx=\"0\" cy=\"0\" r=\"380\" fill=\"none\" stroke=\"url(#grad2)\" stroke-width=\"2\" /><path d=\"M 0 -380 L 0 -390 M 0 380 L 0 390 M -380 0 L -390 0 M 380 0 L 390 0\" stroke=\"url(#grad1)\" stroke-width=\"2\" /><path d=\"M -268.7 -268.7 L -275.7 -275.7 M 268.7 268.7 L 275.7 275.7 M -268.7 268.7 L -275.7 275.7 M 268.7 -268.7 L 275.7 -275.7\" stroke=\"url(#grad1)\" stroke-width=\"1.5\" /></g><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"360\" to=\"0\" dur=\"150s\" repeatCount=\"indefinite\" /><polygon points=\"0,-330 285,-165 285,165 0,330 -285,165 -285,-165\" fill=\"none\" stroke=\"#FF758F\" stroke-width=\"1\" opacity=\"0.4\" /><polygon points=\"0,-285 246,-142 246,142 0,285 -246,142 -246,-142\" fill=\"none\" stroke=\"#72EFDD\" stroke-width=\"1\" opacity=\"0.4\" /><circle cx=\"0\" cy=\"0\" r=\"330\" fill=\"none\" stroke=\"url(#grad1)\" stroke-dasharray=\"1 10\" stroke-width=\"3\" /></g><g><line x1=\"-480\" y1=\"0\" x2=\"-200\" y2=\"0\" stroke=\"url(#grad1)\" stroke-width=\"1\" opacity=\"0.7\" /><line x1=\"200\" y1=\"0\" x2=\"480\" y2=\"0\" stroke=\"url(#grad1)\" stroke-width=\"1\" opacity=\"0.7\" /><line x1=\"0\" y1=\"-480\" x2=\"0\" y2=\"-200\" stroke=\"url(#grad1)\" stroke-width=\"1\" opacity=\"0.7\" /><line x1=\"0\" y1=\"200\" x2=\"0\" y2=\"480\" stroke=\"url(#grad1)\" stroke-width=\"1\" opacity=\"0.7\" /><line x1=\"-339\" y1=\"-339\" x2=\"-141\" y2=\"-141\" stroke=\"#FFB5A7\" stroke-width=\"1\" opacity=\"0.5\" /><line x1=\"141\" y1=\"141\" x2=\"339\" y2=\"339\" stroke=\"#FFB5A7\" stroke-width=\"1\" opacity=\"0.5\" /><line x1=\"141\" y1=\"-141\" x2=\"339\" y2=\"-339\" stroke=\"#FFB5A7\" stroke-width=\"1\" opacity=\"0.5\" /><line x1=\"-339\" y1=\"339\" x2=\"-141\" y2=\"141\" stroke=\"#FFB5A7\" stroke-width=\"1\" opacity=\"0.5\" /></g><g><circle cx=\"200\" cy=\"-250\" r=\"3\" fill=\"#72EFDD\"><animate attributeName=\"opacity\" values=\"0.2;1;0.2\" dur=\"4s\" repeatCount=\"indefinite\" /></circle><circle cx=\"-250\" cy=\"180\" r=\"4\" fill=\"#FF758F\"><animate attributeName=\"opacity\" values=\"1;0.1;1\" dur=\"5s\" repeatCount=\"indefinite\" /></circle><circle cx=\"-150\" cy=\"-300\" r=\"2.5\" fill=\"#FFB5A7\"><animate attributeName=\"opacity\" values=\"0.1;0.9;0.1\" dur=\"3s\" repeatCount=\"indefinite\" /></circle><circle cx=\"300\" cy=\"120\" r=\"3\" fill=\"#72EFDD\"><animate attributeName=\"opacity\" values=\"0.3;1;0.3\" dur=\"6s\" repeatCount=\"indefinite\" /></circle></g></g></svg>",
+  "scene": "",
+  "date": "2026-07-05"
 }
