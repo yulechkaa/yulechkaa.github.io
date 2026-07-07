@@ -1,25 +1,25 @@
 {
-  "rhyme": "сказкулечка",
-  "mood": "игриво-кокетливое",
-  "concept": "абстрактные океанские волны, закрученные в спираль золотого сечения из мерцающих нитей",
+  "rhyme": "искрулечка",
+  "mood": "искристо-озорное",
+  "concept": "рой мелких искр разлетается по диагонали от порыва ветра — пуантилизм светящихся точек, огибающих спокойный центр",
   "palette": [
-    "#f7d9c4",
-    "#e7a3b6",
-    "#c8a2d8"
+    "#ffd166",
+    "#06d6a0",
+    "#ef476f"
   ],
   "style": "bloom",
-  "art": "waves",
-  "font": "lobster",
-  "anim": "drop",
+  "art": "rays",
+  "font": "unbounded",
+  "anim": "cascade",
   "verse": [
-    "В твоих глазах мерцает тихий океан,",
-    "Ты, Юлечка-сказкулечка, мой добрый талисман."
+    "Искрится смех твой, лёгкий, как весенний бриз,",
+    "Юлечка-искрулечка, ты — мой сюрприз."
   ],
   "verse_tts": [
-    "В твоих глазах мерцает тихий океан,",
-    "Ты, +Юлечка-сказк+улечка, мой добрый талисман."
+    "Искрится смех твой, лёгкий, как весенний бриз,",
+    "+Юлечка-искр+улечка, ты — мой сюрприз."
   ],
-  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"grad1\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#FF4081\" stop-opacity=\"0.8\"/><stop offset=\"50%\" stop-color=\"#7B1FA2\" stop-opacity=\"0.8\"/><stop offset=\"100%\" stop-color=\"#E0F7FA\" stop-opacity=\"0.8\"/></linearGradient><linearGradient id=\"grad2\" x1=\"100%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#E0F7FA\" stop-opacity=\"0.6\"/><stop offset=\"100%\" stop-color=\"#FF4081\" stop-opacity=\"0.6\"/></linearGradient></defs><g transform=\"translate(500,500)\"><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0\" to=\"360\" dur=\"80s\" repeatCount=\"indefinite\"/><path d=\"M-400,-100 Q-200,-300 0,-100 T400,-100\" fill=\"none\" stroke=\"url(#grad1)\" stroke-width=\"4\" stroke-linecap=\"round\" opacity=\"0.6\"/><path d=\"M-400,-50 Q-200,-250 0,-50 T400,-50\" fill=\"none\" stroke=\"url(#grad2)\" stroke-width=\"3\" stroke-linecap=\"round\" opacity=\"0.4\"/><path d=\"M-300,-300 C-150,-400 150,-400 300,-300 C400,-150 400,150 300,300 C150,400 -150,400 -300,300\" fill=\"none\" stroke=\"url(#grad1)\" stroke-width=\"2\" stroke-dasharray=\"10 15\"/></g><circle cx=\"-250\" cy=\"-200\" r=\"12\" fill=\"url(#grad2)\"><animate attributeName=\"opacity\" values=\"0.2;0.8;0.2\" dur=\"5s\" repeatCount=\"indefinite\"/></circle><circle cx=\"280\" cy=\"180\" r=\"18\" fill=\"url(#grad1)\"><animate attributeName=\"opacity\" values=\"0.8;0.3;0.8\" dur=\"7s\" repeatCount=\"indefinite\"/></circle><circle cx=\"-180\" cy=\"250\" r=\"8\" fill=\"url(#grad1)\"><animate attributeName=\"opacity\" values=\"0.1;0.9;0.1\" dur=\"4s\" repeatCount=\"indefinite\"/></circle><circle cx=\"200\" cy=\"-280\" r=\"15\" fill=\"url(#grad2)\"><animate attributeName=\"opacity\" values=\"0.3;0.7;0.3\" dur=\"6s\" repeatCount=\"indefinite\"/></circle></g></svg>",
-  "scene": "",
+  "svg": "",
+  "scene": "let particles=[];const n=42;const cx=W()/2,cy=H()/2;for(let i=0;i<n;i++){particles.push({x:Math.random()*W(),y:Math.random()*H(),r:1+Math.random()*2.2,speed:0.04+Math.random()*0.09,angle:0.5+Math.random()*0.2,phase:Math.random()*Math.PI*2,color:PALETTE[Math.floor(Math.random()*PALETTE.length)]});}function animate(t){ctx.clearRect(0,0,W(),H());particles.forEach(p=>{p.x+=Math.cos(p.angle)*p.speed;p.y+=Math.sin(p.angle)*p.speed;if(p.x>W()+20)p.x=-20;if(p.y>H()+20)p.y=-20;if(p.x<-20)p.x=W()+20;if(p.y<-20)p.y=H()+20;const dx=p.x-cx,dy=p.y-cy;const dist=Math.sqrt(dx*dx+dy*dy);const boost=dist<170?0.12:0.85;const flick=0.35+0.35*Math.sin(t*0.0009+p.phase);ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.color;ctx.globalAlpha=flick*boost;ctx.fill();if(p.r>2){ctx.beginPath();ctx.moveTo(p.x-Math.cos(p.angle)*6,p.y-Math.sin(p.angle)*6);ctx.lineTo(p.x,p.y);ctx.strokeStyle=p.color;ctx.lineWidth=0.6;ctx.globalAlpha=flick*boost*0.5;ctx.stroke();}});ctx.globalAlpha=1;requestAnimationFrame(animate);}requestAnimationFrame(animate);",
   "date": "2026-07-07"
 }
