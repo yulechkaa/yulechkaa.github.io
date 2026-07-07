@@ -1,25 +1,25 @@
 {
-  "rhyme": "цветулечка",
-  "mood": "рассветно-чистое",
-  "concept": "Силуэт фантастического светящегося цветка, раскрывающего свои лепестки навстречу первому утреннему солнцу.",
+  "rhyme": "сказкулечка",
+  "mood": "игриво-кокетливое",
+  "concept": "абстрактные океанские волны, закрученные в спираль золотого сечения из мерцающих нитей",
   "palette": [
-    "#ff9e9e",
-    "#ffd07b",
-    "#a1c6ea"
+    "#f7d9c4",
+    "#e7a3b6",
+    "#c8a2d8"
   ],
-  "style": "dawn",
-  "art": "rays",
-  "font": "philosopher",
-  "anim": "scale",
+  "style": "bloom",
+  "art": "waves",
+  "font": "lobster",
+  "anim": "drop",
   "verse": [
-    "Шепчу тебе тихо весенний привет:",
-    "«Ты, Юлечка-цветулечка, любви живой букет!»"
+    "В твоих глазах мерцает тихий океан,",
+    "Ты, Юлечка-сказкулечка, мой добрый талисман."
   ],
   "verse_tts": [
-    "Шепчу тебе тихо весенний привет:",
-    "«Ты, +Юлечка-цвет+улечка, любви живой букет!»"
+    "В твоих глазах мерцает тихий океан,",
+    "Ты, +Юлечка-сказк+улечка, мой добрый талисман."
   ],
-  "svg": "",
-  "scene": "(function(){let t=0;function d(){const w=W(),h=H(),cx=w/2,cy=h/2,mr=Math.min(w,h)*0.38;ctx.clearRect(0,0,w,h);t+=0.004;for(let i=0;i<3;i++){const np=8+i*4,r=(mr*(0.8-i*0.22))+15*Math.sin(t*2+i);ctx.lineWidth=1.5;ctx.strokeStyle=PALETTE[i%3]+'33';ctx.shadowColor=PALETTE[i%3];ctx.shadowBlur=12;for(let j=0;j<np;j++){const a=(j/np)*Math.PI*2+t*(i%2===0?0.2:-0.15);ctx.beginPath();ctx.moveTo(cx,cy);const c1x=cx+Math.cos(a-0.3)*r*0.5,c1y=cy+Math.sin(a-0.3)*r*0.5,c2x=cx+Math.cos(a+0.3)*r*0.8,c2y=cy+Math.sin(a+0.3)*r*0.8,ex=cx+Math.cos(a)*r,ey=cy+Math.sin(a)*r;ctx.bezierCurveTo(c1x,c1y,c2x,c2y,ex,ey);const c3x=cx+Math.cos(a-0.3)*r*0.8,c3y=cy+Math.sin(a-0.3)*r*0.8,c4x=cx+Math.cos(a+0.3)*r*0.5,c4y=cy+Math.sin(a+0.3)*r*0.5;ctx.bezierCurveTo(c3x,c3y,c4x,c4y,cx,cy);ctx.stroke();}}ctx.shadowBlur=5;for(let p=0;p<15;p++){const px=cx+Math.sin(t+p*2)*mr*0.9,py=cy+Math.cos(t*0.7+p*3)*mr*0.8-((t*15+p*20)%200-100);ctx.fillStyle=PALETTE[p%3]+'88';ctx.beginPath();ctx.arc(px,py,1.5+(p%3),0,Math.PI*2);ctx.fill();}requestAnimationFrame(d);}d();})();",
-  "date": "2026-07-06"
+  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"grad1\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#FF4081\" stop-opacity=\"0.8\"/><stop offset=\"50%\" stop-color=\"#7B1FA2\" stop-opacity=\"0.8\"/><stop offset=\"100%\" stop-color=\"#E0F7FA\" stop-opacity=\"0.8\"/></linearGradient><linearGradient id=\"grad2\" x1=\"100%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#E0F7FA\" stop-opacity=\"0.6\"/><stop offset=\"100%\" stop-color=\"#FF4081\" stop-opacity=\"0.6\"/></linearGradient></defs><g transform=\"translate(500,500)\"><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0\" to=\"360\" dur=\"80s\" repeatCount=\"indefinite\"/><path d=\"M-400,-100 Q-200,-300 0,-100 T400,-100\" fill=\"none\" stroke=\"url(#grad1)\" stroke-width=\"4\" stroke-linecap=\"round\" opacity=\"0.6\"/><path d=\"M-400,-50 Q-200,-250 0,-50 T400,-50\" fill=\"none\" stroke=\"url(#grad2)\" stroke-width=\"3\" stroke-linecap=\"round\" opacity=\"0.4\"/><path d=\"M-300,-300 C-150,-400 150,-400 300,-300 C400,-150 400,150 300,300 C150,400 -150,400 -300,300\" fill=\"none\" stroke=\"url(#grad1)\" stroke-width=\"2\" stroke-dasharray=\"10 15\"/></g><circle cx=\"-250\" cy=\"-200\" r=\"12\" fill=\"url(#grad2)\"><animate attributeName=\"opacity\" values=\"0.2;0.8;0.2\" dur=\"5s\" repeatCount=\"indefinite\"/></circle><circle cx=\"280\" cy=\"180\" r=\"18\" fill=\"url(#grad1)\"><animate attributeName=\"opacity\" values=\"0.8;0.3;0.8\" dur=\"7s\" repeatCount=\"indefinite\"/></circle><circle cx=\"-180\" cy=\"250\" r=\"8\" fill=\"url(#grad1)\"><animate attributeName=\"opacity\" values=\"0.1;0.9;0.1\" dur=\"4s\" repeatCount=\"indefinite\"/></circle><circle cx=\"200\" cy=\"-280\" r=\"15\" fill=\"url(#grad2)\"><animate attributeName=\"opacity\" values=\"0.3;0.7;0.3\" dur=\"6s\" repeatCount=\"indefinite\"/></circle></g></svg>",
+  "scene": "",
+  "date": "2026-07-07"
 }
