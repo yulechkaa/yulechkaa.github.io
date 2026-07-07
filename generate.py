@@ -20,6 +20,17 @@ MODELS = [MODEL] + [m for m in FALLBACK_MODELS if m != MODEL]
 API_BASE = "https://generativelanguage.googleapis.com/v1beta/models"
 RETRY_STATUS = {429, 500, 502, 503, 504}
 
+# --- Claude через OpenRouter: основной провайдер, если задан OPENROUTER_API_KEY ---
+# (Gemini остаётся запасным; без ключа всё работает по-старому)
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+CLAUDE_MODELS = [
+    "anthropic/claude-sonnet-5",      # лучший баланс качества/цены для творчества
+    "anthropic/claude-sonnet-4.6",    # запасной
+    "anthropic/claude-haiku-4.5",     # совсем запасной, дешёвый
+]
+CLAUDE_PROOFREAD_MODEL = "anthropic/claude-haiku-4.5"
+
 # Перечни, согласованные с фронтендом (index.html)
 ALLOWED_STYLES = ["aurora", "mesh", "dawn", "dusk", "bloom", "frost"]
 ALLOWED_ART = ["constellation", "petals", "waves", "orbits", "lattice", "rays"]
@@ -152,6 +163,68 @@ def call_gemini(payload, timeout=60, attempts=8, models=None):
     return None
 
 
+def _extract_json(text):
+    """Достаёт JSON-объект из ответа модели: срезает ```-заборы и текст вокруг."""
+    m = re.search(r"\{[\s\S]*\}", text)
+    if not m:
+        raise json.JSONDecodeError("в ответе нет JSON-объекта", text, 0)
+    return json.loads(m.group(0))
+
+
+def call_openrouter(prompt, max_tokens=16384, attempts=3, models=None, timeout=120):
+    """Claude через OpenRouter (chat/completions), с повторами и каскадом моделей.
+    Возвращает распарсенный JSON или None (тогда зовём Gemini).
+    ВАЖНО: сэмплинг-параметры (temperature и т.п.) НЕ шлём — новые модели Claude
+    их не принимают; формат ответа обеспечивает сам промпт."""
+    if not OPENROUTER_API_KEY:
+        return None
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://yulechkaa.github.io",
+        "X-Title": "Yulechka Daily Card",
+    }
+    for model in (models or CLAUDE_MODELS):
+        payload = {
+            "model": model,
+            "max_tokens": max_tokens,
+            "messages": [{"role": "user", "content": prompt}],
+        }
+        for attempt in range(attempts):
+            log(f"→ OpenRouter {model}: попытка {attempt + 1}/{attempts}…")
+            t = time.monotonic()
+            try:
+                resp = requests.post(OPENROUTER_URL, json=payload, headers=headers, timeout=timeout)
+            except requests.RequestException as e:
+                log(f"  {model}: сетевая ошибка: {e}; пауза 5с")
+                time.sleep(5)
+                continue
+            dt = time.monotonic() - t
+
+            if resp.status_code in RETRY_STATUS:
+                wait = min(5 * (attempt + 1), 45)
+                log(f"  {model}: HTTP {resp.status_code} за {dt:.1f}с; ждём {wait}с")
+                time.sleep(wait)
+                continue
+
+            if not resp.ok:
+                log(f"  {model}: HTTP {resp.status_code} за {dt:.1f}с: {resp.text[:200]}")
+                break
+
+            try:
+                data = resp.json()
+                text = data["choices"][0]["message"]["content"]
+                obj = _extract_json(text)
+                log(f"  {model}: ответ за {dt:.1f}с, {len(text)} симв. — ОК")
+                return obj
+            except (KeyError, IndexError, TypeError, json.JSONDecodeError) as e:
+                log(f"  {model}: не разобрал ответ ({e})")
+                break
+
+        log(f"OpenRouter {model}: не вышло — следующая модель")
+    return None
+
+
 def proofread_verse(verse, rhyme, banned=()):
     """Второй проход: чиним грамматику/согласование/пунктуацию двустишия и убираем «рифму
     слова с самим собой». Сохраняем смысл и точную фразу «Юлечка-<rhyme>». Ударения НЕ трогаем —
@@ -189,7 +262,12 @@ def proofread_verse(verse, rhyme, banned=()):
     }
     try:
         # дёшево и быстро: одна лёгкая модель, 1 попытка, короткий таймаут — не растягиваем прогон
-        res = call_gemini(payload, timeout=25, attempts=1, models=["gemini-2.5-flash-lite"]) or {}
+        res = None
+        if OPENROUTER_API_KEY:
+            res = call_openrouter(prompt, max_tokens=1024, attempts=1,
+                                  models=[CLAUDE_PROOFREAD_MODEL], timeout=30)
+        if res is None:
+            res = call_gemini(payload, timeout=25, attempts=1, models=["gemini-2.5-flash-lite"]) or {}
         v = [str(s).strip() for s in (res.get("verse") or []) if str(s).strip()]
         if len(v) >= 2:
             return v[:4]
@@ -398,9 +476,17 @@ def main():
         },
     }
 
-    # 3. Запрос (с повторами и каскадным откатом)
-    log("Запрос открытки у Gemini (рифма/палитра/арт/двустишие)…")
-    result = call_gemini(payload)
+    # 3. Запрос: Claude Sonnet 5 через OpenRouter (если есть ключ), иначе/при неудаче — Gemini
+    result = None
+    if OPENROUTER_API_KEY:
+        log("Провайдер: Claude (Sonnet 5) через OpenRouter; Gemini — запасной.")
+        result = call_openrouter(prompt)
+        if result is None:
+            log("OpenRouter не ответил — откат на Gemini.")
+    else:
+        log("OPENROUTER_API_KEY не задан — работаем через Gemini.")
+    if result is None:
+        result = call_gemini(payload)
     if result is None:
         log("Все модели недоступны (лимит/перегрузка). data.json не трогаю — сайт покажет прошлую открытку.")
         sys.exit(0)

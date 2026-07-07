@@ -30,6 +30,7 @@ jobs:
     - name: Run script
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}   # Claude Sonnet 5 (основной); без ключа — Gemini
       run: python generate.py
 
     - name: Install voice deps
