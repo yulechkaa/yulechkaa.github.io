@@ -1,25 +1,25 @@
 {
-  "rhyme": "дивулечка",
-  "mood": "трепетно-восхищённое",
-  "concept": "Кристаллическая решётка света: тонкие прямые и диагональные лучи золота и сиреневого, пересекающиеся в геометрическую сетку, из узлов которой рождаются и медленно расходятся миниатюрные светящиеся сфе",
+  "rhyme": "зорюлечка",
+  "mood": "золотисто-свежее",
+  "concept": "Стилизованный геометрический восход солнца в стиле ар-деко: веер из тонких полупрозрачных золотисто-голубых лучей расходится снизу вверх, а над ними парят лёгкие ажурные круги-ореолы.",
   "palette": [
-    "#e8a2d4",
-    "#fef5e7",
-    "#3d5a80"
+    "#f7d9c4",
+    "#e7a3b6",
+    "#c8a2d8"
   ],
-  "style": "bloom",
-  "art": "orbits",
-  "font": "playfair",
-  "anim": "scale",
+  "style": "dawn",
+  "art": "rays",
+  "font": "philosopher",
+  "anim": "cascade",
   "verse": [
-    "Танец света в хрустале — вот мне откровенье,",
-    "Юлечка-дивулечка, радость мне и пенье."
+    "Тихо тает ночная прохлада,",
+    "Юлечка-зорюлечка — радость мне с утра."
   ],
   "verse_tts": [
-    "Танец света в хрустале — вот мне откровенье,",
-    "+Юлечка-див+улечка, радость мне и пенье."
+    "Тихо тает ночная прохлада,",
+    "+Юлечка-зор+юлечка — радость мне с утра."
   ],
-  "svg": "",
-  "scene": "const particles = [];\nconst rays = [];\nconst nodes = [];\n\nclass Particle {\n  constructor(x, y, vx, vy) {\n    this.x = x;\n    this.y = y;\n    this.vx = vx;\n    this.vy = vy;\n    this.life = 1;\n    this.maxLife = 1;\n    this.size = Math.random() * 3 + 1;\n  }\n  update() {\n    this.x += this.vx;\n    this.y += this.vy;\n    this.life -= 0.008;\n    this.vy += 0.15;\n  }\n  draw(ctx) {\n    ctx.fillStyle = PALETTE[0] + Math.floor(this.life * 255).toString(16).padStart(2, '0');\n    ctx.beginPath();\n    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);\n    ctx.fill();\n  }\n}\n\nclass Ray {\n  constructor(x1, y1, x2, y2, idx) {\n    this.x1 = x1;\n    this.y1 = y1;\n    this.x2 = x2;\n    this.y2 = y2;\n    this.idx = idx;\n    this.pulse = 0;\n  }\n  update(t) {\n    this.pulse = Math.sin((t + this.idx * 0.3) * 0.015) * 0.5 + 0.5;\n  }\n  draw(ctx) {\n    ctx.strokeStyle = PALETTE[2] + Math.floor(this.pulse * 200).toString(16).padStart(2, '0');\n    ctx.lineWidth = 1.5 * this.pulse;\n    ctx.beginPath();\n    ctx.moveTo(this.x1, this.y1);\n    ctx.lineTo(this.x2, this.y2);\n    ctx.stroke();\n  }\n}\n\nfunction init() {\n  const w = W();\n  const h = H();\n  const centerX = w / 2;\n  const centerY = h / 2;\n  \n  // Сетка узлов\n  for (let i = -3; i <= 3; i++) {\n    for (let j = -3; j <= 3; j++) {\n      const x = centerX + i * 140;\n      const y = centerY + j * 140;\n      if (x > -50 && x < w + 50 && y > -50 && y < h + 50) {\n        nodes.push({x, y, idx: i * 10 + j});\n      }\n    }\n  }\n  \n  // Лучи между узлами\n  for (let i = 0; i < nodes.length; i++) {\n    for (let j = i + 1; j < nodes.length; j++) {\n      const dist = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y);\n      if (dist < 250) {\n        rays.push(new Ray(nodes[i].x, nodes[i].y, nodes[j].x, nodes[j].y, rays.length));\n      }\n    }\n  }\n}\n\nfunction draw(ctx, t) {\n  const w = W();\n  const h = H();\n  \n  // Волны излучения из узлов\n  if (t % 60 < 30) {\n    const waveIdx = Math.floor(t / 60);\n    const wavePhase = (t % 60) / 60;\n    nodes.forEach((node, idx) => {\n      const radius = wavePhase * 200;\n      const alpha = (1 - wavePhase) * 0.6;\n      ctx.strokeStyle = PALETTE[1] + Math.floor(alpha * 255).toString(16).padStart(2, '0');\n      ctx.lineWidth = 2;\n      ctx.beginPath();\n      ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);\n      ctx.stroke();\n    });\n  }\n  \n  // Рисуем лучи\n  rays.forEach(ray => {\n    ray.update(t);\n    ray.draw(ctx);\n  });\n  \n  // Узлы светятся\n  nodes.forEach(node => {\n    const glow = Math.sin(t * 0.03 + node.idx) * 0.3 + 0.7;\n    ctx.fillStyle = PALETTE[0] + Math.floor(glow * 255).toString(16).padStart(2, '0');\n    ctx.beginPath();\n    ctx.arc(node.x, node.y, 4 * glow, 0, Math.PI * 2);\n    ctx.fill();\n  });\n  \n  // Частицы\n  for (let i = particles.length - 1; i >= 0; i--) {\n    particles[i].update();\n    particles[i].draw(ctx);\n    if (particles[i].life <= 0) particles.splice(i, 1);\n  }\n  \n  // Генерация новых частиц из активных узлов\n  if (Math.random() < 0.4) {\n    const node = nodes[Math.floor(Math.random() * nodes.length)];\n    const angle = Math.random() * Math.PI * 2;\n    const speed = Math.random() * 1.5 + 0.5;\n    particles.push(new Particle(\n      node.x,\n      node.y,\n      Math.cos(angle) * speed,\n      Math.sin(angle) * speed\n    ));\n  }\n}\n\ninit();\nlet frame = 0;\nconst animate = () => {\n  const w = W();\n  const h = H();\n  ctx.clearRect(0, 0, w, h);\n  draw(ctx, frame);\n  frame++;\n  requestAnimationFrame(animate);\n};\nanimate();",
-  "date": "2026-07-31"
+  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"rGrad\" x1=\"0\" y1=\"1\" x2=\"0\" y2=\"0\"><stop offset=\"0%\" stop-color=\"#ffaa80\" stop-opacity=\"0.5\"/><stop offset=\"100%\" stop-color=\"#5a72a0\" stop-opacity=\"0\"/></linearGradient><linearGradient id=\"gGold\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0%\" stop-color=\"#ffaa80\"/><stop offset=\"100%\" stop-color=\"#fff1e6\"/></linearGradient></defs><g opacity=\"0.65\"><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 850\" to=\"360 500 850\" dur=\"90s\" repeatCount=\"indefinite\"/><path d=\"M500,850 L100,-100 M500,850 L250,-100 M500,850 L400,-100 M500,850 L500,-100 M500,850 L600,-100 M500,850 L750,-100 M500,850 L900,-100\" stroke=\"url(#rGrad)\" stroke-width=\"1.5\" stroke-dasharray=\"8,6\"/></g><circle cx=\"500\" cy=\"850\" r=\"300\" fill=\"none\" stroke=\"#ffaa80\" stroke-width=\"0.8\" stroke-opacity=\"0.35\"><animate attributeName=\"r\" values=\"280;320;280\" dur=\"8s\" repeatCount=\"indefinite\"/></circle><circle cx=\"500\" cy=\"850\" r=\"520\" fill=\"none\" stroke=\"#5a72a0\" stroke-width=\"1\" stroke-opacity=\"0.25\" stroke-dasharray=\"4,8\"/><g transform=\"translate(500, 200)\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 200\" to=\"-360 500 200\" dur=\"110s\" repeatCount=\"indefinite\"/><circle cx=\"500\" cy=\"200\" r=\"70\" fill=\"none\" stroke=\"#fff1e6\" stroke-width=\"1\" stroke-opacity=\"0.4\"/><circle cx=\"500\" cy=\"200\" r=\"4\" fill=\"#ffaa80\" opacity=\"0.8\"/></g></g></svg>",
+  "scene": "",
+  "date": "2026-08-01"
 }
