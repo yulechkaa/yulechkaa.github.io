@@ -1,25 +1,25 @@
 {
-  "rhyme": "зорюлечка",
-  "mood": "золотисто-свежее",
-  "concept": "Стилизованный геометрический восход солнца в стиле ар-деко: веер из тонких полупрозрачных золотисто-голубых лучей расходится снизу вверх, а над ними парят лёгкие ажурные круги-ореолы.",
+  "rhyme": "напевулечка",
+  "mood": "мелодично-воздушное",
+  "concept": "Светящиеся музыкальные волны и дыхание гармонических струн, рассеивающие золотые искорки вокруг тихого центра.",
   "palette": [
     "#f7d9c4",
     "#e7a3b6",
     "#c8a2d8"
   ],
-  "style": "dawn",
-  "art": "rays",
-  "font": "philosopher",
-  "anim": "cascade",
+  "style": "mesh",
+  "art": "waves",
+  "font": "prata",
+  "anim": "fade",
   "verse": [
-    "Тихо тает ночная прохлада,",
-    "Юлечка-зорюлечка — радость мне с утра."
+    "Льётся в синеве мотив заветный,",
+    "Юлечка-напевулечка — мой день чудесный."
   ],
   "verse_tts": [
-    "Тихо тает ночная прохлада,",
-    "+Юлечка-зор+юлечка — радость мне с утра."
+    "Льётся в синеве мотив заветный,",
+    "+Юлечка-напев+улечка — мой день чудесный."
   ],
-  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"rGrad\" x1=\"0\" y1=\"1\" x2=\"0\" y2=\"0\"><stop offset=\"0%\" stop-color=\"#ffaa80\" stop-opacity=\"0.5\"/><stop offset=\"100%\" stop-color=\"#5a72a0\" stop-opacity=\"0\"/></linearGradient><linearGradient id=\"gGold\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0%\" stop-color=\"#ffaa80\"/><stop offset=\"100%\" stop-color=\"#fff1e6\"/></linearGradient></defs><g opacity=\"0.65\"><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 850\" to=\"360 500 850\" dur=\"90s\" repeatCount=\"indefinite\"/><path d=\"M500,850 L100,-100 M500,850 L250,-100 M500,850 L400,-100 M500,850 L500,-100 M500,850 L600,-100 M500,850 L750,-100 M500,850 L900,-100\" stroke=\"url(#rGrad)\" stroke-width=\"1.5\" stroke-dasharray=\"8,6\"/></g><circle cx=\"500\" cy=\"850\" r=\"300\" fill=\"none\" stroke=\"#ffaa80\" stroke-width=\"0.8\" stroke-opacity=\"0.35\"><animate attributeName=\"r\" values=\"280;320;280\" dur=\"8s\" repeatCount=\"indefinite\"/></circle><circle cx=\"500\" cy=\"850\" r=\"520\" fill=\"none\" stroke=\"#5a72a0\" stroke-width=\"1\" stroke-opacity=\"0.25\" stroke-dasharray=\"4,8\"/><g transform=\"translate(500, 200)\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 200\" to=\"-360 500 200\" dur=\"110s\" repeatCount=\"indefinite\"/><circle cx=\"500\" cy=\"200\" r=\"70\" fill=\"none\" stroke=\"#fff1e6\" stroke-width=\"1\" stroke-opacity=\"0.4\"/><circle cx=\"500\" cy=\"200\" r=\"4\" fill=\"#ffaa80\" opacity=\"0.8\"/></g></g></svg>",
-  "scene": "",
-  "date": "2026-08-01"
+  "svg": "",
+  "scene": "let t=0;function anim(){let w=W(),h=H();ctx.clearRect(0,0,w,h);t+=0.008;ctx.lineWidth=1.5;for(let i=0;i<6;i++){ctx.beginPath();ctx.strokeStyle=PALETTE[i%3]+'33';let yOff=h*(0.15+i*0.14);for(let x=0;x<=w;x+=12){let dx=(x-w/2)/(w/3);let factor=Math.exp(-dx*dx);let y=yOff+Math.sin(x*0.004+t+i)*35*factor+Math.cos(x*0.008-t*0.7)*15*factor;if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();}for(let i=0;i<35;i++){let a=i*2.399+t*0.15;let r=190+(i*13)%240;let px=w/2+Math.cos(a)*r;let py=h/2+Math.sin(a)*(r*0.55);ctx.fillStyle=PALETTE[i%3]+'77';ctx.beginPath();ctx.arc(px,py,1.2+(i%3)*0.8,0,Math.PI*2);ctx.fill();}requestAnimationFrame(anim);}anim();",
+  "date": "2026-08-02"
 }
