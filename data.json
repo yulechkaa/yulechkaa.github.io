@@ -1,25 +1,25 @@
 {
-  "rhyme": "звонулечка",
-  "mood": "хрустально-звонкое",
-  "concept": "Тонкие гильошированные дуги и хрустальные ромбовидные решётки, создающие эффект резонирующих звуковых волн с мягким мерцанием.",
+  "rhyme": "пушулечка",
+  "mood": "уютно-невесомое",
+  "concept": "два облачка из светящихся пушинок медленно кружат в дальних углах листа, а редкие тёплые пушинки-искры неспешно летят по диагонали через притихший центр, где отдыхает слово",
   "palette": [
-    "#f7d9c4",
-    "#e7a3b6",
-    "#c8a2d8"
+    "#ede4f5",
+    "#f7c9cb",
+    "#fff3e0"
   ],
-  "style": "frost",
-  "art": "lattice",
-  "font": "pacifico",
-  "anim": "blur",
+  "style": "bloom",
+  "art": "waves",
+  "font": "marck",
+  "anim": "drop",
   "verse": [
-    "Слышишь, как в чистом рассвете поёт тишина?",
-    "Юлечка-звонулечка — звонкая, чистая струна!"
+    "В ладонях тает облако, лучистый мягкий свет,",
+    "Юлечка-пушулечка — теплее чуда нет."
   ],
   "verse_tts": [
-    "Слышишь, как в чистом рассвете поёт тишина?",
-    "+Юлечка-звон+улечка — звонкая, чистая струна!"
+    "В ладонях тает облако, лучистый мягкий свет,",
+    "+Юлечка-пуш+улечка — теплее чуда нет."
   ],
-  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"g1\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#70a1ff\" stop-opacity=\"0.6\"/><stop offset=\"100%\" stop-color=\"#ff6b81\" stop-opacity=\"0.4\"/></linearGradient><linearGradient id=\"g2\" x1=\"100%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#e2ece9\" stop-opacity=\"0.8\"/><stop offset=\"100%\" stop-color=\"#70a1ff\" stop-opacity=\"0.3\"/></linearGradient><g id=\"diamond-node\"><polygon points=\"500,80 520,100 500,120 480,100\" fill=\"none\" stroke=\"url(#g1)\" stroke-width=\"1.5\"/><circle cx=\"500\" cy=\"100\" r=\"3\" fill=\"#ff6b81\"><animate attributeName=\"opacity\" values=\"0.3;1;0.3\" dur=\"4s\" repeatCount=\"indefinite\"/></circle></g><g id=\"ring-segment\"><path d=\"M 500 150 A 350 350 0 0 1 850 500\" fill=\"none\" stroke=\"url(#g2)\" stroke-width=\"1\" stroke-dasharray=\"4,8,12,8\"/></g></defs><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 500\" to=\"360 500 500\" dur=\"90s\" repeatCount=\"indefinite\"/><circle cx=\"500\" cy=\"500\" r=\"420\" fill=\"none\" stroke=\"#70a1ff\" stroke-opacity=\"0.15\" stroke-width=\"1\"/><circle cx=\"500\" cy=\"500\" r=\"380\" fill=\"none\" stroke=\"#ff6b81\" stroke-opacity=\"0.2\" stroke-width=\"1.5\" stroke-dasharray=\"2,6\"/><use href=\"#ring-segment\"/><use href=\"#ring-segment\" transform=\"rotate(90 500 500)\"/><use href=\"#ring-segment\" transform=\"rotate(180 500 500)\"/><use href=\"#ring-segment\" transform=\"rotate(270 500 500)\"/><g opacity=\"0.7\"><polygon points=\"500,120 880,500 500,880 120,500\" fill=\"none\" stroke=\"url(#g1)\" stroke-width=\"1\"><animate attributeName=\"stroke-opacity\" values=\"0.2;0.7;0.2\" dur=\"6s\" repeatCount=\"indefinite\"/></polygon><polygon points=\"500,160 840,500 500,840 160,500\" fill=\"none\" stroke=\"#70a1ff\" stroke-opacity=\"0.25\" stroke-width=\"0.8\"/><polygon points=\"500,200 800,500 500,800 200,500\" fill=\"none\" stroke=\"#ff6b81\" stroke-opacity=\"0.2\" stroke-width=\"0.8\"/></g><use href=\"#diamond-node\"/><use href=\"#diamond-node\" transform=\"rotate(45 500 500)\"/><use href=\"#diamond-node\" transform=\"rotate(90 500 500)\"/><use href=\"#diamond-node\" transform=\"rotate(135 500 500)\"/><use href=\"#diamond-node\" transform=\"rotate(180 500 500)\"/><use href=\"#diamond-node\" transform=\"rotate(225 500 500)\"/><use href=\"#diamond-node\" transform=\"rotate(270 500 500)\"/><use href=\"#diamond-node\" transform=\"rotate(315 500 500)\"/></g><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"360 500 500\" to=\"0 500 500\" dur=\"120s\" repeatCount=\"indefinite\"/><circle cx=\"500\" cy=\"500\" r=\"260\" fill=\"none\" stroke=\"url(#g2)\" stroke-opacity=\"0.3\" stroke-width=\"1\" stroke-dasharray=\"15,10\"/><circle cx=\"500\" cy=\"500\" r=\"240\" fill=\"none\" stroke=\"#ff6b81\" stroke-opacity=\"0.25\" stroke-width=\"0.8\"/></g></svg>",
-  "scene": "",
+  "svg": "",
+  "scene": "(function(){\n  const w0 = W(), h0 = H();\n  const cx = w0/2, cy = h0/2;\n  const safeR = Math.min(w0,h0)*0.24;\n  const colors = PALETTE;\n\n  const clusters = [\n    {x: w0*0.16, y: h0*0.18, r: w0*0.16},\n    {x: w0*0.86, y: h0*0.84, r: w0*0.16}\n  ];\n  const puffs = [];\n  clusters.forEach(c=>{\n    const n = 55;\n    for(let i=0;i<n;i++){\n      const ang = Math.random()*Math.PI*2;\n      const rad = Math.random()*c.r;\n      puffs.push({\n        cx: c.x, cy: c.y,\n        baseAng: ang, baseRad: rad,\n        size: 6+Math.random()*22,\n        speed: 0.06+Math.random()*0.08,\n        phase: Math.random()*Math.PI*2,\n        color: colors[Math.floor(Math.random()*colors.length)],\n        alpha: 0.25+Math.random()*0.4\n      });\n    }\n  });\n\n  const seeds = [];\n  const seedCount = 24;\n  function makeSeed(){\n    const side = Math.random()<0.5;\n    const startX = side? -50 : w0+50;\n    const startY = Math.random()*h0;\n    return {\n      x: startX, y: startY,\n      vx: (side? 1:-1) * (0.25+Math.random()*0.35),\n      vy: (Math.random()-0.5)*0.15,\n      size: 3+Math.random()*6,\n      trail: [],\n      color: colors[Math.floor(Math.random()*colors.length)],\n      wob: Math.random()*Math.PI*2\n    };\n  }\n  for(let i=0;i<seedCount;i++){ seeds.push(makeSeed()); }\n\n  function hexA(hex, a){\n    const h = hex.replace('#','');\n    const r = parseInt(h.substring(0,2),16);\n    const g = parseInt(h.substring(2,4),16);\n    const b = parseInt(h.substring(4,6),16);\n    return 'rgba('+r+','+g+','+b+','+a+')';\n  }\n\n  let t = 0;\n  function frame(){\n    t += 1;\n    const w2 = W(), h2 = H();\n    ctx.clearRect(0,0,w2,h2);\n\n    puffs.forEach(p=>{\n      const ang = p.baseAng + t*p.speed*0.01;\n      const rad = p.baseRad + Math.sin(t*0.01+p.phase)*8;\n      const x = p.cx + Math.cos(ang)*rad;\n      const y = p.cy + Math.sin(ang)*rad*0.7;\n      const a = p.alpha * (0.7+0.3*Math.sin(t*0.02+p.phase));\n      const grad = ctx.createRadialGradient(x,y,0,x,y,p.size);\n      grad.addColorStop(0, hexA(p.color, a));\n      grad.addColorStop(1, hexA(p.color, 0));\n      ctx.fillStyle = grad;\n      ctx.beginPath();\n      ctx.arc(x,y,p.size,0,Math.PI*2);\n      ctx.fill();\n    });\n\n    seeds.forEach((s,idx)=>{\n      const dx = s.x-cx, dy=s.y-cy;\n      const dist = Math.sqrt(dx*dx+dy*dy);\n      if(dist < safeR){\n        const push = (safeR-dist)*0.02;\n        const nx = dx/(dist||1), ny=dy/(dist||1);\n        s.x += nx*push;\n        s.y += ny*push;\n      }\n      s.wob += 0.02;\n      s.x += s.vx + Math.sin(s.wob)*0.15;\n      s.y += s.vy + Math.cos(s.wob*0.8)*0.1;\n\n      s.trail.push({x:s.x,y:s.y});\n      if(s.trail.length>18) s.trail.shift();\n\n      for(let j=0;j<s.trail.length;j++){\n        const pt = s.trail[j];\n        const a = (j/s.trail.length)*0.35;\n        ctx.beginPath();\n        ctx.fillStyle = hexA(s.color,a);\n        ctx.arc(pt.x, pt.y, s.size*(j/s.trail.length), 0, Math.PI*2);\n        ctx.fill();\n      }\n\n      ctx.save();\n      ctx.shadowColor = s.color;\n      ctx.shadowBlur = 12;\n      ctx.beginPath();\n      ctx.fillStyle = hexA(s.color, 0.85);\n      ctx.arc(s.x, s.y, s.size, 0, Math.PI*2);\n      ctx.fill();\n      ctx.restore();\n\n      if(s.x < -60 || s.x > w2+60 || s.y<-60 || s.y>h2+60){\n        seeds[idx] = makeSeed();\n      }\n    });\n\n    requestAnimationFrame(frame);\n  }\n\n  requestAnimationFrame(frame);\n})();",
   "date": "2026-08-03"
 }
