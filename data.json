@@ -1,25 +1,25 @@
 {
-  "rhyme": "малинкулечка",
-  "mood": "игриво-сладкое",
-  "concept": "Тончайшие каллиграфические веточки дикой малины с парящими полупрозрачными ягодами-бусинами и мягко кружащимися рубиновыми искрами.",
+  "rhyme": "вишнюлечка",
+  "mood": "акварельно-нежное",
+  "concept": "Тонкая японская гравюра цветущих ветвей вишни с полупрозрачными ягодами-каплями и плавными концентрическими волнами вокруг тихого центра.",
   "palette": [
-    "#590d22",
-    "#ff4d6d",
-    "#ffccd5"
+    "#f7d9c4",
+    "#e7a3b6",
+    "#c8a2d8"
   ],
-  "style": "mesh",
+  "style": "dawn",
   "art": "petals",
-  "font": "comfortaa",
-  "anim": "wave",
+  "font": "yeseva",
+  "anim": "blur",
   "verse": [
-    "Светит в зарослях лесных рубиновый наряд,",
-    "Юлечка-малинкулечка дарует нежный взгляд."
+    "Спелая ягода клонит побег у крыльца,",
+    "Юлечка-вишнюлечка дарует радость сердца."
   ],
   "verse_tts": [
-    "Светит в зарослях лесных рубиновый наряд,",
-    "+Юлечка-малинк+улечка дарует нежный взгляд."
+    "Спелая ягода клонит побег у крыльца,",
+    "+Юлечка-вишн+юлечка дарует радость сердца."
   ],
-  "svg": "",
-  "scene": "const P=PALETTE;let pts=[];for(let i=0;i<40;i++){pts.push({x:Math.random(),y:Math.random(),r:2+Math.random()*4.5,c:P[Math.floor(Math.random()*P.length)],vx:(Math.random()-0.5)*0.0002,vy:-0.0002-Math.random()*0.0003,a:Math.random()*Math.PI*2,sp:0.01+Math.random()*0.02});}function draw(t){const w=W(),h=H();ctx.clearRect(0,0,w,h);const cx=w/2,cy=h/2;ctx.save();for(let i=0;i<4;i++){const ang=(i*Math.PI/2)+t*0.0001;const bx=cx+Math.cos(ang)*(w*0.36);const by=cy+Math.sin(ang)*(h*0.36);ctx.strokeStyle=P[1];ctx.globalAlpha=0.15;ctx.lineWidth=1;ctx.beginPath();ctx.arc(bx,by,28+Math.sin(t*0.001+i)*8,0,Math.PI*2);ctx.stroke();}pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.a+=p.sp;if(p.y<-0.1)p.y=1.1;if(p.x<-0.1)p.x=1.1;if(p.x>1.1)p.x=-0.1;const px=p.x*w,py=p.y*h;const dist=Math.hypot(px-cx,py-cy);const centerFade=Math.min(1,Math.max(0.12,(dist-100)/160));const alpha=(0.28+0.28*Math.sin(p.a))*centerFade;ctx.globalAlpha=alpha;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(px,py,p.r,0,Math.PI*2);ctx.fill();ctx.globalAlpha=alpha*0.35;ctx.beginPath();ctx.arc(px,py,p.r*2.6,0,Math.PI*2);ctx.fill();});ctx.restore();requestAnimationFrame(draw);}requestAnimationFrame(draw);",
-  "date": "2026-08-15"
+  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><radialGradient id=\"glow\" cx=\"50%\" cy=\"50%\" r=\"50%\"><stop offset=\"0%\" stop-color=\"#eaac8b\" stop-opacity=\"0.35\"/><stop offset=\"60%\" stop-color=\"#e27396\" stop-opacity=\"0.12\"/><stop offset=\"100%\" stop-color=\"#3d1a24\" stop-opacity=\"0\"/></radialGradient><linearGradient id=\"branchGrad\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#eaac8b\"/><stop offset=\"100%\" stop-color=\"#e27396\"/></linearGradient><radialGradient id=\"cherryGrad\" cx=\"35%\" cy=\"35%\" r=\"65%\"><stop offset=\"0%\" stop-color=\"#eaac8b\"/><stop offset=\"40%\" stop-color=\"#e27396\"/><stop offset=\"100%\" stop-color=\"#3d1a24\"/></radialGradient><g id=\"blossom\"><path d=\"M0,0 Q-15,-35 0,-50 Q15,-35 0,0\" fill=\"#eaac8b\" fill-opacity=\"0.2\" stroke=\"#eaac8b\" stroke-width=\"0.8\"/><path d=\"M0,0 Q-35,-15 -50,0 Q-35,15 0,0\" fill=\"#eaac8b\" fill-opacity=\"0.2\" stroke=\"#eaac8b\" stroke-width=\"0.8\"/><path d=\"M0,0 Q-15,35 0,50 Q15,35 0,0\" fill=\"#eaac8b\" fill-opacity=\"0.2\" stroke=\"#eaac8b\" stroke-width=\"0.8\"/><path d=\"M0,0 Q35,-15 50,0 Q35,15 0,0\" fill=\"#eaac8b\" fill-opacity=\"0.2\" stroke=\"#eaac8b\" stroke-width=\"0.8\"/><circle cx=\"0\" cy=\"0\" r=\"4\" fill=\"#e27396\" fill-opacity=\"0.7\"/></g><g id=\"cherryPair\"><path d=\"M0,0 C-15,30 -30,60 -25,95\" fill=\"none\" stroke=\"#eaac8b\" stroke-width=\"1.2\" stroke-linecap=\"round\"/><path d=\"M0,0 C15,30 30,60 25,95\" fill=\"none\" stroke=\"#eaac8b\" stroke-width=\"1.2\" stroke-linecap=\"round\"/><circle cx=\"-25\" cy=\"95\" r=\"16\" fill=\"url(#cherryGrad)\" stroke=\"#eaac8b\" stroke-width=\"0.8\"/><circle cx=\"25\" cy=\"95\" r=\"16\" fill=\"url(#cherryGrad)\" stroke=\"#eaac8b\" stroke-width=\"0.8\"/><circle cx=\"-28\" cy=\"90\" r=\"3\" fill=\"#ffffff\" fill-opacity=\"0.6\"/><circle cx=\"22\" cy=\"90\" r=\"3\" fill=\"#ffffff\" fill-opacity=\"0.6\"/></g></defs><g opacity=\"0.4\"><circle cx=\"500\" cy=\"500\" r=\"320\" fill=\"url(#glow)\"/><circle cx=\"500\" cy=\"500\" r=\"380\" fill=\"none\" stroke=\"#eaac8b\" stroke-width=\"0.6\" stroke-dasharray=\"4 8\" stroke-opacity=\"0.5\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 500\" to=\"360 500 500\" dur=\"90s\" repeatCount=\"indefinite\"/></circle><circle cx=\"500\" cy=\"500\" r=\"440\" fill=\"none\" stroke=\"#e27396\" stroke-width=\"0.8\" stroke-dasharray=\"12 12\" stroke-opacity=\"0.4\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"360 500 500\" to=\"0 500 500\" dur=\"120s\" repeatCount=\"indefinite\"/></circle></g><g stroke=\"url(#branchGrad)\" fill=\"none\"><path d=\"M0,120 Q220,100 360,240 T440,320\" stroke-width=\"2.4\" stroke-linecap=\"round\" opacity=\"0.75\"/><path d=\"M180,140 Q240,220 220,290\" stroke-width=\"1.2\" opacity=\"0.6\"/><path d=\"M310,200 Q390,160 420,110\" stroke-width=\"1.1\" opacity=\"0.6\"/><path d=\"M1000,880 Q780,900 640,760 T560,680\" stroke-width=\"2.4\" stroke-linecap=\"round\" opacity=\"0.75\"/><path d=\"M820,860 Q760,780 780,710\" stroke-width=\"1.2\" opacity=\"0.6\"/><path d=\"M690,800 Q610,840 580,890\" stroke-width=\"1.1\" opacity=\"0.6\"/></g><g transform=\"translate(220,290)\"><use href=\"#cherryPair\"/><animateTransform attributeName=\"transform\" type=\"rotate\" values=\"-3 220 290; 3 220 290; -3 220 290\" dur=\"7s\" repeatCount=\"indefinite\"/></g><g transform=\"translate(780,710) scale(0.95) rotate(180)\"><use href=\"#cherryPair\"/><animateTransform attributeName=\"transform\" type=\"rotate\" values=\"177 780 710; 183 780 710; 177 780 710\" dur=\"8s\" repeatCount=\"indefinite\"/></g><use href=\"#blossom\" transform=\"translate(360,240) scale(0.9)\"/><use href=\"#blossom\" transform=\"translate(420,110) scale(0.75) rotate(25)\"/><use href=\"#blossom\" transform=\"translate(180,140) scale(0.85) rotate(-35)\"/><use href=\"#blossom\" transform=\"translate(640,760) scale(0.9) rotate(190)\"/><use href=\"#blossom\" transform=\"translate(580,890) scale(0.75) rotate(145)\"/><use href=\"#blossom\" transform=\"translate(820,860) scale(0.85) rotate(45)\"/><g opacity=\"0.85\"><circle cx=\"140\" cy=\"420\" r=\"3\" fill=\"#eaac8b\"><animate attributeName=\"opacity\" values=\"0.2;0.9;0.2\" dur=\"4s\" repeatCount=\"indefinite\"/></circle><circle cx=\"280\" cy=\"620\" r=\"2.5\" fill=\"#e27396\"><animate attributeName=\"opacity\" values=\"0.8;0.2;0.8\" dur=\"5s\" repeatCount=\"indefinite\"/></circle><circle cx=\"860\" cy=\"380\" r=\"3.5\" fill=\"#eaac8b\"><animate attributeName=\"opacity\" values=\"0.3;1;0.3\" dur=\"4.5s\" repeatCount=\"indefinite\"/></circle><circle cx=\"720\" cy=\"220\" r=\"2\" fill=\"#e27396\"><animate attributeName=\"opacity\" values=\"0.9;0.1;0.9\" dur=\"6s\" repeatCount=\"indefinite\"/></circle><circle cx=\"880\" cy=\"600\" r=\"2.8\" fill=\"#eaac8b\"><animate attributeName=\"opacity\" values=\"0.1;0.8;0.1\" dur=\"3.8s\" repeatCount=\"indefinite\"/></circle></g></svg>",
+  "scene": "",
+  "date": "2026-08-16"
 }
