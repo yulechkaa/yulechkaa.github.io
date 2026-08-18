@@ -1,25 +1,25 @@
 {
-  "rhyme": "зефирулечка",
-  "mood": "пастельно-воздушное",
-  "concept": "Воздушные полупрозрачные шлейфы и парящие облачные вихри, сплетающиеся в невесомые шёлковые ленты вокруг свободного центра.",
+  "rhyme": "лакомкулечка",
+  "mood": "мерцающе-загадочное",
+  "concept": "Ажурный мост из множества тончайших светящихся нитей, переброшенный через кадр к мерцающим звездам.",
   "palette": [
-    "#f7d9c4",
-    "#e7a3b6",
-    "#c8a2d8"
+    "#0f172a",
+    "#cbd5e1",
+    "#f472b6"
   ],
-  "style": "mesh",
-  "art": "waves",
-  "font": "unbounded",
-  "anim": "scale",
+  "style": "dusk",
+  "art": "orbits",
+  "font": "playfair",
+  "anim": "glow",
   "verse": [
-    "Плывут облака над сияющим садом,",
-    "И Юлечка-зефирулечка ходит рядом."
+    "В ночи мерцают тонкие мосты,",
+    "Где Юлечка-лакомкулечка хранит мечты."
   ],
   "verse_tts": [
-    "Плывут облака над сияющим садом,",
-    "И +Юлечка-зефир+улечка ходит рядом."
+    "В ночи мерцают тонкие мосты,",
+    "Где +Юлечка-лакомк+улечка хранит мечты."
   ],
-  "svg": "",
-  "scene": "const P=[];for(let i=0;i<35;i++)P.push({x:Math.random(),y:Math.random(),r:20+Math.random()*40,c:PALETTE[i%PALETTE.length],vx:(Math.random()-0.5)*0.0003,vy:(Math.random()-0.5)*0.0003,a:Math.random()*Math.PI*2,va:(Math.random()-0.5)*0.008,op:0.07+Math.random()*0.12});let t=0;function frame(){const w=W(),h=H();ctx.clearRect(0,0,w,h);t+=0.012;ctx.save();for(let i=0;i<P.length;i++){const p=P[i];p.x=(p.x+p.vx+1)%1;p.y=(p.y+p.vy+1)%1;p.a+=p.va;const px=p.x*w,py=p.y*h;const dx=px-w/2,dy=py-h/2,dist=Math.hypot(dx,dy);const fade=Math.min(1,dist/(w*0.28));ctx.fillStyle=p.c;ctx.globalAlpha=p.op*fade;ctx.beginPath();const r=p.r*(1+0.12*Math.sin(t+i));ctx.arc(px,py,r,0,Math.PI*2);ctx.fill();}for(let k=0;k<3;k++){ctx.strokeStyle=PALETTE[k%PALETTE.length];ctx.globalAlpha=0.18;ctx.lineWidth=1.5;ctx.beginPath();let started=false;for(let x=0;x<=w;x+=15){const distCenter=Math.hypot(x-w/2,0);if(distCenter<w*0.22){started=false;continue;}const nx=x/w;const cy=(0.5+0.28*Math.sin(nx*Math.PI*2+t*0.4+k*2.1))*h;if(!started){ctx.moveTo(x,cy);started=true;}else{ctx.lineTo(x,cy);}}ctx.stroke();}ctx.restore();requestAnimationFrame(frame);}frame();",
-  "date": "2026-08-17"
+  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"g1\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#cbd5e1\" stop-opacity=\"0.1\"/><stop offset=\"50%\" stop-color=\"#f472b6\" stop-opacity=\"0.7\"/><stop offset=\"100%\" stop-color=\"#cbd5e1\" stop-opacity=\"0.1\"/></linearGradient></defs><path d=\"M-100 800 Q500 -100 1100 800\" fill=\"none\" stroke=\"url(#g1)\" stroke-width=\"1.2\" stroke-dasharray=\"10 15\"><animate attributeName=\"stroke-dashoffset\" from=\"0\" to=\"250\" dur=\"30s\" repeatCount=\"indefinite\"/></path><path d=\"M0 850 Q500 50 1000 850\" fill=\"none\" stroke=\"#f472b6\" stroke-width=\"0.8\" stroke-opacity=\"0.3\"/><path d=\"M100 900 Q500 150 900 900\" fill=\"none\" stroke=\"#cbd5e1\" stroke-width=\"0.6\" stroke-opacity=\"0.2\"/><circle cx=\"150\" cy=\"200\" r=\"2\" fill=\"#f472b6\"><animate attributeName=\"opacity\" values=\"0.1;0.8;0.1\" dur=\"4s\" repeatCount=\"indefinite\"/></circle><circle cx=\"850\" cy=\"150\" r=\"3\" fill=\"#cbd5e1\"><animate attributeName=\"opacity\" values=\"0.2;1;0.2\" dur=\"6s\" repeatCount=\"indefinite\"/></circle><circle cx=\"400\" cy=\"100\" r=\"1.5\" fill=\"#f472b6\"><animate attributeName=\"opacity\" values=\"0.8;0;0.8\" dur=\"5s\" repeatCount=\"indefinite\"/></circle><g transform=\"rotate(15 500 500)\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 500\" to=\"10 500 500\" dur=\"40s\" repeatCount=\"indefinite\"/></g></svg>",
+  "scene": "",
+  "date": "2026-08-18"
 }
