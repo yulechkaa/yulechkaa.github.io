@@ -1,25 +1,25 @@
 {
-  "rhyme": "лебедулечка",
-  "mood": "бархатно-глубокое",
-  "concept": "Два золотых лебединых крыла, сплетённых в символ бесконечности — минималистичный контур.",
+  "rhyme": "яхонтулечка",
+  "mood": "изумрудно-таинственное",
+  "concept": "Геометрическая структура ограненного изумруда в стиле тонкой линейной графики, медленно вращающаяся и пульсирующая золотым светом.",
   "palette": [
-    "#4a192c",
-    "#9c7e41",
-    "#faf3e0"
+    "#064e3b",
+    "#fbbf24",
+    "#d1fae5"
   ],
-  "style": "dusk",
-  "art": "waves",
-  "font": "yeseva",
-  "anim": "blur",
+  "style": "dawn",
+  "art": "lattice",
+  "font": "prata",
+  "anim": "glow",
   "verse": [
-    "В глади озёрной таится покой,",
-    "Будь, Юлечка-лебедулечка, нежной зарёй."
+    "Вспыхнет в ладонях небесный рубин,",
+    "Юлечка-яхонтулечка — свет из глубин."
   ],
   "verse_tts": [
-    "В глади озёрной таится покой,",
-    "Будь, +Юлечка-лебед+улечка, нежной зарёй."
+    "Вспыхнет в ладонях небесный рубин,",
+    "+Юлечка-яхонт+улечка — свет из глубин."
   ],
-  "svg": "",
-  "scene": "let t=0;function d(){ctx.clearRect(0,0,W(),H());t+=0.01;ctx.lineWidth=1.2;for(let j=0;j<3;j++){ctx.beginPath();ctx.strokeStyle=PALETTE[1];ctx.globalAlpha=0.1+j*0.1;for(let a=0;a<6.28;a+=0.05){let s=180+j*20;let k=a+t*0.3;let x=W()/2+s*Math.cos(k)/(1+Math.pow(Math.sin(k),2));let y=H()/2+s*Math.sin(k)*Math.cos(k)/(1+Math.pow(Math.sin(k),2));y+=Math.sin(a*4+t)*12;if(a==0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.stroke()}requestAnimationFrame(d)}d();",
-  "date": "2026-08-27"
+  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><radialGradient id=\"g1\" cx=\"50%\" cy=\"50%\" r=\"50%\"><stop offset=\"0%\" stop-color=\"#fbbf24\" stop-opacity=\"0.3\"/><stop offset=\"100%\" stop-color=\"#064e3b\" stop-opacity=\"0\"/></radialGradient></defs><g transform=\"translate(500 500)\"><circle r=\"450\" fill=\"url(#g1)\"><animate attributeName=\"opacity\" values=\"0.3;0.6;0.3\" dur=\"5s\" repeatCount=\"indefinite\"/></circle><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0\" to=\"360\" dur=\"120s\" repeatCount=\"indefinite\"/><path d=\"M0-400 L235-323 380-123 380 123 235 323 0 400 -235 323 -380 123 -380-123 -235-323Z\" fill=\"none\" stroke=\"#fbbf24\" stroke-width=\"1.5\" stroke-opacity=\"0.4\"/><path d=\"M0-300 L176-242 285-92 285 92 176 242 0 300 -176 242 -285 92 -285-92 -176-242Z\" fill=\"none\" stroke=\"#d1fae5\" stroke-width=\"1\" stroke-opacity=\"0.2\"/><line x1=\"-380\" y1=\"-123\" x2=\"380\" y2=\"123\" stroke=\"#fbbf24\" stroke-width=\"0.5\" stroke-opacity=\"0.3\"/><line x1=\"-380\" y1=\"123\" x2=\"380\" y2=\"-123\" stroke=\"#fbbf24\" stroke-width=\"0.5\" stroke-opacity=\"0.3\"/><line x1=\"0\" y1=\"-400\" x2=\"0\" y2=\"400\" stroke=\"#fbbf24\" stroke-width=\"0.5\" stroke-opacity=\"0.3\"/><circle r=\"5\" fill=\"#fbbf24\"><animate attributeName=\"opacity\" values=\"1;0.2;1\" dur=\"3s\" repeatCount=\"indefinite\"/></circle></g></g></svg>",
+  "scene": "",
+  "date": "2026-08-28"
 }
