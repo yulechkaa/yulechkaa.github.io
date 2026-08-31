@@ -1,25 +1,25 @@
 {
-  "rhyme": "атласулечка",
-  "mood": "мягко-сливочное",
-  "concept": "Многослойные плавные линии, напоминающие складки драгоценного атласа, выполненные в технике японского минимализма с мягким градиентным перетеканием.",
+  "rhyme": "ландышулечка",
+  "mood": "лесно-хрустальное",
+  "concept": "Изящные стебли ландышей с покачивающимися белыми бутонами-колокольчиками и мерцающей росой в стиле японской гравюры",
   "palette": [
-    "#f9f1e7",
-    "#dbc4a1",
-    "#8e5a3e"
+    "#f7d9c4",
+    "#e7a3b6",
+    "#c8a2d8"
   ],
   "style": "bloom",
-  "art": "lattice",
-  "font": "philosopher",
-  "anim": "blur",
+  "art": "petals",
+  "font": "comfortaa",
+  "anim": "cascade",
   "verse": [
-    "Пусть утро дарит шёлк густых теней,",
-    "Ты, Юлечка-атласулечка, всех родней."
+    "Свежий ландыш расцветает в зелени ветвей,",
+    "Юлечка-ландышулечка, сердце мне согрей!"
   ],
   "verse_tts": [
-    "Пусть утро дарит шёлк густых теней,",
-    "Ты, +Юлечка-атлас+улечка, всех родней."
+    "Свежий ландыш расцветает в зелени ветвей,",
+    "+Юлечка-ландыш+улечка, сердце мне согрей!"
   ],
-  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"silkGrad\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#8e5a3e\" stop-opacity=\"0\"/><stop offset=\"50%\" stop-color=\"#dbc4a1\" stop-opacity=\"0.4\"/><stop offset=\"100%\" stop-color=\"#f9f1e7\" stop-opacity=\"0\"/></linearGradient></defs><g><path d=\"M-200,200 Q200,50 400,250 T1200,200\" stroke=\"#8e5a3e\" stroke-width=\"1.5\" fill=\"none\" stroke-opacity=\"0.3\"><animateTransform attributeName=\"transform\" type=\"translate\" from=\"0 0\" to=\"50 30\" dur=\"40s\" repeatCount=\"indefinite\" autoreverse=\"true\"/></path><path d=\"M-200,300 Q250,150 500,350 T1200,300\" stroke=\"#dbc4a1\" stroke-width=\"2\" fill=\"none\" stroke-opacity=\"0.2\"><animate attributeName=\"stroke-opacity\" values=\"0.1;0.3;0.1\" dur=\"10s\" repeatCount=\"indefinite\"/></path><path d=\"M-200,700 Q250,550 500,750 T1200,700\" stroke=\"#8e5a3e\" stroke-width=\"1\" fill=\"none\" stroke-opacity=\"0.4\"><animateTransform attributeName=\"transform\" type=\"translate\" from=\"0 0\" to=\"-40 -20\" dur=\"35s\" repeatCount=\"indefinite\" autoreverse=\"true\"/></path><path d=\"M-200,800 Q300,950 600,750 T1200,850\" stroke=\"#dbc4a1\" stroke-width=\"3\" fill=\"none\" stroke-opacity=\"0.2\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 500\" to=\"3 500 500\" dur=\"50s\" repeatCount=\"indefinite\" autoreverse=\"true\"/></path><path d=\"M0,0 Q500,200 1000,0 V1000 Q500,800 0,1000 Z\" fill=\"url(#silkGrad)\" fill-opacity=\"0.1\"><animate attributeName=\"fill-opacity\" values=\"0.05;0.15;0.05\" dur=\"12s\" repeatCount=\"indefinite\"/></path></g></svg>",
-  "scene": "",
-  "date": "2026-08-30"
+  "svg": "",
+  "scene": "const N=30,pts=Array.from({length:N},()=>({x:Math.random(),y:Math.random(),r:1+Math.random()*2,s:0.0003+Math.random()*0.0006,a:Math.random()*Math.PI*2}));function render(t){ctx.clearRect(0,0,W(),H());const w=W(),h=H();[0.15,0.85].forEach((bx,side)=>{const dir=side===0?1:-1,baseRootX=bx*w,sway=Math.sin(t*0.001+side)*25,cp1x=baseRootX+dir*40+sway*0.5,cp1y=h*0.7,cp2x=baseRootX+dir*80+sway,cp2y=h*0.4,endX=baseRootX+dir*110+sway*1.2,endY=h*0.25;ctx.beginPath();ctx.strokeStyle=PALETTE[1]+'44';ctx.lineWidth=1.5;ctx.moveTo(baseRootX,h+20);ctx.bezierCurveTo(cp1x,cp1y,cp2x,cp2y,endX,endY);ctx.stroke();for(let i=1;i<=6;i++){const u=i/7,x=(1-u)**3*baseRootX+3*(1-u)**2*u*cp1x+3*(1-u)*u**2*cp2x+u**3*endX,y=(1-u)**3*(h+20)+3*(1-u)**2*u*cp1y+3*(1-u)*u**2*cp2y+u**3*endY,bellSway=Math.sin(t*0.002+i+side)*4,bellX=x+dir*14+bellSway,bellY=y+8;ctx.beginPath();ctx.strokeStyle=PALETTE[1]+'66';ctx.moveTo(x,y);ctx.quadraticCurveTo(x+dir*8,y+2,bellX,bellY);ctx.stroke();ctx.fillStyle=PALETTE[2]+'aa';ctx.beginPath();ctx.arc(bellX,bellY+4,4.5+i*0.6,Math.PI,0);ctx.lineTo(bellX+5,bellY+10);ctx.lineTo(bellX-5,bellY+10);ctx.closePath();ctx.fill();}});pts.forEach(p=>{p.y-=p.s*h*0.2;p.a+=0.02;if(p.y<0)p.y=1;const px=p.x*w+Math.sin(p.a)*15,py=p.y*h;ctx.beginPath();ctx.fillStyle=PALETTE[2]+'66';ctx.arc(px,py,p.r,0,Math.PI*2);ctx.fill();});requestAnimationFrame(render);}requestAnimationFrame(render);",
+  "date": "2026-08-31"
 }
