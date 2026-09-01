@@ -81,6 +81,42 @@
             mix-blend-mode: soft-light;
         }
 
+        /* AI-иллюстрация: cover-фон, спокойный центр и два мягких живых световых слоя */
+        #image-backdrop {
+            position: fixed;
+            inset: -3%;
+            z-index: -3;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.8s ease;
+            --wash-rgb: 251, 248, 245;
+            --glow-a: rgba(247, 217, 196, 0.34);
+            --glow-b: rgba(200, 162, 216, 0.28);
+        }
+        #image-backdrop img {
+            width: 100%; height: 100%; display: block;
+            object-fit: cover; object-position: 50% 50%;
+            filter: saturate(0.88) contrast(0.92) brightness(0.92);
+            transform: scale(1.07);
+            animation: imageBreathe 32s ease-in-out infinite alternate;
+        }
+        #image-backdrop::after {
+            content: ""; position: absolute; inset: 0;
+            background:
+                radial-gradient(ellipse 54% 40% at 50% 48%, rgba(var(--wash-rgb),0.88) 0%, rgba(var(--wash-rgb),0.64) 34%, rgba(var(--wash-rgb),0.12) 72%, transparent 100%),
+                linear-gradient(180deg, rgba(var(--wash-rgb),0.10), transparent 28%, transparent 72%, rgba(var(--wash-rgb),0.18));
+            -webkit-backdrop-filter: blur(0.8px);
+                    backdrop-filter: blur(0.8px);
+        }
+        .image-light {
+            position: absolute; width: 68vmax; height: 68vmax; border-radius: 50%;
+            filter: blur(48px); opacity: 0.7; mix-blend-mode: soft-light;
+            will-change: transform;
+        }
+        .image-light.a { left: -28vmax; top: -30vmax; background: radial-gradient(circle, var(--glow-a), transparent 68%); animation: lightFloatA 24s ease-in-out infinite alternate; }
+        .image-light.b { right: -30vmax; bottom: -32vmax; background: radial-gradient(circle, var(--glow-b), transparent 68%); animation: lightFloatB 29s ease-in-out infinite alternate; }
+
         /* Фоновый слой дня: SVG-орнамент (#art) или живая JS-сцена в песочнице (#scene) */
         #art, #scene {
             position: fixed;
@@ -311,6 +347,9 @@
             from { transform: translate3d(-2%, -1%, 0) scale(1.06) rotate(0deg); }
             to   { transform: translate3d(2%, 2%, 0)  scale(1.13) rotate(3deg); }
         }
+        @keyframes imageBreathe { from { transform: scale(1.07) translate3d(-0.8%, -0.4%, 0); } to { transform: scale(1.13) translate3d(0.8%, 0.6%, 0); } }
+        @keyframes lightFloatA { from { transform: translate3d(-2%, -1%, 0) scale(0.94); } to { transform: translate3d(15%, 12%, 0) scale(1.08); } }
+        @keyframes lightFloatB { from { transform: translate3d(2%, 1%, 0) scale(1.06); } to { transform: translate3d(-14%, -10%, 0) scale(0.92); } }
 
         /* Эффекты появления буквы */
         @keyframes chRise  { from { opacity: 0; transform: translateY(0.32em); } to { opacity: 1; transform: translateY(0); } }
@@ -322,7 +361,7 @@
         @keyframes chWave  { 0% { opacity: 0; transform: translateY(0.55em); } 60% { opacity: 1; transform: translateY(-0.14em); } 100% { opacity: 1; transform: translateY(0); } }
 
         @media (prefers-reduced-motion: reduce) {
-            body::before { animation: none; }
+            body::before, #image-backdrop img, .image-light { animation: none; }
             .card { animation: none; opacity: 1; transform: none; }
             .rhyme .ch { animation: none !important; opacity: 1; transform: none; filter: none; }
             .date { animation: none; opacity: 0.85; }
@@ -332,6 +371,10 @@
 </head>
 <body>
 
+    <div id="image-backdrop" aria-hidden="true">
+        <img id="image-bg" alt="" decoding="async">
+        <i class="image-light a"></i><i class="image-light b"></i>
+    </div>
     <div id="art" aria-hidden="true"></div>
     <iframe id="scene" aria-hidden="true" sandbox="allow-scripts" referrerpolicy="no-referrer" hidden></iframe>
     <main class="card">
@@ -371,7 +414,9 @@
             palette: ["#f7d9c4", "#e7a3b6", "#c8a2d8"],
             style: "bloom",
             art: "petals",
+            image: "",
             svg: "",
+            scene: "",
             font: "playfair",
             anim: "cascade",
             date: null
@@ -707,24 +752,55 @@
                 + '}catch(e){}})();<\/script></body></html>';
         }
 
-        // Выбор фонового слоя: живая сцена (если Gemini её прислал) или SVG/параметрика
+        // Фон: AI-изображение может сочетаться с прозрачной живой сценой поверх.
+        // Без изображения сохраняется прежний выбор scene либо SVG/параметрики.
         function renderBackdrop(t) {
             const art = document.getElementById("art");
             const scene = document.getElementById("scene");
+            const imageLayer = document.getElementById("image-backdrop");
+            const imageEl = document.getElementById("image-bg");
             let palette = (Array.isArray(t.palette) ? t.palette : []).map(normHex).filter(Boolean);
             if (palette.length < 2) palette = FALLBACK.palette.map(normHex);
             const avg = palette.reduce((s, c) => s + lum(c), 0) / palette.length;
             const dark = avg < 0.42;
             const code = (typeof t.scene === "string" && t.scene.trim().length > 20) ? t.scene : null;
+            const imagePath = (typeof t.image === "string" && /^art\/\d{4}-\d{2}-\d{2}\.webp$/.test(t.image)) ? t.image : null;
+
+            if (art) { art.style.opacity = 0; art.innerHTML = ""; }
+            if (scene) { scene.hidden = true; scene.style.opacity = 0; scene.removeAttribute("srcdoc"); }
+            if (imageLayer) imageLayer.style.opacity = 0;
+            if (imageEl) {
+                imageEl.onload = null; imageEl.onerror = null;
+                if (!imagePath) imageEl.removeAttribute("src");
+            }
+
+            if (imagePath && imageLayer && imageEl) {
+                const wash = toRgb(dark ? mix(palette[0], "#ffffff", 0.68) : mix(palette[0], "#ffffff", 0.84));
+                imageLayer.style.setProperty("--wash-rgb", wash.join(","));
+                imageLayer.style.setProperty("--glow-a", rgba(palette[0], 0.42));
+                imageLayer.style.setProperty("--glow-b", rgba(palette[palette.length - 1], 0.36));
+                imageEl.onload = () => { imageLayer.style.opacity = dark ? 0.82 : 0.76; };
+                imageEl.onerror = () => { imageLayer.style.opacity = 0; };
+                imageEl.src = imagePath;
+
+                if (code && scene) {
+                    const pal = palette.map(c => mix(c, dark ? "#ffffff" : "#2a2024", dark ? 0.22 : 0.34));
+                    scene.srcdoc = buildSceneDoc(code, pal, t.mood || "", dark);
+                    scene.hidden = false;
+                    requestAnimationFrame(() => { scene.style.opacity = dark ? 0.46 : 0.38; });
+                } else {
+                    renderArt(t);
+                    if (art) art.style.opacity = dark ? 0.3 : 0.24;
+                }
+                return;
+            }
 
             if (code && scene) {
                 const pal = palette.map(c => mix(c, dark ? "#ffffff" : "#2a2024", dark ? 0.16 : 0.28));
-                if (art) { art.style.opacity = 0; art.innerHTML = ""; }
                 scene.srcdoc = buildSceneDoc(code, pal, t.mood || "", dark);
                 scene.hidden = false;
                 requestAnimationFrame(() => { scene.style.opacity = dark ? 0.7 : 0.62; });
             } else {
-                if (scene) { scene.hidden = true; scene.style.opacity = 0; scene.removeAttribute("srcdoc"); }
                 renderArt(t);
             }
         }

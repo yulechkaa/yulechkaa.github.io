@@ -3,6 +3,8 @@ import re
 import sys
 import json
 import time
+import base64
+import io
 import requests
 from datetime import datetime
 
@@ -39,6 +41,10 @@ if VERSE_PROVIDER not in {"gemini", "openrouter", "auto"}:
 # Claude тянет куда более сложный генеративный код, чем Gemini Flash — лимиты шире
 SCENE_MAX = 30000 if OPENROUTER_API_KEY else 16000
 
+# Генерация растрового фона через OpenRouter (третий вариант арта).
+IMAGE_MODEL = os.environ.get("IMAGE_MODEL", "google/gemini-3.1-flash-image").strip()
+OPENROUTER_IMAGE_URL = "https://openrouter.ai/api/v1/images"
+
 # Перечни, согласованные с фронтендом (index.html)
 ALLOWED_STYLES = ["aurora", "mesh", "dawn", "dusk", "bloom", "frost"]
 ALLOWED_ART = ["constellation", "petals", "waves", "orbits", "lattice", "rays"]
@@ -54,7 +60,9 @@ RECENT_N = 8  # сколько прошлых открыток показыва�
 VERSES_N = 14   # сколько прошлых двустиший показываем модели (против повторов образов)
 END_WORDS_N = 40  # сколько последних концевых слов строк запрещаем повторять в рифме
 PROOFREAD = True  # второй проход: лёгкая модель чинит грамматику двустишия
-ART_MODE = "auto"  # "auto" — чередовать svg/scene по дням; "svg" — всегда SVG; "scene" — всегда сцена
+ART_MODE = os.environ.get("ART_MODE", "auto").strip().lower()
+if ART_MODE not in {"auto", "svg", "scene", "image"}:
+    raise ValueError("ART_MODE должен быть auto, svg, scene или image")
 
 _T0 = time.monotonic()
 
@@ -233,6 +241,59 @@ def call_openrouter(prompt, max_tokens=16384, attempts=3, models=None, timeout=1
     return None
 
 
+def generate_background_image(prompt, output_path, attempts=3):
+    """Генерирует вертикальный фон через OpenRouter Images API и сохраняет WebP."""
+    if not OPENROUTER_API_KEY:
+        log("OPENROUTER_API_KEY не задан — растровый фон пропущен.")
+        return False
+
+    payload = {
+        "model": IMAGE_MODEL,
+        "prompt": prompt,
+        "aspect_ratio": "9:16",
+        "resolution": "1K",
+        "n": 1,
+    }
+    headers = {
+        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://yulechkaa.github.io",
+        "X-Title": "Yulechka Daily Card",
+    }
+
+    for attempt in range(attempts):
+        log(f"→ {IMAGE_MODEL}: фон, попытка {attempt + 1}/{attempts}…")
+        try:
+            resp = requests.post(OPENROUTER_IMAGE_URL, json=payload, headers=headers, timeout=180)
+        except requests.RequestException as e:
+            log(f"  image API: сетевая ошибка: {e}")
+            time.sleep(5)
+            continue
+        if resp.status_code in RETRY_STATUS:
+            wait = min(8 * (attempt + 1), 30)
+            log(f"  image API: HTTP {resp.status_code}; ждём {wait}с")
+            time.sleep(wait)
+            continue
+        if not resp.ok:
+            log(f"  image API: HTTP {resp.status_code}: {resp.text[:240]}")
+            return False
+
+        try:
+            data = resp.json()
+            image_part = next(item for item in (data.get("data") or []) if item.get("b64_json"))
+            raw = base64.b64decode(image_part["b64_json"], validate=True)
+            from PIL import Image
+            image = Image.open(io.BytesIO(raw)).convert("RGB")
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            image.save(output_path, "WEBP", quality=84, method=6)
+            log(f"  фон сохранён: {output_path} ({os.path.getsize(output_path) // 1024} КБ)")
+            return True
+        except (KeyError, StopIteration, ValueError, OSError) as e:
+            log(f"  image API: не удалось разобрать изображение ({e})")
+            return False
+    return False
+
+
 def generate_verse(provider, history, past_verses_ctx, banned_end_words):
     """Отдельно генерирует рифму и двустишие выбранным провайдером."""
     prompt = f"""Ты — русский поэт. Придумай для девушки Юлечки одну новую ласковую рифму
@@ -390,19 +451,24 @@ def main():
     # Концепции прошлых артов — чтобы каждый день был новый художественный замысел
     recent_concepts = [r["concept"] for r in archive if r.get("concept")][-10:]
 
-    # Чередуем тип арта по дням, чтобы появлялись и SVG, и живые JS-сцены
-    if ART_MODE == "scene":
-        prefer_scene = True
-    elif ART_MODE == "svg":
-        prefer_scene = False
+    # Три типа арта: SVG, живая canvas-сцена и AI-иллюстрация с живыми слоями поверх.
+    # В auto они равномерно чередуются по истории открыток.
+    art_mode_today = ART_MODE if ART_MODE != "auto" else ("scene", "svg", "image")[len(history) % 3]
+    if art_mode_today == "image":
+        art_directive = '''СЕГОДНЯ сделай AI-ИЛЛЮСТРАЦИЮ С ЖИВЫМИ СЛОЯМИ:
+   - поле "image_prompt": подробный самостоятельный промпт для генератора изображения на основе
+     двустишия и концепции; вертикальная композиция 9:16, главный образ по краям/в верхней и нижней
+     трети, спокойный малоконтрастный центр под крупную надпись; без букв, текста, рамок и логотипов;
+   - поле "scene": прозрачная медленная canvas-анимация ПОВЕРХ изображения: световая пыль,
+     тонкие линии, мягкие блики или частицы, которые продолжают образ, но не закрывают центр;
+   - поле "svg" оставь пустым "".'''
+    elif art_mode_today == "scene":
+        art_directive = ('СЕГОДНЯ обязательно сделай ЖИВУЮ JS-СЦЕНУ — заполни поле "scene", '
+                         'а "svg" и "image_prompt" оставь пустыми "".')
     else:
-        prefer_scene = (len(history) % 2 == 0)
-    art_directive = (
-        'СЕГОДНЯ обязательно сделай ЖИВУЮ JS-СЦЕНУ — заполни поле "scene", а "svg" оставь пустым "".'
-        if prefer_scene else
-        'СЕГОДНЯ сделай SVG — заполни поле "svg", а "scene" оставь пустым "".'
-    )
-    log(f"Тип арта сегодня: {'scene (JS-сцена)' if prefer_scene else 'svg'}")
+        art_directive = ('СЕГОДНЯ сделай SVG — заполни поле "svg", '
+                         'а "scene" и "image_prompt" оставь пустыми "".')
+    log(f"Тип арта сегодня: {art_mode_today}")
 
 
     # 2. Промпт: Gemini — арт-директор всей открытки дня
@@ -520,9 +586,9 @@ def main():
     ресурсов. Не объявляй переменные с именами ctx/canvas/PALETTE/W/H. Если не уверен в качестве —
     оставь "scene" пустым (тогда покажется SVG). Верни код одной строкой в поле "scene".
 
-ВАЖНО ПРО РАЗМЕР ОТВЕТА: дай ТОЛЬКО ОДНО из двух — либо "svg" (п.10), либо "scene" (п.11).
+ФОРМАТ АРТА НА СЕГОДНЯ:
 {art_directive}
-ВТОРОЕ поле оставь ПУСТОЙ строкой "". НЕ заполняй оба сразу — это перегружает ответ. Держи код компактным.
+Во всех остальных режимах не заполняй лишние поля. Держи код компактным.
 
 НЕДАВНИЕ открытки (НЕ повторяй их настроение/палитру/шрифт/анимацию): {recent_ctx}
 
@@ -625,7 +691,9 @@ def main():
 
 ОТВЕТ: верни СТРОГО один JSON-объект без markdown и пояснений, со ВСЕМИ полями:
 {{"rhyme":"...","mood":"...","palette":["#......","#......","#......"],"style":"...","art":"...","font":"...","anim":"...","verse":["строка1","строка2"],"concept":"...","svg":"...","scene":""}}
-Заполни ТОЛЬКО ОДНО из полей "svg"/"scene" (по указанию выше), второе — пустая строка."""
+Дополнительно верни строковое поле "image_prompt".
+ФОРМАТ АРТА НА СЕГОДНЯ:
+{art_directive}"""
 
     poem_lock = f"""
 
@@ -656,13 +724,14 @@ def main():
                     "anim":      {"type": "string", "enum": ALLOWED_ANIMS},
                     "verse":     {"type": "array", "items": {"type": "string"}},
                     "concept":   {"type": "string"},
+                    "image_prompt": {"type": "string"},
                     "svg":       {"type": "string"},
                     "scene":     {"type": "string"},
                 },
-                "required": ["rhyme", "mood", "palette", "style", "art", "font", "anim", "verse", "concept"],
+                "required": ["rhyme", "mood", "palette", "style", "art", "font", "anim", "verse", "concept", "image_prompt"],
                 # Порядок генерации важен: сначала стих, из него — концепция, из неё — арт
                 "propertyOrdering": ["rhyme", "mood", "palette", "style", "art", "font", "anim",
-                                     "verse", "concept", "svg", "scene"],
+                                     "verse", "concept", "image_prompt", "svg", "scene"],
             },
         },
     }
@@ -733,6 +802,27 @@ def main():
 
     concept = (result.get("concept") or "").strip()[:200]
 
+    # Третий режим: отдельная вертикальная иллюстрация по финальному стиху и концепции.
+    # Файл именуется датой, поэтому старые открытки продолжают показывать свой фон из архива.
+    image_path = ""
+    if art_mode_today == "image":
+        model_prompt = (result.get("image_prompt") or "").strip()
+        if not model_prompt:
+            model_prompt = f"Художественная иллюстрация: {concept}. Настроение: {mood}."
+        final_image_prompt = f"""{model_prompt}
+
+Создай премиальную вертикальную иллюстрацию-фон для любовной открытки.
+Смысл двустишия: {json.dumps(verse, ensure_ascii=False)}.
+Палитра: {', '.join(palette)}. Композиция 9:16, адаптивная под телефон и широкий экран:
+главные детали находятся в верхней/нижней трети и ближе к краям; центральные 45% изображения
+спокойные, мягкие и малоконтрастные, потому что поверх будет крупная надпись.
+Без текста, букв, цифр, рамки, интерфейса, логотипов и водяных знаков. Никаких траурных образов,
+свечей, венков, крестов, увядания или печали. Живо, радостно, изысканно, атмосферно.
+Изображение должно хорошо переносить object-fit: cover без потери главного образа."""
+        candidate_path = os.path.join("art", f"{today_str}.webp")
+        if generate_background_image(final_image_prompt, candidate_path):
+            image_path = candidate_path.replace(os.sep, "/")
+
     card = {
         "rhyme": new_rhyme,
         "mood": mood,
@@ -744,6 +834,7 @@ def main():
         "anim": anim,
         "verse": verse,
         "verse_tts": verse_tts,
+        "image": image_path,
         "svg": svg,
         "scene": scene,
         "date": today_str,
@@ -759,12 +850,12 @@ def main():
     with open("history.json", "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
 
-    # 7. Архив открыток (лёгкий, без svg/scene) — память «что было вчера» + контекст разнообразия
-    archive.append({k: card[k] for k in ("date", "rhyme", "mood", "concept", "palette", "style", "art", "font", "anim", "verse")})
+    # 7. Архив открыток (без тяжёлого svg/scene); путь к растровому фону сохраняем.
+    archive.append({k: card[k] for k in ("date", "rhyme", "mood", "concept", "palette", "style", "art", "font", "anim", "verse", "image")})
     with open(ARCHIVE_FILE, "w", encoding="utf-8") as f:
         json.dump(archive, f, ensure_ascii=False, indent=2)
 
-    art_src = "scene-JS" if scene else ("Gemini-SVG" if svg else f"параметрика:{art}")
+    art_src = "OpenRouter-Image+layers" if image_path else ("scene-JS" if scene else ("Gemini-SVG" if svg else f"параметрика:{art}"))
     log(f"Готово: Юлечка-{new_rhyme} | {mood} | стиль:{style} | арт:{art_src} | шрифт:{font} | аним:{anim} | {palette}")
     log(f"Концепция арта: {concept or '—'}")
     log("Двустишие: " + " / ".join(verse))

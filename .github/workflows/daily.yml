@@ -25,13 +25,15 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install requests edge-tts
+        pip install requests pillow edge-tts
 
     - name: Run script
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}   # Claude Sonnet 5 (основной); без ключа — Gemini
         VERSE_PROVIDER: ${{ vars.VERSE_PROVIDER || 'gemini' }}  # gemini / openrouter / auto
+        ART_MODE: ${{ vars.ART_MODE || 'auto' }}                # auto / svg / scene / image
+        IMAGE_MODEL: ${{ vars.IMAGE_MODEL || 'google/gemini-3.1-flash-image' }}
       run: python generate.py
 
     - name: Install voice deps
