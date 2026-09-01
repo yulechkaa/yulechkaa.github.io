@@ -30,6 +30,12 @@ CLAUDE_MODELS = [
     "anthropic/claude-haiku-4.5",     # совсем запасной, дешёвый
 ]
 CLAUDE_PROOFREAD_MODEL = "anthropic/claude-haiku-4.5"
+# Кто пишет рифму и двустишие независимо от генератора оформления:
+# "gemini" — только Gemini, "openrouter" — только Claude через OpenRouter,
+# "auto" — Claude при наличии ключа, затем Gemini как запасной.
+VERSE_PROVIDER = os.environ.get("VERSE_PROVIDER", "gemini").strip().lower()
+if VERSE_PROVIDER not in {"gemini", "openrouter", "auto"}:
+    raise ValueError("VERSE_PROVIDER должен быть gemini, openrouter или auto")
 # Claude тянет куда более сложный генеративный код, чем Gemini Flash — лимиты шире
 SCENE_MAX = 30000 if OPENROUTER_API_KEY else 16000
 
@@ -227,7 +233,68 @@ def call_openrouter(prompt, max_tokens=16384, attempts=3, models=None, timeout=1
     return None
 
 
-def proofread_verse(verse, rhyme, banned=()):
+def generate_verse(provider, history, past_verses_ctx, banned_end_words):
+    """Отдельно генерирует рифму и двустишие выбранным провайдером."""
+    prompt = f"""Ты — русский поэт. Придумай для девушки Юлечки одну новую ласковую рифму
+к имени «Юлечка» и тёплое двустишие с ней.
+
+РИФМА:
+- одно благозвучное слово не длиннее 12 букв для фразы «Юлечка-[слово]»;
+- позитивный, целый и легко узнаваемый корень + естественное «-улечка/-юлечка»;
+- не повторяй уже использованные слова: {json.dumps(history, ensure_ascii=False)};
+- плохие примеры: «пламулечка», «обаянулечка», «фейерверкулечка».
+
+ДВУСТИШИЕ:
+- ровно 2 строки, грамотный естественный русский, ровный ритм и свежая точная рифма;
+- фраза «Юлечка-[твоя рифма]» входит ровно один раз, лучше внутри строки;
+- концы строк — разные созвучные слова, нельзя рифмовать слово само с собой;
+- «шкатулочка» запрещена в любом виде;
+- запрещённые концевые слова: {json.dumps(banned_end_words, ensure_ascii=False)};
+- не повторяй образы и обороты прошлых двустиший: {past_verses_ctx}.
+
+Ответ строго JSON без markdown:
+{{"rhyme":"слово","verse":["строка 1","строка 2"]}}"""
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "responseMimeType": "application/json",
+            "temperature": 1.2,
+            "topP": 0.95,
+            "maxOutputTokens": 2048,
+            "responseSchema": {
+                "type": "object",
+                "properties": {
+                    "rhyme": {"type": "string"},
+                    "verse": {"type": "array", "items": {"type": "string"}},
+                },
+                "required": ["rhyme", "verse"],
+            },
+        },
+    }
+
+    log(f"Провайдер стихов: {provider}.")
+    result = None
+    if provider in {"openrouter", "auto"}:
+        if OPENROUTER_API_KEY:
+            result = call_openrouter(prompt, max_tokens=2048, timeout=60)
+        elif provider == "openrouter":
+            log("Для VERSE_PROVIDER=openrouter не задан OPENROUTER_API_KEY.")
+        if result is None and provider == "auto":
+            log("Стихи через OpenRouter недоступны — пробую Gemini.")
+    if result is None and provider in {"gemini", "auto"}:
+        result = call_gemini(payload, timeout=60, attempts=3)
+    if result is None:
+        return None
+
+    rhyme = str(result.get("rhyme") or "").strip().lower()
+    verse = [str(s).strip() for s in (result.get("verse") or []) if str(s).strip()]
+    if not rhyme or len(verse) != 2:
+        log("Провайдер стихов вернул неполный ответ.")
+        return None
+    return {"rhyme": rhyme, "verse": verse}
+
+
+def proofread_verse(verse, rhyme, banned=(), provider="auto"):
     """Второй проход: чиним грамматику/согласование/пунктуацию двустишия и убираем «рифму
     слова с самим собой». Сохраняем смысл и точную фразу «Юлечка-<rhyme>». Ударения НЕ трогаем —
     их ставит fix_verse_tts(). При любой неудаче возвращаем исходное."""
@@ -265,10 +332,10 @@ def proofread_verse(verse, rhyme, banned=()):
     try:
         # дёшево и быстро: одна лёгкая модель, 1 попытка, короткий таймаут — не растягиваем прогон
         res = None
-        if OPENROUTER_API_KEY:
+        if provider in {"openrouter", "auto"} and OPENROUTER_API_KEY:
             res = call_openrouter(prompt, max_tokens=1024, attempts=1,
                                   models=[CLAUDE_PROOFREAD_MODEL], timeout=30)
-        if res is None:
+        if res is None and provider in {"gemini", "auto"}:
             res = call_gemini(payload, timeout=25, attempts=1, models=["gemini-2.5-flash-lite"]) or {}
         v = [str(s).strip() for s in (res.get("verse") or []) if str(s).strip()]
         if len(v) >= 2:
@@ -279,7 +346,7 @@ def proofread_verse(verse, rhyme, banned=()):
 
 
 def main():
-    log(f"Старт генерации. Модели: {MODELS}")
+    log(f"Старт генерации. Модели: {MODELS}; стихи: {VERSE_PROVIDER}")
     # 1. Контекст прошлого: слова (для дедупа) + недавние открытки (чтобы не повторять настроение/палитру)
     history = load_json("history.json", [])
     archive = load_json(ARCHIVE_FILE, [])
@@ -308,6 +375,17 @@ def main():
                 if w not in banned_end_words:
                     banned_end_words.append(w)
     banned_end_words = banned_end_words[:3] + banned_end_words[3:][-END_WORDS_N:]
+
+    # Рифма и двустишие создаются отдельным запросом. Так выбор поэтической модели
+    # не зависит от модели, которая затем рисует и оформляет открытку.
+    poem = generate_verse(VERSE_PROVIDER, history, past_verses_ctx, banned_end_words)
+    if poem is None:
+        log("Выбранный провайдер не смог сгенерировать стих. data.json не трогаю.")
+        sys.exit(0)
+    log("Корректор двустишия (тот же провайдер)…")
+    poem["verse"] = proofread_verse(
+        poem["verse"], poem["rhyme"], banned_end_words, VERSE_PROVIDER
+    )
 
     # Концепции прошлых артов — чтобы каждый день был новый художественный замысел
     recent_concepts = [r["concept"] for r in archive if r.get("concept")][-10:]
@@ -549,6 +627,16 @@ def main():
 {{"rhyme":"...","mood":"...","palette":["#......","#......","#......"],"style":"...","art":"...","font":"...","anim":"...","verse":["строка1","строка2"],"concept":"...","svg":"...","scene":""}}
 Заполни ТОЛЬКО ОДНО из полей "svg"/"scene" (по указанию выше), второе — пустая строка."""
 
+    poem_lock = f"""
+
+ВАЖНО: рифма и двустишие уже написаны отдельной поэтической моделью.
+Используй их ДОСЛОВНО, не исправляй и не заменяй; создавай настроение, концепцию и арт по их образам.
+Поле "rhyme": {json.dumps(poem["rhyme"], ensure_ascii=False)}
+Поле "verse": {json.dumps(poem["verse"], ensure_ascii=False)}
+"""
+    prompt += poem_lock
+    claude_prompt += poem_lock
+
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
@@ -595,6 +683,11 @@ def main():
         log("Все модели недоступны (лимит/перегрузка). data.json не трогаю — сайт покажет прошлую открытку.")
         sys.exit(0)
 
+    # Даже если арт-модель не выполнила инструкцию, текст выбранного поэтического
+    # провайдера остаётся неизменным.
+    result["rhyme"] = poem["rhyme"]
+    result["verse"] = poem["verse"]
+
     # 4. Санитизация ответа (фронтенд тоже подстрахован)
     new_rhyme = result["rhyme"].strip().lower()
     mood = (result.get("mood") or "нежное").strip()
@@ -615,8 +708,6 @@ def main():
         verse = [f"Юлечка-{new_rhyme},", "самая любимая на свете."]
     verse = verse[:4]
     log(f"Рифма: Юлечка-{new_rhyme} | настроение: {mood}")
-    log("Корректор двустишия (лёгкая модель)…")
-    verse = proofread_verse(verse, new_rhyme, banned_end_words)  # грамматика + защита от само-рифмы и повторов
     verse_tts = fix_verse_tts(verse, new_rhyme)          # ударения ставим САМИ (Юлечка + рифма)
     log("Ударения (verse_tts): " + " / ".join(verse_tts))
 

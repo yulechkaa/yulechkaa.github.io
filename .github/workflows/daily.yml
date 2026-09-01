@@ -31,6 +31,7 @@ jobs:
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}   # Claude Sonnet 5 (основной); без ключа — Gemini
+        VERSE_PROVIDER: ${{ vars.VERSE_PROVIDER || 'gemini' }}  # gemini / openrouter / auto
       run: python generate.py
 
     - name: Install voice deps
@@ -49,4 +50,3 @@ jobs:
         git add -A
         git diff --cached --quiet || git commit -m "Automation: new daily rhyme generated"
         git push
-
