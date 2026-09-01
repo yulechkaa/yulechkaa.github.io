@@ -1,26 +1,27 @@
 {
-  "rhyme": "мармеладулечка",
-  "mood": "солнечно-игривое",
-  "concept": "Витражная мозаика из полупрозрачных мармеладных долек, светящихся как маленькие солнца летнего полдня.",
+  "rhyme": "сахарулечка",
+  "mood": "звонко-хрустальное",
+  "concept": "Тающие хрустальные сосульки роняют капли света в верхней трети, а внизу тростниковая свирель отпускает вверх невесомые ноты-пузырьки — акварельная гравюра ранней весны",
   "palette": [
-    "#ff8a65",
-    "#ffd166",
-    "#a7c957"
+    "#dff1f7",
+    "#f7f2e6",
+    "#c9a86a"
   ],
-  "style": "bloom",
-  "art": "orbits",
-  "font": "lobster",
-  "anim": "fade",
+  "style": "frost",
+  "art": "waves",
+  "font": "caveat",
+  "anim": "scale",
   "verse": [
-    "С тобой повсюду ласковое лето,",
-    "Ты, Юлечка-мармеладулечка, полна добра и света."
+    "Пусть льёт весна хрустальную капель,",
+    "Для Юлечки-сахарулечки поёт свою свирель."
   ],
   "verse_tts": [
-    "С тобой повсюду ласковое лето,",
-    "Ты, +Юлечка-мармелад+улечка, полна добра и света."
+    "Пусть льёт весна хрустальную капель,",
+    "Для Юлечки-сахарулечки поёт свою свирель."
   ],
   "image": "art/2026-09-01.webp",
+  "video": "",
   "svg": "",
-  "scene": "(function(){\n  const particles = [];\n  const N = 72;\n  for(let i=0;i<N;i++){\n    const zone = Math.random()<0.5?0:1;\n    const y = zone===0 ? Math.random()*H()*0.28 : H()*0.72+Math.random()*H()*0.28;\n    particles.push({\n      x: Math.random()*W(),\n      y: y,\n      baseY: y,\n      r: 2+Math.random()*4.5,\n      speed: 0.15+Math.random()*0.35,\n      phase: Math.random()*Math.PI*2,\n      color: PALETTE[Math.floor(Math.random()*PALETTE.length)],\n      drift: (Math.random()-0.5)*0.6\n    });\n  }\n  let t=0;\n  function draw(){\n    ctx.clearRect(0,0,W(),H());\n    t+=0.008;\n    particles.forEach(p=>{\n      p.phase+=p.speed*0.02;\n      const alpha = 0.25+0.35*Math.sin(p.phase);\n      const yy = p.baseY + Math.sin(t*1.2+p.phase)*10;\n      const xx = p.x + Math.sin(t*0.6+p.phase)*p.drift*18;\n      ctx.beginPath();\n      ctx.arc(xx, yy, p.r, 0, Math.PI*2);\n      ctx.fillStyle = p.color;\n      ctx.globalAlpha = Math.max(0, alpha);\n      ctx.shadowColor = p.color;\n      ctx.shadowBlur = 10;\n      ctx.fill();\n      ctx.globalAlpha = 1;\n      ctx.shadowBlur = 0;\n    });\n    requestAnimationFrame(draw);\n  }\n  draw();\n})();",
+  "scene": "",
   "date": "2026-09-01"
 }
