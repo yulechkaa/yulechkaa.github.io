@@ -5,7 +5,18 @@ on:
     # Некруглая минута: слот «0 0» — самый перегруженный у GitHub, очередь
     # опаздывала на 3+ часа. 00:52 UTC = 03:52 МСК, открытка готова к утру.
     - cron: '52 0 * * *'
-  workflow_dispatch:     # Ручной запуск кнопкой для теста
+  workflow_dispatch:
+    inputs:
+      art_mode:
+        description: 'Режим арта для этого запуска'
+        required: false
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - image
+          - scene
+          - svg
 
 permissions:
   contents: write
@@ -32,7 +43,7 @@ jobs:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}   # Claude Sonnet 5 (основной); без ключа — Gemini
         VERSE_PROVIDER: ${{ vars.VERSE_PROVIDER || 'gemini' }}  # gemini / openrouter / auto
-        ART_MODE: ${{ vars.ART_MODE || 'auto' }}                # auto / svg / scene / image
+        ART_MODE: ${{ inputs.art_mode || vars.ART_MODE || 'auto' }} # ручной выбор → переменная → auto
         IMAGE_MODEL: ${{ vars.IMAGE_MODEL || 'google/gemini-3.1-flash-image' }}
       run: python generate.py
 
