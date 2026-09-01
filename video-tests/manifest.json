@@ -1,5 +1,5 @@
 {
-  "frame_url": "https://yulechkaa.github.io/art/2026-09-01.webp",
+  "frame_url": "https://yulechkaa.github.io/art/2026-09-01-video-frame.png",
   "duration_seconds": 4,
   "aspect_ratio": "9:16",
   "generate_audio": false,
@@ -21,9 +21,10 @@
     },
     {
       "model": "google/veo-3.1-lite",
-      "job_id": "8qLaISHtOkhJuvnXRFVk",
+      "job_id": "0t9nv34lHc28eBEzuRF9",
       "resolution": "720p",
-      "status": "failed"
+      "status": "completed",
+      "file": "video-tests/veo-3-1-lite.mp4"
     }
   ]
 }
