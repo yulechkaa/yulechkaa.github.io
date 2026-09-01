@@ -39,28 +39,29 @@ def api_headers(api_key: str) -> dict[str, str]:
 
 
 def build_prompt(card: dict) -> str:
-    verse = " ".join(card.get("verse") or [])
     return f"""
 Turn this exact illustration into a seamless 4-second living-poster loop. This
 is not a scene: there must be no plot, action, progression, or camera movement.
-At least 95% of the image must appear completely static at every moment. Preserve
-the exact composition, silhouettes, colors, and quiet readable center.
+Treat the artwork as a finished printed poster under subtly changing decorative
+light. Keep 100% of object geometry fixed: every leaf, petal, drop, bubble,
+branch, cloud, particle, character, and background shape must retain exactly the
+same position, scale, rotation, silhouette, and focus at every frame. Preserve
+the exact composition, colors, and quiet readable center.
 
 Mood: {card.get('mood', '')}.
-Visual concept: {card.get('concept', '')}.
-Poem meaning: {verse}.
+The poem and visual concept are semantic context only, never motion directions.
 
 Choose only one or two tiny decorative effects that naturally fit the visible
-artwork and poetic context: restrained specular glints, a few softly twinkling
-sparkles, delicate iridescence on existing glass/candy/water/metal details,
-very slow dust motes, faint breathing glow, or minimal movement of a few leaves.
-Keep effects localized near existing objects, low-amplitude and elegant. The
-center must remain calm, still, and fully readable.
+artwork: restrained specular glints, a few fixed-position sparkles that gently
+brighten and fade, delicate iridescence on existing glass/candy/water/metal
+details, or a faint localized glow. Animate light only, never objects. Keep the
+effects low-amplitude and elegant. The center must remain calm and fully readable.
 
 The last frame must match the first frame exactly. No story, character action,
-object travel, full-frame animation, light ribbons, sweeping rays, energy trails,
-large particles, wind, parallax, pan, tilt, zoom, cuts, morphing, warping,
-exposure pulses, flicker, text, or logos.
+object translation or rotation, falling or drifting leaves, moving drops, flying
+particles, swaying plants, full-frame animation, light ribbons, sweeping rays,
+energy trails, wind, parallax, pan, tilt, zoom, cuts, morphing, warping, exposure
+pulses, flicker, text, or logos.
 """.strip()
 
 
