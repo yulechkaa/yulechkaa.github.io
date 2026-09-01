@@ -42,14 +42,44 @@ MODELS = (
     },
 )
 
-PROMPT = """
-Create a subtle seamless animated background loop from this exact artwork.
-Keep the camera completely locked and preserve the original composition, colors,
-objects, and empty readable center. Animate only delicate atmospheric motion:
-soft drifting glow, tiny dust or sparkle particles, a very gentle breeze, and
-barely perceptible parallax. The final frame must return exactly to the first
-frame so the 4-second clip loops without a visible jump. No text, no new objects,
-no cuts, no zoom, no camera movement, no warping, no morphing, no flicker.
+
+def load_context() -> str:
+    explicit = os.environ.get("VIDEO_TEST_CONTEXT", "").strip()
+    if explicit:
+        return explicit
+    try:
+        data = json.loads(Path("data.json").read_text(encoding="utf-8"))
+        verse = " ".join(data.get("verse") or [])
+        return (
+            f"Mood: {data.get('mood', '')}. "
+            f"Visual concept: {data.get('concept', '')}. "
+            f"Poem: {verse}"
+        ).strip()
+    except (OSError, ValueError, TypeError):
+        return "A refined poetic greeting-card background."
+
+
+CONTEXT = load_context()
+PROMPT = f"""
+Turn this exact artwork into a seamless 4-second living-poster loop. This is not
+a scene and must contain no plot, action, or progression. At least 95% of the
+image must appear completely static at every moment. Lock the camera and retain
+the exact composition, silhouettes, colors, and clean readable center.
+
+Context: {CONTEXT}
+
+Choose only one or two tiny decorative effects that naturally fit the visible
+artwork and context. Examples: restrained specular glints on glass or candy,
+a few softly twinkling sparkles, a delicate shimmer on water or metallic detail,
+very slow dust motes, faint breathing glow, or minimal movement of a few leaves.
+Effects must stay localized near existing objects, be low-amplitude and elegant,
+and merely add polish. Keep the center quiet and fully readable.
+
+The last frame must match the first frame exactly. No story, character action,
+object movement across the frame, new objects, full-frame animation, light
+ribbons, sweeping beams, energy trails, large particles, wind gusts, parallax,
+camera movement, pan, tilt, zoom, cuts, morphing, warping, pulsing exposure,
+flicker, text, or logos.
 """.strip()
 
 

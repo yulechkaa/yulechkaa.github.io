@@ -20,6 +20,10 @@ on:
         description: 'Existing completed Veo 3.1 Lite job ID (optional)'
         required: false
         type: string
+      context:
+        description: 'Optional mood, poem, or visual context for micro-effects'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -47,6 +51,7 @@ jobs:
         VIDEO_TEST_REUSE_SEEDANCE_1_5_PRO: ${{ inputs.reuse_seedance_1_5_job }}
         VIDEO_TEST_REUSE_SEEDANCE_2_0_MINI: ${{ inputs.reuse_seedance_2_0_job }}
         VIDEO_TEST_REUSE_VEO_3_1_LITE: ${{ inputs.reuse_veo_3_1_lite_job }}
+        VIDEO_TEST_CONTEXT: ${{ inputs.context }}
       run: python video_tests.py
 
     - name: Commit generated videos
