@@ -138,13 +138,42 @@ SEASONS_RU = {
     6: "лето", 7: "лето", 8: "лето", 9: "осень", 10: "осень",
     11: "осень", 12: "зима",
 }
-SPECIAL_DATES = {
+# Только поводы, которые естественно подходят взрослой романтической паре.
+# Школьные, детские, государственные, военные, профессиональные и религиозные
+# даты сюда намеренно не добавляются.
+COUPLE_OCCASIONS = {
     (1, 1): "Новый год",
     (2, 14): "День святого Валентина",
     (3, 8): "Международный женский день",
-    (4, 12): "День космонавтики",
     (7, 8): "День семьи, любви и верности",
     (12, 31): "канун Нового года",
+}
+COUPLE_OCCASION_MARKERS = {
+    "новогодний повод": (
+        {"Новый год", "канун Нового года"},
+        ("новый год", "нового года", "новогод"),
+    ),
+    "День святого Валентина": (
+        {"День святого Валентина"},
+        ("день святого валентина", "валентинк"),
+    ),
+    "Международный женский день": (
+        {"Международный женский день"},
+        ("женский день", "8 марта", "восьмое марта"),
+    ),
+    "День семьи, любви и верности": (
+        {"День семьи, любви и верности"},
+        ("день семьи", "любви и верности"),
+    ),
+}
+UNSUITABLE_OCCASION_MARKERS = {
+    "школьная тема": ("день знаний", "первокласс", "школьн", "учебный год"),
+    "профессиональный праздник": ("день космонавтики", "день учителя", "день программиста"),
+    "государственный или военный праздник": (
+        "день победы", "день россии", "день защитника отечества",
+        "народного единства", "23 февраля",
+    ),
+    "религиозный праздник": ("рождеств", "пасх"),
 }
 SEASON_FIRST_DAYS = {
     (3, 1): "первый день весны",
@@ -166,7 +195,7 @@ def moscow_now():
 def build_calendar_info(now):
     occasions = []
     season_start = SEASON_FIRST_DAYS.get((now.month, now.day))
-    special = SPECIAL_DATES.get((now.month, now.day))
+    special = COUPLE_OCCASIONS.get((now.month, now.day))
     if season_start:
         occasions.append(season_start)
     if special:
@@ -188,12 +217,16 @@ def calendar_prompt(info):
 вневременной образ. Значимый повод можно использовать только если он естественно украшает
 любовное двустишие. Но если упоминаешь месяц, сезон, праздник или сезонный образ, он ОБЯЗАН
 соответствовать этим данным. Нельзя писать про другое время года. Не выдумывай конкретную
-погоду только на основании календаря."""
+погоду только на основании календаря. Используй ТОЛЬКО повод, явно перечисленный выше.
+Не добавляй самостоятельно школьные, детские, государственные, военные, профессиональные,
+религиозные или другие памятные даты. Если указан «нет обязательного повода», вообще не
+упоминай праздники."""
 
 
 def wrong_calendar_references(verse, info):
     """Return explicit season/month words that contradict today's Moscow date."""
-    words = re.findall(r"[а-яё]+", " ".join(verse).lower())
+    text = " ".join(verse).lower()
+    words = re.findall(r"[а-яё]+", text)
     found = set()
     for word in words:
         if word.startswith("зим"):
@@ -218,6 +251,14 @@ def wrong_calendar_references(verse, info):
         if (word in {"май", "мая", "маю", "маем", "мае"} or word.startswith("майск")) \
                 and int(info["date"][5:7]) != 5:
             wrong.add(MONTHS_RU[4])
+
+    allowed = set(info["occasions"])
+    for label, (allowed_names, markers) in COUPLE_OCCASION_MARKERS.items():
+        if allowed.isdisjoint(allowed_names) and any(marker in text for marker in markers):
+            wrong.add(label)
+    for label, markers in UNSUITABLE_OCCASION_MARKERS.items():
+        if any(marker in text for marker in markers):
+            wrong.add(label)
     return sorted(wrong)
 
 
