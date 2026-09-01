@@ -26,16 +26,19 @@ MODELS = (
         "slug": "seedance-1-5-pro",
         "model": "bytedance/seedance-1-5-pro",
         "resolution": "480p",
+        "reuse_env": "VIDEO_TEST_REUSE_SEEDANCE_1_5_PRO",
     },
     {
         "slug": "seedance-2-0-mini",
         "model": "bytedance/seedance-2.0-mini",
         "resolution": "480p",
+        "reuse_env": "VIDEO_TEST_REUSE_SEEDANCE_2_0_MINI",
     },
     {
         "slug": "veo-3-1-lite",
         "model": "google/veo-3.1-lite",
         "resolution": "720p",
+        "reuse_env": "VIDEO_TEST_REUSE_VEO_3_1_LITE",
     },
 )
 
@@ -60,6 +63,16 @@ def headers(api_key: str) -> dict[str, str]:
 
 
 def submit(api_key: str, spec: dict[str, str]) -> dict:
+    reused_id = os.environ.get(spec["reuse_env"], "").strip()
+    if reused_id:
+        print(f"Reusing {spec['model']}: {reused_id}", flush=True)
+        return {
+            "id": reused_id,
+            "slug": spec["slug"],
+            "model": spec["model"],
+            "resolution": spec["resolution"],
+        }
+
     payload = {
         "model": spec["model"],
         "prompt": PROMPT,
@@ -115,6 +128,12 @@ def poll(api_key: str, jobs: list[dict]) -> None:
             if status == "completed":
                 del pending[job_id]
             elif status in terminal_failures:
+                reason = state.get("error") or state.get("failure_reason")
+                if reason:
+                    print(
+                        f"{job['model']} failure details: {str(reason)[:1000]}",
+                        flush=True,
+                    )
                 del pending[job_id]
         if pending:
             time.sleep(POLL_SECONDS)

@@ -8,6 +8,18 @@ on:
         required: false
         default: 'https://yulechkaa.github.io/art/2026-09-01.webp'
         type: string
+      reuse_seedance_1_5_job:
+        description: 'Existing completed Seedance 1.5 Pro job ID (optional)'
+        required: false
+        type: string
+      reuse_seedance_2_0_job:
+        description: 'Existing completed Seedance 2.0 Mini job ID (optional)'
+        required: false
+        type: string
+      reuse_veo_3_1_lite_job:
+        description: 'Existing completed Veo 3.1 Lite job ID (optional)'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -32,9 +44,13 @@ jobs:
       env:
         OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
         VIDEO_TEST_FRAME_URL: ${{ inputs.frame_url }}
+        VIDEO_TEST_REUSE_SEEDANCE_1_5_PRO: ${{ inputs.reuse_seedance_1_5_job }}
+        VIDEO_TEST_REUSE_SEEDANCE_2_0_MINI: ${{ inputs.reuse_seedance_2_0_job }}
+        VIDEO_TEST_REUSE_VEO_3_1_LITE: ${{ inputs.reuse_veo_3_1_lite_job }}
       run: python video_tests.py
 
     - name: Commit generated videos
+      if: always()
       run: |
         git config user.name "YulechkaBot"
         git config user.email "bot@github.com"
