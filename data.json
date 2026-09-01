@@ -20,8 +20,9 @@
     "+Юлечка-осен+юлечка, как же ты хороша!"
   ],
   "image": "art/2026-09-01.webp",
-  "video": "",
+  "video": "art/2026-09-01.mp4",
   "svg": "",
   "scene": "",
-  "date": "2026-09-01"
+  "date": "2026-09-01",
+  "video_model": "bytedance/seedance-1-5-pro"
 }

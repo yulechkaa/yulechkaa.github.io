@@ -1614,6 +1614,7 @@
       "Юлечка-осенюлечка, как же ты хороша!"
     ],
     "image": "art/2026-09-01.webp",
-    "video": ""
+    "video": "art/2026-09-01.mp4",
+    "video_model": "bytedance/seedance-1-5-pro"
   }
 ]
