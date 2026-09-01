@@ -129,6 +129,99 @@ def load_json(path, default):
         return default
 
 
+MONTHS_RU = (
+    "января", "февраля", "марта", "апреля", "мая", "июня",
+    "июля", "августа", "сентября", "октября", "ноября", "декабря",
+)
+SEASONS_RU = {
+    1: "зима", 2: "зима", 3: "весна", 4: "весна", 5: "весна",
+    6: "лето", 7: "лето", 8: "лето", 9: "осень", 10: "осень",
+    11: "осень", 12: "зима",
+}
+SPECIAL_DATES = {
+    (1, 1): "Новый год",
+    (2, 14): "День святого Валентина",
+    (3, 8): "Международный женский день",
+    (4, 12): "День космонавтики",
+    (7, 8): "День семьи, любви и верности",
+    (9, 1): "День знаний",
+    (12, 31): "канун Нового года",
+}
+SEASON_FIRST_DAYS = {
+    (3, 1): "первый день весны",
+    (6, 1): "первый день лета",
+    (9, 1): "первый день осени",
+    (12, 1): "первый день зимы",
+}
+
+
+def moscow_now():
+    """Current Moscow time, with a safe local-time fallback."""
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo("Europe/Moscow"))
+    except Exception:
+        return datetime.now()
+
+
+def build_calendar_info(now):
+    occasions = []
+    season_start = SEASON_FIRST_DAYS.get((now.month, now.day))
+    special = SPECIAL_DATES.get((now.month, now.day))
+    if season_start:
+        occasions.append(season_start)
+    if special:
+        occasions.append(special)
+    return {
+        "date": now.strftime("%Y-%m-%d"),
+        "date_ru": f"{now.day} {MONTHS_RU[now.month - 1]} {now.year} года",
+        "season": SEASONS_RU[now.month],
+        "occasions": occasions,
+    }
+
+
+def calendar_prompt(info):
+    occasion = ", ".join(info["occasions"]) if info["occasions"] else "нет обязательного повода"
+    return f"""КАЛЕНДАРНЫЙ КОНТЕКСТ (строгий факт, но не обязательная тема):
+- сегодня по Москве: {info['date_ru']}; текущее время года — {info['season']};
+- значимый повод: {occasion}.
+Не превращай каждое двустишие в стих о календаре: в обычный день лучше выбрать свежий
+вневременной образ. Значимый повод можно использовать только если он естественно украшает
+любовное двустишие. Но если упоминаешь месяц, сезон, праздник или сезонный образ, он ОБЯЗАН
+соответствовать этим данным. Нельзя писать про другое время года. Не выдумывай конкретную
+погоду только на основании календаря."""
+
+
+def wrong_calendar_references(verse, info):
+    """Return explicit season/month words that contradict today's Moscow date."""
+    words = re.findall(r"[а-яё]+", " ".join(verse).lower())
+    found = set()
+    for word in words:
+        if word.startswith("зим"):
+            found.add("зима")
+        elif word.startswith("весн") or word.startswith("весен"):
+            found.add("весна")
+        elif word.startswith("осен") or word in {"осень", "осени", "осенью"}:
+            found.add("осень")
+        elif word.startswith("летн") or word in {"лето", "лета", "летом", "лету"}:
+            found.add("лето")
+    wrong = {season for season in found if season != info["season"]}
+
+    month_stems = {
+        "январ": 1, "феврал": 2, "март": 3, "апрел": 4,
+        "июн": 6, "июл": 7, "август": 8, "сентябр": 9, "октябр": 10,
+        "ноябр": 11, "декабр": 12,
+    }
+    for word in words:
+        for stem, month in month_stems.items():
+            if word.startswith(stem) and month != int(info["date"][5:7]):
+                wrong.add(MONTHS_RU[month - 1])
+        if (word in {"май", "мая", "маю", "маем", "мае"} or word.startswith("майск")) \
+                and int(info["date"][5:7]) != 5:
+            wrong.add(MONTHS_RU[4])
+    return sorted(wrong)
+
+
 def call_gemini(payload, timeout=60, attempts=8, models=None):
     """Запрос с повторами при 429/5xx и каскадным откатом на другую модель.
     Возвращает распарсенный JSON или None, если все модели недоступны.
@@ -294,10 +387,12 @@ def generate_background_image(prompt, output_path, attempts=3):
     return False
 
 
-def generate_verse(provider, history, past_verses_ctx, banned_end_words):
+def generate_verse(provider, history, past_verses_ctx, banned_end_words, calendar_ctx):
     """Отдельно генерирует рифму и двустишие выбранным провайдером."""
     prompt = f"""Ты — русский поэт. Придумай для девушки Юлечки одну новую ласковую рифму
 к имени «Юлечка» и тёплое двустишие с ней.
+
+{calendar_ctx}
 
 РИФМА:
 - одно благозвучное слово не длиннее 12 букв для фразы «Юлечка-[слово]»;
@@ -355,7 +450,7 @@ def generate_verse(provider, history, past_verses_ctx, banned_end_words):
     return {"rhyme": rhyme, "verse": verse}
 
 
-def proofread_verse(verse, rhyme, banned=(), provider="auto"):
+def proofread_verse(verse, rhyme, banned=(), provider="auto", calendar_ctx=""):
     """Второй проход: чиним грамматику/согласование/пунктуацию двустишия и убираем «рифму
     слова с самим собой». Сохраняем смысл и точную фразу «Юлечка-<rhyme>». Ударения НЕ трогаем —
     их ставит fix_verse_tts(). При любой неудаче возвращаем исходное."""
@@ -370,6 +465,7 @@ def proofread_verse(verse, rhyme, banned=(), provider="auto"):
     prompt = (
         "Ниже двустишие-поздравление для девушки по имени Юлечка.\n"
         f"«{text}»\n\n"
+        f"{calendar_ctx}\n\n"
         "Проверь и при необходимости ИСПРАВЬ: согласование падежей, родов и чисел, грамматику, "
         f"пунктуацию, естественность. ОБЯЗАТЕЛЬНО сохрани смысл, ритм и точную фразу «Юлечка-{rhyme}». "
         "ВАЖНО: строки НЕ должны рифмоваться одинаковым словом — концы строк должны быть РАЗНЫМИ "
@@ -408,6 +504,14 @@ def proofread_verse(verse, rhyme, banned=(), provider="auto"):
 
 def main():
     log(f"Старт генерации. Модели: {MODELS}; стихи: {VERSE_PROVIDER}")
+    now = moscow_now()
+    calendar_info = build_calendar_info(now)
+    calendar_ctx = calendar_prompt(calendar_info)
+    today_str = calendar_info["date"]
+    log(
+        f"Календарь: {calendar_info['date_ru']}, сезон: {calendar_info['season']}, "
+        f"повод: {', '.join(calendar_info['occasions']) or '—'}"
+    )
     # 1. Контекст прошлого: слова (для дедупа) + недавние открытки (чтобы не повторять настроение/палитру)
     history = load_json("history.json", [])
     archive = load_json(ARCHIVE_FILE, [])
@@ -439,14 +543,38 @@ def main():
 
     # Рифма и двустишие создаются отдельным запросом. Так выбор поэтической модели
     # не зависит от модели, которая затем рисует и оформляет открытку.
-    poem = generate_verse(VERSE_PROVIDER, history, past_verses_ctx, banned_end_words)
+    poem = None
+    for calendar_attempt in range(2):
+        extra = ""
+        if calendar_attempt:
+            extra = (
+                "\nПРЕДЫДУЩИЙ ВАРИАНТ БЫЛ ОТКЛОНЁН из-за неверного времени года. "
+                f"Сегодня только {calendar_info['season']}; либо используй её, либо вообще "
+                "не упоминай сезоны."
+            )
+        candidate = generate_verse(
+            VERSE_PROVIDER, history, past_verses_ctx, banned_end_words,
+            calendar_ctx + extra,
+        )
+        if candidate is None:
+            continue
+        wrong = wrong_calendar_references(candidate["verse"], calendar_info)
+        if wrong:
+            log(f"Стих отклонён: неверный сезон ({', '.join(wrong)}); повторяю запрос.")
+            continue
+        poem = candidate
+        break
     if poem is None:
-        log("Выбранный провайдер не смог сгенерировать стих. data.json не трогаю.")
+        log("Не удалось получить календарно актуальный стих. data.json не трогаю.")
         sys.exit(0)
     log("Корректор двустишия (тот же провайдер)…")
-    poem["verse"] = proofread_verse(
-        poem["verse"], poem["rhyme"], banned_end_words, VERSE_PROVIDER
+    proofread = proofread_verse(
+        poem["verse"], poem["rhyme"], banned_end_words, VERSE_PROVIDER, calendar_ctx
     )
+    if wrong_calendar_references(proofread, calendar_info):
+        log("Корректор добавил неверную календарную ссылку — оставляю исходное двустишие.")
+    else:
+        poem["verse"] = proofread
 
     # Концепции прошлых артов — чтобы каждый день был новый художественный замысел
     recent_concepts = [r["concept"] for r in archive if r.get("concept")][-10:]
@@ -706,6 +834,11 @@ def main():
 ФОРМАТ АРТА НА СЕГОДНЯ:
 {art_directive}"""
 
+    calendar_lock = f"""
+
+{calendar_ctx}
+Календарь не обязан быть темой оформления, но концепция и арт также не должны противоречить дате.
+"""
     poem_lock = f"""
 
 ВАЖНО: рифма и двустишие уже написаны отдельной поэтической моделью.
@@ -713,8 +846,8 @@ def main():
 Поле "rhyme": {json.dumps(poem["rhyme"], ensure_ascii=False)}
 Поле "verse": {json.dumps(poem["verse"], ensure_ascii=False)}
 """
-    prompt += poem_lock
-    claude_prompt += poem_lock
+    prompt += calendar_lock + poem_lock
+    claude_prompt += calendar_lock + poem_lock
 
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
@@ -802,14 +935,6 @@ def main():
     scene = (result.get("scene") or "").strip()
     if len(scene) > SCENE_MAX:
         scene = ""
-
-    # Дата всегда по Москве: раннеры живут в UTC, а cron может опоздать на часы —
-    # без явной зоны открытка около полуночи получала бы соседнюю дату
-    try:
-        from zoneinfo import ZoneInfo
-        today_str = datetime.now(ZoneInfo("Europe/Moscow")).strftime("%Y-%m-%d")
-    except Exception:
-        today_str = datetime.now().strftime("%Y-%m-%d")
 
     concept = (result.get("concept") or "").strip()[:200]
 

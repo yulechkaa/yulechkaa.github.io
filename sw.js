@@ -1,7 +1,7 @@
 /* Service worker: установка как приложение + офлайн-резерв.
    ВАЖНО: network-first — всегда отдаём свежую версию (иначе обновления кода/данных
    застревали бы в кэше). Кэш используется только как запасной вариант офлайн. */
-const CACHE = "yulechka-v2";
+const CACHE = "yulechka-v3";
 const CORE = ["./", "./index.html", "./manifest.webmanifest",
               "./icon-192.png", "./icon-512.png"];
 
