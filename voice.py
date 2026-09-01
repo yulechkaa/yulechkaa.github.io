@@ -95,7 +95,14 @@ def _override_phrase(line, rhyme):
                 core = fixed
             sub[j] = pre + core + post
         toks[i] = "-".join(sub)
-    return "".join(toks)
+    marked = "".join(toks)
+    # Дефисное «Юлечка-<неологизм>» некоторые TTS-модели воспринимают как один
+    # повреждённый токен и проглатывают неологизм. Для речи нужна короткая пауза;
+    # текст на открытке остаётся дефисным и не меняется.
+    compound = re.compile(
+        r"(?P<name>\+[Юю]лечка)-" + re.escape(sr), re.IGNORECASE
+    )
+    return compound.sub(lambda m: m.group("name") + ", " + sr, marked)
 
 
 def _patch_onnx_ttids():

@@ -116,7 +116,16 @@ def fix_verse_tts(verse, rhyme):
                     core = sr
                 sub[j] = pre + core + post
             toks[i] = "-".join(sub)
-        out.append("".join(toks))
+        marked = "".join(toks)
+        # Chatterbox иногда проглатывает вторую половину длинного выдуманного
+        # слова через дефис. Для озвучки превращаем обращение в приложение с
+        # короткой паузой: «Юлечка, осенюлечка». Отображаемый verse не меняется.
+        marked_rhyme = stress_rhyme(rhyme)
+        compound = re.compile(
+            r"(?P<name>\+[Юю]лечка)-" + re.escape(marked_rhyme), re.IGNORECASE
+        )
+        marked = compound.sub(lambda m: m.group("name") + ", " + marked_rhyme, marked)
+        out.append(marked)
     return out
 
 

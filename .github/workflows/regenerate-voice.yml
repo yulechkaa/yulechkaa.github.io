@@ -1,0 +1,38 @@
+name: Regenerate today's voice
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate-voice:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install voice dependencies
+      run: |
+        sudo apt-get update && sudo apt-get install -y ffmpeg
+        pip install edge-tts
+        pip install torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
+        pip install chatterbox-tts soundfile ruaccent
+
+    - name: Regenerate voice
+      run: python voice.py
+
+    - name: Commit audio
+      run: |
+        git config user.name "YulechkaBot"
+        git config user.email "bot@github.com"
+        git add audio.mp3
+        git diff --cached --quiet || git commit -m "Automation: regenerate today's voice"
+        git push
