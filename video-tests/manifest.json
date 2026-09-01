@@ -1,0 +1,29 @@
+{
+  "frame_url": "https://yulechkaa.github.io/art/2026-09-01.webp",
+  "duration_seconds": 4,
+  "aspect_ratio": "9:16",
+  "generate_audio": false,
+  "prompt": "Create a subtle seamless animated background loop from this exact artwork.\nKeep the camera completely locked and preserve the original composition, colors,\nobjects, and empty readable center. Animate only delicate atmospheric motion:\nsoft drifting glow, tiny dust or sparkle particles, a very gentle breeze, and\nbarely perceptible parallax. The final frame must return exactly to the first\nframe so the 4-second clip loops without a visible jump. No text, no new objects,\nno cuts, no zoom, no camera movement, no warping, no morphing, no flicker.",
+  "videos": [
+    {
+      "model": "bytedance/seedance-1-5-pro",
+      "job_id": "QVGEiwegr1gtRfBbW2OF",
+      "resolution": "480p",
+      "status": "completed",
+      "file": "video-tests/seedance-1-5-pro.mp4"
+    },
+    {
+      "model": "bytedance/seedance-2.0-mini",
+      "job_id": "cDZhNAvxis9WlasJZtQ0",
+      "resolution": "480p",
+      "status": "completed",
+      "file": "video-tests/seedance-2-0-mini.mp4"
+    },
+    {
+      "model": "google/veo-3.1-lite",
+      "job_id": "8qLaISHtOkhJuvnXRFVk",
+      "resolution": "720p",
+      "status": "failed"
+    }
+  ]
+}
