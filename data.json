@@ -1,25 +1,25 @@
 {
-  "rhyme": "ландышулечка",
-  "mood": "лесно-хрустальное",
-  "concept": "Изящные стебли ландышей с покачивающимися белыми бутонами-колокольчиками и мерцающей росой в стиле японской гравюры",
+  "rhyme": "пташулечка",
+  "mood": "порхающе-трепетное",
+  "concept": "Изящный силуэт парящей птицы и вихри орбитальных траекторий, нарисованные тонкой мерцающей линией в стиле ар-нуво.",
   "palette": [
     "#f7d9c4",
     "#e7a3b6",
     "#c8a2d8"
   ],
-  "style": "bloom",
-  "art": "petals",
-  "font": "comfortaa",
-  "anim": "cascade",
+  "style": "dawn",
+  "art": "orbits",
+  "font": "pacifico",
+  "anim": "drop",
   "verse": [
-    "Свежий ландыш расцветает в зелени ветвей,",
-    "Юлечка-ландышулечка, сердце мне согрей!"
+    "Когда зарю встречает дивный край,",
+    "Ты, Юлечка-пташулечка, порхай и расцветай!"
   ],
   "verse_tts": [
-    "Свежий ландыш расцветает в зелени ветвей,",
-    "+Юлечка-ландыш+улечка, сердце мне согрей!"
+    "Когда зарю встречает дивный край,",
+    "Ты, +Юлечка-пташ+улечка, порхай и расцветай!"
   ],
-  "svg": "",
-  "scene": "const N=30,pts=Array.from({length:N},()=>({x:Math.random(),y:Math.random(),r:1+Math.random()*2,s:0.0003+Math.random()*0.0006,a:Math.random()*Math.PI*2}));function render(t){ctx.clearRect(0,0,W(),H());const w=W(),h=H();[0.15,0.85].forEach((bx,side)=>{const dir=side===0?1:-1,baseRootX=bx*w,sway=Math.sin(t*0.001+side)*25,cp1x=baseRootX+dir*40+sway*0.5,cp1y=h*0.7,cp2x=baseRootX+dir*80+sway,cp2y=h*0.4,endX=baseRootX+dir*110+sway*1.2,endY=h*0.25;ctx.beginPath();ctx.strokeStyle=PALETTE[1]+'44';ctx.lineWidth=1.5;ctx.moveTo(baseRootX,h+20);ctx.bezierCurveTo(cp1x,cp1y,cp2x,cp2y,endX,endY);ctx.stroke();for(let i=1;i<=6;i++){const u=i/7,x=(1-u)**3*baseRootX+3*(1-u)**2*u*cp1x+3*(1-u)*u**2*cp2x+u**3*endX,y=(1-u)**3*(h+20)+3*(1-u)**2*u*cp1y+3*(1-u)*u**2*cp2y+u**3*endY,bellSway=Math.sin(t*0.002+i+side)*4,bellX=x+dir*14+bellSway,bellY=y+8;ctx.beginPath();ctx.strokeStyle=PALETTE[1]+'66';ctx.moveTo(x,y);ctx.quadraticCurveTo(x+dir*8,y+2,bellX,bellY);ctx.stroke();ctx.fillStyle=PALETTE[2]+'aa';ctx.beginPath();ctx.arc(bellX,bellY+4,4.5+i*0.6,Math.PI,0);ctx.lineTo(bellX+5,bellY+10);ctx.lineTo(bellX-5,bellY+10);ctx.closePath();ctx.fill();}});pts.forEach(p=>{p.y-=p.s*h*0.2;p.a+=0.02;if(p.y<0)p.y=1;const px=p.x*w+Math.sin(p.a)*15,py=p.y*h;ctx.beginPath();ctx.fillStyle=PALETTE[2]+'66';ctx.arc(px,py,p.r,0,Math.PI*2);ctx.fill();});requestAnimationFrame(render);}requestAnimationFrame(render);",
-  "date": "2026-08-31"
+  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"g1\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fda4af\" stop-opacity=\"0.8\"/><stop offset=\"50%\" stop-color=\"#38bdf8\" stop-opacity=\"0.6\"/><stop offset=\"100%\" stop-color=\"#1e1b4b\" stop-opacity=\"0.2\"/></linearGradient><radialGradient id=\"g2\" cx=\"50%\" cy=\"50%\" r=\"50%\"><stop offset=\"0%\" stop-color=\"#fda4af\" stop-opacity=\"0.4\"/><stop offset=\"100%\" stop-color=\"#38bdf8\" stop-opacity=\"0\"/></radialGradient></defs><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 500\" to=\"360 500 500\" dur=\"120s\" repeatCount=\"indefinite\"/><ellipse cx=\"500\" cy=\"500\" rx=\"440\" ry=\"220\" fill=\"none\" stroke=\"url(#g1)\" stroke-width=\"1.2\" stroke-dasharray=\"12 8\" transform=\"rotate(-25 500 500)\"/><ellipse cx=\"500\" cy=\"500\" rx=\"420\" ry=\"180\" fill=\"none\" stroke=\"#38bdf8\" stroke-opacity=\"0.35\" stroke-width=\"1\" transform=\"rotate(35 500 500)\"/><ellipse cx=\"500\" cy=\"500\" rx=\"460\" ry=\"280\" fill=\"none\" stroke=\"#fda4af\" stroke-opacity=\"0.25\" stroke-width=\"0.8\" transform=\"rotate(70 500 500)\"/></g><g opacity=\"0.85\"><path d=\"M220,280 C320,180 440,220 500,320 C420,320 340,380 300,460 C260,380 200,320 120,310 C160,290 200,285 220,280 Z\" fill=\"url(#g1)\" stroke=\"#fda4af\" stroke-width=\"1.5\"><animateTransform attributeName=\"transform\" type=\"translate\" values=\"0,0; 0,-15; 0,0\" dur=\"7s\" repeatCount=\"indefinite\"/></path><path d=\"M780,720 C680,820 560,780 500,680 C580,680 660,620 700,540 C740,620 800,680 880,690 C840,710 800,715 780,720 Z\" fill=\"url(#g1)\" stroke=\"#38bdf8\" stroke-width=\"1.5\"><animateTransform attributeName=\"transform\" type=\"translate\" values=\"0,0; 0,15; 0,0\" dur=\"8s\" repeatCount=\"indefinite\"/></path></g><g stroke=\"#fda4af\" fill=\"none\" stroke-width=\"0.8\" opacity=\"0.5\"><path d=\"M150,500 Q300,300 500,220 T850,500\"><animate attributeName=\"stroke-opacity\" values=\"0.2;0.7;0.2\" dur=\"5s\" repeatCount=\"indefinite\"/></path><path d=\"M150,500 Q300,700 500,780 T850,500\"><animate attributeName=\"stroke-opacity\" values=\"0.6;0.2;0.6\" dur=\"6s\" repeatCount=\"indefinite\"/></path></g><g fill=\"#fda4af\"><circle cx=\"220\" cy=\"280\" r=\"3.5\"><animate attributeName=\"opacity\" values=\"0.3;1;0.3\" dur=\"3s\" repeatCount=\"indefinite\"/></circle><circle cx=\"780\" cy=\"720\" r=\"3.5\"><animate attributeName=\"opacity\" values=\"0.9;0.2;0.9\" dur=\"4s\" repeatCount=\"indefinite\"/></circle><circle cx=\"840\" cy=\"320\" r=\"2.5\"><animate attributeName=\"opacity\" values=\"0.2;0.8;0.2\" dur=\"3.5s\" repeatCount=\"indefinite\"/></circle><circle cx=\"160\" cy=\"680\" r=\"2.5\"><animate attributeName=\"opacity\" values=\"0.8;0.3;0.8\" dur=\"4.5s\" repeatCount=\"indefinite\"/></circle><circle cx=\"500\" cy=\"140\" r=\"3\"><animate attributeName=\"opacity\" values=\"0.4;1;0.4\" dur=\"2.8s\" repeatCount=\"indefinite\"/></circle><circle cx=\"500\" cy=\"860\" r=\"3\"><animate attributeName=\"opacity\" values=\"1;0.3;1\" dur=\"3.2s\" repeatCount=\"indefinite\"/></circle></g></svg>",
+  "scene": "",
+  "date": "2026-09-01"
 }
