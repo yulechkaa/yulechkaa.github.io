@@ -39,6 +39,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests pillow edge-tts
 
+    - name: Install FFmpeg
+      run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
     - name: Run script
       id: generate
       env:
@@ -70,7 +73,6 @@ jobs:
 
     - name: Install voice deps
       run: |
-        sudo apt-get update && sudo apt-get install -y ffmpeg
         pip install torch==2.6.0 torchaudio==2.6.0 --index-url https://download.pytorch.org/whl/cpu
         pip install chatterbox-tts soundfile ruaccent
 

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import time
 from pathlib import Path
 from urllib.parse import quote, urljoin
@@ -174,6 +175,47 @@ def download_video(api_key: str, result: dict, output_path: Path) -> bool:
     return True
 
 
+def polish_seamless_loop(video_path: Path) -> None:
+    """Blend the final 0.45s back to the opening motion for a reliable loop."""
+    temporary_path = video_path.with_name(f"{video_path.stem}.loop.mp4")
+    try:
+        probe = subprocess.run(
+            [
+                "ffprobe", "-v", "error", "-show_entries", "format=duration",
+                "-of", "default=noprint_wrappers=1:nokey=1", str(video_path),
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        duration = float(probe.stdout.strip())
+        fade = min(0.45, duration / 5)
+        offset = max(0.0, duration - fade)
+        filter_graph = (
+            "[0:v]split=2[full][head];"
+            f"[head]trim=start=0:end={fade:.6f},setpts=PTS-STARTPTS,reverse[rev];"
+            f"[full][rev]xfade=transition=fade:duration={fade:.6f}:"
+            f"offset={offset:.6f},format=yuv420p[v]"
+        )
+        subprocess.run(
+            [
+                "ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+                "-i", str(video_path), "-filter_complex", filter_graph,
+                "-map", "[v]", "-an", "-c:v", "libx264", "-crf", "20",
+                "-preset", "medium", "-movflags", "+faststart", str(temporary_path),
+            ],
+            check=True,
+        )
+        os.replace(temporary_path, video_path)
+        log(f"Polished seamless loop ({fade:.2f}s transition)")
+    except (OSError, ValueError, subprocess.SubprocessError) as error:
+        log(f"Seamless post-process skipped: {error}")
+        try:
+            temporary_path.unlink(missing_ok=True)
+        except OSError:
+            pass
+
+
 def update_card_files(card: dict, video_path: str) -> None:
     card["video"] = video_path
     card["video_model"] = VIDEO_MODEL
@@ -226,6 +268,7 @@ def main() -> None:
     output_path = Path("art") / f"{card.get('date', 'today')}.mp4"
     if not download_video(api_key, result, output_path):
         return
+    polish_seamless_loop(output_path)
     video_path = output_path.as_posix()
     update_card_files(card, video_path)
     log(f"Video background ready: {video_path}")
