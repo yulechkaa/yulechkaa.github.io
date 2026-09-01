@@ -1,0 +1,43 @@
+name: Generate background video tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      frame_url:
+        description: 'Public image URL used as first and last frame'
+        required: false
+        default: 'https://yulechkaa.github.io/art/2026-09-01.webp'
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: pip install requests
+
+    - name: Generate three video candidates
+      env:
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        VIDEO_TEST_FRAME_URL: ${{ inputs.frame_url }}
+      run: python video_tests.py
+
+    - name: Commit generated videos
+      run: |
+        git config user.name "YulechkaBot"
+        git config user.email "bot@github.com"
+        git add video-tests
+        git diff --cached --quiet || git commit -m "Test: generate background video variants"
+        git push
