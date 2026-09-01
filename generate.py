@@ -61,8 +61,8 @@ VERSES_N = 14   # сколько прошлых двустиший показы�
 END_WORDS_N = 40  # сколько последних концевых слов строк запрещаем повторять в рифме
 PROOFREAD = True  # второй проход: лёгкая модель чинит грамматику двустишия
 ART_MODE = os.environ.get("ART_MODE", "auto").strip().lower()
-if ART_MODE not in {"auto", "svg", "scene", "image"}:
-    raise ValueError("ART_MODE должен быть auto, svg, scene или image")
+if ART_MODE not in {"auto", "svg", "scene", "image", "video"}:
+    raise ValueError("ART_MODE должен быть auto, svg, scene, image или video")
 
 _T0 = time.monotonic()
 
@@ -451,9 +451,13 @@ def main():
     # Концепции прошлых артов — чтобы каждый день был новый художественный замысел
     recent_concepts = [r["concept"] for r in archive if r.get("concept")][-10:]
 
-    # Три типа арта: SVG, живая canvas-сцена и AI-иллюстрация с живыми слоями поверх.
+    # Четыре типа арта: SVG, canvas-сцена, AI-иллюстрация и деликатный видеофон.
     # В auto они равномерно чередуются по истории открыток.
-    art_mode_today = ART_MODE if ART_MODE != "auto" else ("scene", "svg", "image")[len(history) % 3]
+    art_mode_today = ART_MODE if ART_MODE != "auto" else ("scene", "svg", "image", "video")[len(history) % 4]
+    github_output = os.environ.get("GITHUB_OUTPUT")
+    if github_output:
+        with open(github_output, "a", encoding="utf-8") as output:
+            output.write(f"art_mode={art_mode_today}\n")
     if art_mode_today == "image":
         art_directive = '''СЕГОДНЯ сделай AI-ИЛЛЮСТРАЦИЮ С ЖИВЫМИ СЛОЯМИ:
    - поле "image_prompt": подробный самостоятельный промпт для генератора изображения на основе
@@ -462,6 +466,13 @@ def main():
    - поле "scene": прозрачная медленная canvas-анимация ПОВЕРХ изображения: световая пыль,
      тонкие линии, мягкие блики или частицы, которые продолжают образ, но не закрывают центр;
    - поле "svg" оставь пустым "".'''
+    elif art_mode_today == "video":
+        art_directive = '''СЕГОДНЯ сделай ОСНОВУ ДЛЯ ДЕЛИКАТНОГО ВИДЕОФОНА:
+   - поле "image_prompt": подробный самостоятельный промпт для статичной иллюстрации на основе
+     двустишия и концепции; вертикальная композиция 9:16, главный образ по краям/в верхней и нижней
+     трети, спокойный малоконтрастный центр под крупную надпись; без букв, текста, рамок и логотипов;
+   - эта иллюстрация затем получит только локальные микроэффекты: блики, блёстки и переливы;
+   - поля "scene" и "svg" оставь пустыми "".'''
     elif art_mode_today == "scene":
         art_directive = ('СЕГОДНЯ обязательно сделай ЖИВУЮ JS-СЦЕНУ — заполни поле "scene", '
                          'а "svg" и "image_prompt" оставь пустыми "".')
@@ -802,10 +813,11 @@ def main():
 
     concept = (result.get("concept") or "").strip()[:200]
 
-    # Третий режим: отдельная вертикальная иллюстрация по финальному стиху и концепции.
+    # Image и video начинают с отдельной вертикальной иллюстрации. Для video второй
+    # шаг workflow опубликует этот кадр и аккуратно оживит его через Seedance.
     # Файл именуется датой, поэтому старые открытки продолжают показывать свой фон из архива.
     image_path = ""
-    if art_mode_today == "image":
+    if art_mode_today in {"image", "video"}:
         model_prompt = (result.get("image_prompt") or "").strip()
         if not model_prompt:
             model_prompt = f"Художественная иллюстрация: {concept}. Настроение: {mood}."
@@ -835,6 +847,7 @@ def main():
         "verse": verse,
         "verse_tts": verse_tts,
         "image": image_path,
+        "video": "",
         "svg": svg,
         "scene": scene,
         "date": today_str,
@@ -850,12 +863,15 @@ def main():
     with open("history.json", "w", encoding="utf-8") as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
 
-    # 7. Архив открыток (без тяжёлого svg/scene); путь к растровому фону сохраняем.
-    archive.append({k: card[k] for k in ("date", "rhyme", "mood", "concept", "palette", "style", "art", "font", "anim", "verse", "image")})
+    # 7. Архив открыток (без тяжёлого svg/scene); пути к медиофонам сохраняем.
+    archive.append({k: card[k] for k in ("date", "rhyme", "mood", "concept", "palette", "style", "art", "font", "anim", "verse", "image", "video")})
     with open(ARCHIVE_FILE, "w", encoding="utf-8") as f:
         json.dump(archive, f, ensure_ascii=False, indent=2)
 
-    art_src = "OpenRouter-Image+layers" if image_path else ("scene-JS" if scene else ("Gemini-SVG" if svg else f"параметрика:{art}"))
+    if art_mode_today == "video" and image_path:
+        art_src = "OpenRouter-Image→Seedance-video"
+    else:
+        art_src = "OpenRouter-Image+layers" if image_path else ("scene-JS" if scene else ("Gemini-SVG" if svg else f"параметрика:{art}"))
     log(f"Готово: Юлечка-{new_rhyme} | {mood} | стиль:{style} | арт:{art_src} | шрифт:{font} | аним:{anim} | {palette}")
     log(f"Концепция арта: {concept or '—'}")
     log("Двустишие: " + " / ".join(verse))

@@ -94,13 +94,22 @@
             --glow-a: rgba(247, 217, 196, 0.34);
             --glow-b: rgba(200, 162, 216, 0.28);
         }
-        #image-backdrop img {
+        #image-backdrop img, #image-backdrop video {
+            position: absolute; inset: 0;
             width: 100%; height: 100%; display: block;
             object-fit: cover; object-position: 50% 50%;
             filter: saturate(0.88) contrast(0.92) brightness(0.92);
+            transition: opacity 1.2s ease;
+        }
+        #image-backdrop img {
             transform: scale(1.07);
             animation: imageBreathe 32s ease-in-out infinite alternate;
         }
+        #image-backdrop video {
+            opacity: 0;
+            transform: scale(1.035);
+        }
+        #image-backdrop.has-video .image-light { opacity: 0.16; animation: none; }
         #image-backdrop::after {
             content: ""; position: absolute; inset: 0;
             background:
@@ -373,6 +382,7 @@
 
     <div id="image-backdrop" aria-hidden="true">
         <img id="image-bg" alt="" decoding="async">
+        <video id="video-bg" muted loop autoplay playsinline preload="metadata" aria-hidden="true"></video>
         <i class="image-light a"></i><i class="image-light b"></i>
     </div>
     <div id="art" aria-hidden="true"></div>
@@ -415,6 +425,7 @@
             style: "bloom",
             art: "petals",
             image: "",
+            video: "",
             svg: "",
             scene: "",
             font: "playfair",
@@ -759,36 +770,73 @@
             const scene = document.getElementById("scene");
             const imageLayer = document.getElementById("image-backdrop");
             const imageEl = document.getElementById("image-bg");
+            const videoEl = document.getElementById("video-bg");
             let palette = (Array.isArray(t.palette) ? t.palette : []).map(normHex).filter(Boolean);
             if (palette.length < 2) palette = FALLBACK.palette.map(normHex);
             const avg = palette.reduce((s, c) => s + lum(c), 0) / palette.length;
             const dark = avg < 0.42;
             const code = (typeof t.scene === "string" && t.scene.trim().length > 20) ? t.scene : null;
             const imagePath = (typeof t.image === "string" && /^art\/\d{4}-\d{2}-\d{2}\.webp$/.test(t.image)) ? t.image : null;
+            const videoPath = (typeof t.video === "string" && /^art\/\d{4}-\d{2}-\d{2}\.mp4$/.test(t.video)) ? t.video : null;
 
             if (art) { art.style.opacity = 0; art.innerHTML = ""; }
             if (scene) { scene.hidden = true; scene.style.opacity = 0; scene.removeAttribute("srcdoc"); }
-            if (imageLayer) imageLayer.style.opacity = 0;
+            if (imageLayer) { imageLayer.style.opacity = 0; imageLayer.classList.remove("has-video"); }
             if (imageEl) {
                 imageEl.onload = null; imageEl.onerror = null;
+                imageEl.style.opacity = 0;
                 if (!imagePath) imageEl.removeAttribute("src");
             }
+            if (videoEl) {
+                videoEl.pause();
+                videoEl.oncanplay = null; videoEl.onloadeddata = null; videoEl.onerror = null;
+                videoEl.style.opacity = 0;
+                videoEl.removeAttribute("src"); videoEl.removeAttribute("poster");
+                videoEl.load();
+            }
 
-            if (imagePath && imageLayer && imageEl) {
+            if ((imagePath || videoPath) && imageLayer && imageEl) {
                 const wash = toRgb(dark ? mix(palette[0], "#ffffff", 0.68) : mix(palette[0], "#ffffff", 0.84));
                 imageLayer.style.setProperty("--wash-rgb", wash.join(","));
                 imageLayer.style.setProperty("--glow-a", rgba(palette[0], 0.42));
                 imageLayer.style.setProperty("--glow-b", rgba(palette[palette.length - 1], 0.36));
-                imageEl.onload = () => { imageLayer.style.opacity = dark ? 0.82 : 0.76; };
+                imageEl.onload = () => {
+                    imageEl.style.opacity = 1;
+                    imageLayer.style.opacity = dark ? 0.82 : 0.76;
+                };
                 imageEl.onerror = () => { imageLayer.style.opacity = 0; };
-                imageEl.src = imagePath;
+                if (imagePath) imageEl.src = imagePath;
 
-                if (code && scene) {
+                if (videoPath && videoEl) {
+                    const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                    imageLayer.classList.add("has-video");
+                    if (imagePath) videoEl.poster = imagePath;
+                    const revealVideo = () => {
+                        imageLayer.style.opacity = dark ? 0.84 : 0.8;
+                        if (reduced) {
+                            videoEl.pause();
+                            videoEl.currentTime = 0;
+                        } else {
+                            videoEl.style.opacity = 1;
+                            videoEl.play().catch(() => { videoEl.style.opacity = 0; });
+                        }
+                    };
+                    videoEl.oncanplay = revealVideo;
+                    videoEl.onloadeddata = () => { if (reduced) revealVideo(); };
+                    videoEl.onerror = () => {
+                        videoEl.style.opacity = 0;
+                        imageLayer.classList.remove("has-video");
+                    };
+                    videoEl.src = videoPath;
+                    videoEl.load();
+                }
+
+                if (!videoPath && code && scene) {
                     const pal = palette.map(c => mix(c, dark ? "#ffffff" : "#2a2024", dark ? 0.22 : 0.34));
                     scene.srcdoc = buildSceneDoc(code, pal, t.mood || "", dark);
                     scene.hidden = false;
                     requestAnimationFrame(() => { scene.style.opacity = dark ? 0.46 : 0.38; });
-                } else {
+                } else if (!videoPath) {
                     renderArt(t);
                     if (art) art.style.opacity = dark ? 0.3 : 0.24;
                 }

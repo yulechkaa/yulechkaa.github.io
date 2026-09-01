@@ -14,6 +14,7 @@ on:
         type: choice
         options:
           - auto
+          - video
           - image
           - scene
           - svg
@@ -39,6 +40,7 @@ jobs:
         pip install requests pillow edge-tts
 
     - name: Run script
+      id: generate
       env:
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}   # Claude Sonnet 5 (основной); без ключа — Gemini
@@ -46,6 +48,25 @@ jobs:
         ART_MODE: ${{ inputs.art_mode || vars.ART_MODE || 'auto' }} # ручной выбор → переменная → auto
         IMAGE_MODEL: ${{ vars.IMAGE_MODEL || 'google/gemini-3.1-flash-image' }}
       run: python generate.py
+
+    - name: Publish source frame for video generation
+      if: steps.generate.outputs.art_mode == 'video'
+      id: publish-frame
+      run: |
+        git config user.name "YulechkaBot"
+        git config user.email "bot@github.com"
+        git add art data.json history.json archive.json
+        git diff --cached --quiet || git commit -m "Automation: publish video source frame"
+        git push
+        echo "frame_ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+    - name: Generate subtle Seedance video background
+      if: steps.generate.outputs.art_mode == 'video'
+      env:
+        OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        VIDEO_MODEL: ${{ vars.VIDEO_MODEL || 'bytedance/seedance-1-5-pro' }}
+        VIDEO_FRAME_BASE_URL: https://raw.githubusercontent.com/${{ github.repository }}/${{ steps.publish-frame.outputs.frame_ref }}/
+      run: python generate_card_video.py
 
     - name: Install voice deps
       run: |

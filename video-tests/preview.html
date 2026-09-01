@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Сравнение видеофонов — Юлечка</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;600&display=swap");
+
+    :root { color-scheme: dark; font-family: Manrope, system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: #f8f4ee;
+      background:
+        radial-gradient(circle at 20% 0%, #323048 0, transparent 38%),
+        radial-gradient(circle at 90% 100%, #392b31 0, transparent 36%),
+        #121217;
+    }
+    header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      width: min(1240px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 28px 0 20px;
+    }
+    h1 { margin: 0 0 6px; font: 600 clamp(24px, 3vw, 38px)/1.05 "Cormorant Garamond", serif; }
+    .subtitle { margin: 0; color: #aaa7b5; font-size: 13px; }
+    .controls { display: flex; gap: 8px; flex: none; }
+    button {
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 999px;
+      padding: 9px 14px;
+      color: inherit;
+      background: rgba(255,255,255,.08);
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      transition: background .2s, transform .2s;
+    }
+    button:hover { background: rgba(255,255,255,.15); transform: translateY(-1px); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(260px, 1fr));
+      gap: 18px;
+      width: min(1240px, calc(100% - 40px));
+      margin: 0 auto;
+      padding-bottom: 36px;
+    }
+    .candidate { min-width: 0; }
+    .stage {
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      max-height: 72vh;
+      border: 1px solid rgba(255,255,255,.15);
+      border-radius: 26px;
+      background: #e8d9bd;
+      box-shadow: 0 25px 70px rgba(0,0,0,.42);
+      cursor: zoom-in;
+    }
+    video {
+      position: absolute;
+      inset: 0;
+      z-index: -3;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .wash {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        radial-gradient(ellipse 72% 45% at 50% 50%, rgba(255,250,235,.58), rgba(255,250,235,.14) 58%, transparent 76%),
+        linear-gradient(180deg, rgba(25,20,18,.12), transparent 24%, transparent 74%, rgba(25,20,18,.18));
+      pointer-events: none;
+    }
+    .grain {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      opacity: .08;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");
+    }
+    .date {
+      position: absolute;
+      top: 7.5%;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(63,50,39,.62);
+      font-size: clamp(9px, 1vw, 12px);
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .poem {
+      position: absolute;
+      top: 49%;
+      left: 9%;
+      right: 9%;
+      transform: translateY(-50%);
+      color: #3c3129;
+      text-align: center;
+      text-wrap: balance;
+      text-shadow: 0 1px 10px rgba(255,250,235,.88);
+    }
+    .poem p { margin: .22em 0; font: 600 clamp(21px, 2.1vw, 34px)/1.12 "Cormorant Garamond", Georgia, serif; }
+    .signature {
+      position: absolute;
+      bottom: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(63,50,39,.72);
+      font: 600 clamp(15px, 1.5vw, 20px)/1 "Cormorant Garamond", serif;
+      white-space: nowrap;
+    }
+    .model {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 4px 0;
+    }
+    .model strong { font-size: 13px; font-weight: 600; }
+    .model span { color: #8f8c98; font-size: 11px; }
+    .hint { margin: 14px 4px 0; color: #85828e; font-size: 11px; text-align: center; }
+    .stage:fullscreen { width: 100vw; height: 100vh; max-height: none; border: 0; border-radius: 0; aspect-ratio: auto; cursor: zoom-out; }
+    .stage:fullscreen .poem p { font-size: clamp(28px, 4vw, 54px); }
+
+    @media (max-width: 900px) {
+      header { align-items: start; flex-direction: column; }
+      .grid {
+        grid-template-columns: repeat(3, minmax(78vw, 78vw));
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        padding-right: 11vw;
+        scrollbar-width: thin;
+      }
+      .candidate { scroll-snap-align: center; }
+      .stage { max-height: none; }
+      .poem p { font-size: clamp(25px, 6vw, 38px); }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Как видеофон выглядит со стихотворением</h1>
+      <p class="subtitle">Все ролики синхронизированы · нажми карточку для полноэкранного просмотра</p>
+    </div>
+    <div class="controls">
+      <button id="restart" type="button">↻ С начала</button>
+      <button id="toggle" type="button">Ⅱ Пауза</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <article class="candidate">
+      <div class="stage" tabindex="0" aria-label="Seedance 1.5 Pro, открыть на весь экран">
+        <video src="seedance-1-5-pro.mp4" muted loop autoplay playsinline preload="auto"></video>
+        <div class="wash"></div><div class="grain"></div>
+        <div class="date">первое сентября</div>
+        <div class="poem"><p>С тобой повсюду<br>ласковое лето,</p><p>Ты, Юлечка-мармеладулечка,<br>полна добра и света.</p></div>
+        <div class="signature">для Юлечки ♡</div>
+      </div>
+      <div class="model"><strong>Seedance 1.5 Pro</strong><span>480p · 4 сек.</span></div>
+    </article>
+
+    <article class="candidate">
+      <div class="stage" tabindex="0" aria-label="Seedance 2.0 Mini, открыть на весь экран">
+        <video src="seedance-2-0-mini.mp4" muted loop autoplay playsinline preload="auto"></video>
+        <div class="wash"></div><div class="grain"></div>
+        <div class="date">первое сентября</div>
+        <div class="poem"><p>С тобой повсюду<br>ласковое лето,</p><p>Ты, Юлечка-мармеладулечка,<br>полна добра и света.</p></div>
+        <div class="signature">для Юлечки ♡</div>
+      </div>
+      <div class="model"><strong>Seedance 2.0 Mini</strong><span>480p · 4 сек.</span></div>
+    </article>
+
+    <article class="candidate">
+      <div class="stage" tabindex="0" aria-label="Veo 3.1 Lite, открыть на весь экран">
+        <video src="veo-3-1-lite.mp4" muted loop autoplay playsinline preload="auto"></video>
+        <div class="wash"></div><div class="grain"></div>
+        <div class="date">первое сентября</div>
+        <div class="poem"><p>С тобой повсюду<br>ласковое лето,</p><p>Ты, Юлечка-мармеладулечка,<br>полна добра и света.</p></div>
+        <div class="signature">для Юлечки ♡</div>
+      </div>
+      <div class="model"><strong>Veo 3.1 Lite</strong><span>720p · 4 сек.</span></div>
+    </article>
+  </main>
+  <p class="hint">Пробел — пауза · R — перезапуск · Esc — выйти из полноэкранного режима</p>
+
+  <script>
+    const videos = [...document.querySelectorAll("video")];
+    const toggle = document.getElementById("toggle");
+    const restart = document.getElementById("restart");
+    let playing = true;
+
+    function restartAll() {
+      videos.forEach(video => { video.currentTime = 0; });
+      if (playing) videos.forEach(video => video.play().catch(() => {}));
+    }
+    function toggleAll() {
+      playing = !playing;
+      videos.forEach(video => playing ? video.play().catch(() => {}) : video.pause());
+      toggle.textContent = playing ? "Ⅱ Пауза" : "▶ Играть";
+    }
+    restart.addEventListener("click", restartAll);
+    toggle.addEventListener("click", toggleAll);
+    document.querySelectorAll(".stage").forEach(stage => {
+      const open = () => stage.requestFullscreen?.();
+      stage.addEventListener("click", open);
+      stage.addEventListener("keydown", event => {
+        if (event.key === "Enter") open();
+      });
+    });
+    document.addEventListener("keydown", event => {
+      if (event.code === "Space") { event.preventDefault(); toggleAll(); }
+      if (event.key.toLowerCase() === "r") restartAll();
+    });
+    Promise.allSettled(videos.map(video => video.play())).then(restartAll);
+  </script>
+</body>
+</html>
