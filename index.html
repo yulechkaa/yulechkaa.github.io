@@ -26,6 +26,10 @@
             --ink: #1c1614;
             --ink-soft: #6a5f5a;
             --accent: #b0567a;
+            --name-color: #6a5f5a;
+            --name-edge: rgba(255, 255, 255, 0.42);
+            --rhyme-edge: rgba(255, 255, 255, 0.66);
+            --rhyme-shadow: rgba(23, 14, 18, 0.38);
             --line: #d9cfca;
             --mesh: none;
             --rhyme-font: "Playfair Display", serif;   /* JS подменит на шрифт дня */
@@ -184,7 +188,11 @@
             font-style: italic;
             font-size: clamp(1.6rem, 6vw, 2.6rem);
             line-height: 1;
-            color: var(--ink-soft);
+            color: var(--name-color);
+            -webkit-text-stroke: 0.35px var(--name-edge);
+            paint-order: stroke fill;
+            filter: drop-shadow(0 0 0.2em var(--name-edge));
+            transition: color 0.9s ease, filter 0.9s ease;
             margin: 0;
         }
 
@@ -202,6 +210,12 @@
             line-height: 1.02;
             letter-spacing: -0.01em;
             color: var(--accent);
+            -webkit-text-stroke: clamp(0.45px, 0.018em, 1.35px) var(--rhyme-edge);
+            paint-order: stroke fill;
+            filter:
+                drop-shadow(0 0.025em 0.035em var(--rhyme-shadow))
+                drop-shadow(0 0 0.16em var(--rhyme-edge));
+            transition: color 0.9s ease, filter 0.9s ease;
             margin: 0;
             cursor: pointer;             /* тап по слову переигрывает появление букв */
             -webkit-tap-highlight-color: transparent;
@@ -470,6 +484,8 @@
         const lum = h => { const [r, g, b] = toRgb(h); return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b); };
         const mix = (a, b, t) => { const A = toRgb(a), B = toRgb(b); return toHex([0, 1, 2].map(i => A[i] + (B[i] - A[i]) * t)); };
         const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+        let rhymeBaseAccent = FALLBACK.palette[1];
+        let nameBaseColor = "#6a5f5a";
 
         function toHsl([r, g, b]) {
             r /= 255; g /= 255; b /= 255;
@@ -535,6 +551,9 @@
             r.setProperty("--accent", accent);
             r.setProperty("--line", line);
             r.setProperty("--mesh", mesh);
+            rhymeBaseAccent = accent;
+            nameBaseColor = inkSoft;
+            applyRhymeContrast([canvas]);
         }
 
         /* ---------- Генеративный арт (seed из рифмы) ---------- */
@@ -789,7 +808,7 @@
             }
             if (videoEl) {
                 videoEl.pause();
-                videoEl.oncanplay = null; videoEl.onloadeddata = null; videoEl.onerror = null;
+                videoEl.oncanplay = null; videoEl.onloadeddata = null; videoEl.ontimeupdate = null; videoEl.onerror = null;
                 videoEl.style.opacity = 0;
                 videoEl.removeAttribute("src"); videoEl.removeAttribute("poster");
                 videoEl.load();
@@ -803,6 +822,7 @@
                 imageEl.onload = () => {
                     imageEl.style.opacity = 1;
                     imageLayer.style.opacity = dark ? 0.82 : 0.76;
+                    requestAnimationFrame(() => sampleBackdropForRhyme(imageEl));
                 };
                 imageEl.onerror = () => { imageLayer.style.opacity = 0; };
                 if (imagePath) imageEl.src = imagePath;
@@ -820,9 +840,17 @@
                             videoEl.style.opacity = 1;
                             videoEl.play().catch(() => { videoEl.style.opacity = 0; });
                         }
+                        requestAnimationFrame(() => sampleBackdropForRhyme(videoEl));
                     };
                     videoEl.oncanplay = revealVideo;
                     videoEl.onloadeddata = () => { if (reduced) revealVideo(); };
+                    let lastContrastSample = 0;
+                    videoEl.ontimeupdate = () => {
+                        const now = performance.now();
+                        if (now - lastContrastSample < 1400) return;
+                        lastContrastSample = now;
+                        sampleBackdropForRhyme(videoEl);
+                    };
                     videoEl.onerror = () => {
                         videoEl.style.opacity = 0;
                         imageLayer.classList.remove("has-video");
@@ -914,6 +942,86 @@
         /* ---------- Вывод рифмы ---------- */
         const rhymeEl = document.getElementById("rhyme");
 
+        // Подбираем светлоту акцента по реальному участку картинки под рифмой,
+        // сохраняя оттенок палитры дня. Контур берём противоположной светлоты:
+        // он страхует буквы на неоднородных изображениях и движущемся видео.
+        function applyRhymeContrast(backgrounds) {
+            const samples = (backgrounds || []).map(normHex).filter(Boolean);
+            if (!samples.length) samples.push(getComputedStyle(document.documentElement).getPropertyValue("--canvas").trim());
+            const pickReadableTone = (base, minSaturation) => {
+                const [h, s, originalL] = toHsl(toRgb(base));
+                let chosen = base, bestScore = -Infinity;
+                for (let i = 14; i <= 88; i += 2) {
+                    const candidate = hslToHex(h, Math.max(minSaturation, s), i / 100);
+                    const minimum = Math.min(...samples.map(bg => contrast(candidate, bg)));
+                    const score = minimum - Math.abs(i / 100 - originalL) * 0.16;
+                    if (score > bestScore) { chosen = candidate; bestScore = score; }
+                }
+                return chosen;
+            };
+            const best = pickReadableTone(rhymeBaseAccent, 0.38);
+            const nameColor = pickReadableTone(nameBaseColor, 0.12);
+            const lightText = lum(best) > 0.46;
+            const lightName = lum(nameColor) > 0.46;
+            const mixed = Math.max(...samples.map(lum)) - Math.min(...samples.map(lum)) > 0.22;
+            const edgeAlpha = mixed ? 0.76 : 0.62;
+            const root = document.documentElement.style;
+            root.setProperty("--accent", best);
+            root.setProperty("--rhyme-edge", lightText
+                ? `rgba(18,12,16,${edgeAlpha})`
+                : `rgba(255,252,247,${edgeAlpha})`);
+            root.setProperty("--rhyme-shadow", lightText
+                ? "rgba(255,255,255,0.26)"
+                : "rgba(20,12,16,0.42)");
+            root.setProperty("--name-color", nameColor);
+            root.setProperty("--name-edge", lightName
+                ? "rgba(18,12,16,0.46)"
+                : "rgba(255,252,247,0.48)");
+        }
+
+        function sampleBackdropForRhyme(media) {
+            if (!media || !rhymeEl || !rhymeEl.clientWidth) return;
+            const sourceW = media.videoWidth || media.naturalWidth;
+            const sourceH = media.videoHeight || media.naturalHeight;
+            if (!sourceW || !sourceH) return;
+            const mediaRect = media.getBoundingClientRect();
+            const textRect = rhymeEl.getBoundingClientRect();
+            const scale = Math.max(mediaRect.width / sourceW, mediaRect.height / sourceH);
+            const cropX = (sourceW - mediaRect.width / scale) / 2;
+            const cropY = (sourceH - mediaRect.height / scale) / 2;
+            const sx = Math.max(0, cropX + (textRect.left - mediaRect.left) / scale);
+            const sy = Math.max(0, cropY + (textRect.top - mediaRect.top) / scale);
+            const sw = Math.max(1, Math.min(sourceW - sx, textRect.width / scale));
+            const sh = Math.max(1, Math.min(sourceH - sy, textRect.height / scale));
+            const canvas = document.createElement("canvas");
+            canvas.width = 9; canvas.height = 3;
+            const ctx = canvas.getContext("2d", { willReadFrequently: true });
+            try {
+                ctx.drawImage(media, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+                const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+                const washRaw = getComputedStyle(document.getElementById("image-backdrop"))
+                    .getPropertyValue("--wash-rgb").split(",").map(Number);
+                const wash = washRaw.length === 3 && washRaw.every(Number.isFinite) ? toHex(washRaw) : "#fbf8f5";
+                const samples = [];
+                for (let i = 0; i < pixels.length; i += 4) {
+                    // Центральный wash действительно лежит поверх медиа; учитываем
+                    // его приблизительную прозрачность, чтобы выбирать цвет по тому,
+                    // что видит человек, а не по исходному тёмному кадру.
+                    samples.push(mix(toHex([pixels[i], pixels[i + 1], pixels[i + 2]]), wash, 0.68));
+                }
+                applyRhymeContrast(samples);
+            } catch (_) {
+                // Если браузер запретил чтение кадра, остаётся безопасный вариант темы.
+            }
+        }
+
+        function refreshRhymeContrast() {
+            const video = document.getElementById("video-bg");
+            const image = document.getElementById("image-bg");
+            if (video && video.style.opacity !== "0" && video.readyState >= 2) sampleBackdropForRhyme(video);
+            else if (image && image.complete && image.naturalWidth) sampleBackdropForRhyme(image);
+        }
+
         function setRhyme(word) {
             rhymeEl.style.fontSize = "";
             rhymeEl.textContent = "";
@@ -949,7 +1057,10 @@
             const avail = rhymeEl.clientWidth;
             if (!avail) return;
             const need = rhymeEl.scrollWidth;
-            if (need <= avail) return;
+            if (need <= avail) {
+                requestAnimationFrame(refreshRhymeContrast);
+                return;
+            }
             // прикидываем размер по соотношению, затем чуть дожимаем — впишется любое слово
             let size = parseFloat(getComputedStyle(rhymeEl).fontSize);
             size = Math.max(12, Math.floor(size * avail / need) - 1);
@@ -959,6 +1070,7 @@
                 size -= 1;
                 rhymeEl.style.fontSize = size + "px";
             }
+            requestAnimationFrame(refreshRhymeContrast);
         }
 
         /* ---------- Дата ---------- */
