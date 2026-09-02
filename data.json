@@ -1,28 +1,27 @@
 {
-  "rhyme": "осенюлечка",
-  "mood": "янтарно-задумчивое",
-  "concept": "Одинокий кленовый лист медленно кружит в мягкой сумеречной дымке первого дня осени, выполненный в технике многослойной бумажной вырезки с тёплым подсветом изнутри.",
+  "rhyme": "голубулечка",
+  "mood": "воздушно-безмятежное",
+  "concept": "Силуэт голубя, сотканный из плавных воздушных потоков, медленно парит над пастельным горизонтом в разлитой тишине неба.",
   "palette": [
-    "#3d2b56",
-    "#c97b3d",
-    "#f4e3c1"
+    "#d7e4ee",
+    "#9fb4c7",
+    "#eee6d6"
   ],
   "style": "dusk",
-  "art": "petals",
-  "font": "playfair",
-  "anim": "wave",
+  "art": "waves",
+  "font": "prata",
+  "anim": "glow",
   "verse": [
-    "Лист кленовый летит на порог не спеша,",
-    "Юлечка-осенюлечка, как же ты хороша!"
+    "Пусть добрый ветер шепчет в вышине,",
+    "А Юлечка-голубулечка поёт о тишине."
   ],
   "verse_tts": [
-    "Лист кленовый летит на порог не спеша,",
-    "+Юлечка, осен+юлечка, как же ты хороша!"
+    "Пусть добрый ветер шепчет в вышине,",
+    "А +Юлечка, голуб+улечка поёт о тишине."
   ],
-  "image": "art/2026-09-01.webp",
-  "video": "art/2026-09-01.mp4",
+  "image": "",
+  "video": "",
   "svg": "",
-  "scene": "",
-  "date": "2026-09-01",
-  "video_model": "bytedance/seedance-1-5-pro"
+  "scene": "(function(){\n  const feathers = [];\n  const N = 70;\n  for(let i=0;i<N;i++){\n    feathers.push({\n      x: Math.random()*W(),\n      y: Math.random()*H()*1.5 + H()*0.3,\n      size: 2+Math.random()*4,\n      speed: 0.15+Math.random()*0.35,\n      drift: Math.random()*Math.PI*2,\n      driftSpeed: 0.002+Math.random()*0.004,\n      opacity: 0.15+Math.random()*0.35,\n      trail: []\n    });\n  }\n\n  let t = 0;\n\n  function drawDove(cx, cy, scale, wingAngle, color){\n    ctx.save();\n    ctx.translate(cx, cy);\n    ctx.scale(scale, scale);\n    ctx.rotate(-0.15);\n\n    ctx.beginPath();\n    ctx.moveTo(-40, 0);\n    ctx.bezierCurveTo(-30,-18, 10,-20, 45,-4);\n    ctx.bezierCurveTo(55,-2,60,2,50,4);\n    ctx.bezierCurveTo(20,10,-20,14,-40,4);\n    ctx.closePath();\n    ctx.fillStyle = color;\n    ctx.globalAlpha = 0.85;\n    ctx.fill();\n\n    ctx.beginPath();\n    ctx.ellipse(48,-2,9,7,0,0,Math.PI*2);\n    ctx.fill();\n\n    ctx.beginPath();\n    ctx.moveTo(56,-2);\n    ctx.lineTo(64,0);\n    ctx.lineTo(56,2);\n    ctx.closePath();\n    ctx.fill();\n\n    ctx.save();\n    ctx.translate(-5,-6);\n    ctx.rotate(wingAngle);\n    ctx.beginPath();\n    ctx.moveTo(0,0);\n    ctx.bezierCurveTo(-10,-30,-45,-40,-70,-25);\n    ctx.bezierCurveTo(-50,-15,-30,-5,0,10);\n    ctx.closePath();\n    ctx.globalAlpha = 0.75;\n    ctx.fill();\n    ctx.restore();\n\n    ctx.beginPath();\n    ctx.moveTo(-40,2);\n    ctx.bezierCurveTo(-60,0,-75,6,-85,14);\n    ctx.bezierCurveTo(-70,10,-55,10,-40,8);\n    ctx.closePath();\n    ctx.globalAlpha = 0.7;\n    ctx.fill();\n\n    ctx.restore();\n    ctx.globalAlpha = 1;\n  }\n\n  function frame(){\n    ctx.clearRect(0,0,W(),H());\n    t += 0.016;\n    const w = W(), h = H();\n\n    const gx = w*0.74, gy = h*0.24;\n    const grad = ctx.createRadialGradient(gx,gy,0,gx,gy, Math.max(w,h)*0.4);\n    grad.addColorStop(0, PALETTE[0] + 'aa');\n    grad.addColorStop(1, PALETTE[0] + '00');\n    ctx.save();\n    ctx.globalAlpha = DARK ? 0.25 : 0.35;\n    ctx.fillStyle = grad;\n    ctx.fillRect(0,0,w,h);\n    ctx.restore();\n\n    for(let r=0;r<3;r++){\n      const phase = t*0.15 + r*2.1;\n      const radius = 40 + (phase % 6) * 30;\n      const alpha = Math.max(0, 0.18 - (radius/300));\n      if(alpha<=0) continue;\n      ctx.beginPath();\n      ctx.strokeStyle = PALETTE[1];\n      ctx.globalAlpha = alpha;\n      ctx.lineWidth = 1.2;\n      ctx.arc(gx, gy+10, radius, 0, Math.PI*2);\n      ctx.stroke();\n    }\n    ctx.globalAlpha = 1;\n\n    for(const f of feathers){\n      f.trail.push({x:f.x, y:f.y});\n      if(f.trail.length>6) f.trail.shift();\n\n      f.drift += f.driftSpeed;\n      f.x += Math.sin(f.drift)*0.4 + 0.25;\n      f.y -= f.speed;\n\n      if(f.y < -20){\n        f.y = h + 20;\n        f.x = Math.random()*w;\n      }\n      if(f.x > w+20) f.x = -20;\n\n      for(let i=0;i<f.trail.length;i++){\n        const p = f.trail[i];\n        const a = (i/f.trail.length) * f.opacity * 0.6;\n        ctx.beginPath();\n        ctx.fillStyle = PALETTE[2];\n        ctx.globalAlpha = a;\n        ctx.ellipse(p.x, p.y, f.size*0.6, f.size*1.1, Math.sin(f.drift)*0.5, 0, Math.PI*2);\n        ctx.fill();\n      }\n\n      ctx.beginPath();\n      ctx.fillStyle = PALETTE[1];\n      ctx.globalAlpha = f.opacity;\n      ctx.ellipse(f.x, f.y, f.size*0.7, f.size*1.3, Math.sin(f.drift)*0.6, 0, Math.PI*2);\n      ctx.fill();\n    }\n    ctx.globalAlpha = 1;\n\n    const flightT = (t*0.06) % 1;\n    const dx = w*0.15 + flightT*w*0.7;\n    let dy = h*0.22 + Math.sin(flightT*Math.PI*2)*h*0.03;\n    if (Math.abs(dx - w/2) < w*0.22) {\n      dy = h*0.13;\n    }\n    const wingAngle = Math.sin(t*3.2)*0.5 - 0.15;\n    const scale = Math.min(w,h)/1000 * 1.1;\n\n    drawDove(dx, dy, scale, wingAngle, PALETTE[2]);\n\n    requestAnimationFrame(frame);\n  }\n\n  requestAnimationFrame(frame);\n})();",
+  "date": "2026-09-02"
 }
