@@ -1699,6 +1699,7 @@
       "Сияешь ярче пламени, улыбку мне даря."
     ],
     "image": "art/2026-09-05.webp",
-    "video": ""
+    "video": "art/2026-09-05.mp4",
+    "video_model": "bytedance/seedance-1-5-pro"
   }
 ]
