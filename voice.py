@@ -237,7 +237,7 @@ def try_chatterbox(text):
         tmp = "audio_tmp.wav"
         torchaudio.save(tmp, wav, model.sr)
         if not to_mp3(tmp):
-            os.replace(tmp, "audio.wav")
+            return False
         print("Готово: озвучено твоим голосом (Chatterbox).")
         return True
     except Exception as e:
@@ -268,14 +268,32 @@ def try_edge(text):
 
 
 def main():
+    global OUT
+    import hashlib
+    from pathlib import Path
+    card = json.loads(Path("data.json").read_text(encoding="utf-8"))
+    stamp = hashlib.sha256(json.dumps(card.get("verse_tts") or card.get("verse"), ensure_ascii=False).encode()).hexdigest()[:12]
+    Path("audio").mkdir(exist_ok=True)
+    OUT = f"audio/{card['date']}-{stamp}.tmp.mp3"
+    Path(OUT).unlink(missing_ok=True)
     text = read_text()
     print("Текст озвучки:", text)
-    if try_chatterbox(text):
-        return
-    if try_edge(text):
-        return
-    # Совсем ничего не вышло — не валим деплой (останется прошлый audio.mp3)
-    sys.exit(0)
+    success = try_chatterbox(text) or try_edge(text)
+    card["audio"] = ""
+    if success and Path(OUT).exists() and Path(OUT).stat().st_size > 1000:
+        final = OUT.replace(".tmp.mp3", ".mp3")
+        os.replace(OUT, final)
+        card["audio"] = final
+    else:
+        print("::warning::Voice unavailable; publishing card without audio")
+    Path(OUT).unlink(missing_ok=True)
+    Path("data.json").write_text(json.dumps(card, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    archive_path = Path("archive.json")
+    archive = json.loads(archive_path.read_text(encoding="utf-8"))
+    for item in archive:
+        if item.get("date") == card.get("date") and item.get("rhyme") == card.get("rhyme"):
+            item["audio"] = card["audio"]
+    archive_path.write_text(json.dumps(archive, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":

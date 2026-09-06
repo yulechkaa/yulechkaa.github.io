@@ -6,6 +6,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: card-publication
+  cancel-in-progress: false
+
 jobs:
   regenerate-video:
     runs-on: ubuntu-latest

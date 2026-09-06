@@ -6,6 +6,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: card-publication
+  cancel-in-progress: false
+
 jobs:
   regenerate-voice:
     runs-on: ubuntu-latest
@@ -33,6 +37,6 @@ jobs:
       run: |
         git config user.name "YulechkaBot"
         git config user.email "bot@github.com"
-        git add audio.mp3
+        git add audio data.json archive.json
         git diff --cached --quiet || git commit -m "Automation: regenerate today's voice"
         git push

@@ -22,6 +22,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: card-publication
+  cancel-in-progress: false
+
 jobs:
   build-and-generate:
     runs-on: ubuntu-latest
@@ -58,7 +62,7 @@ jobs:
       run: |
         git config user.name "YulechkaBot"
         git config user.email "bot@github.com"
-        git add art data.json history.json archive.json
+        git add art
         git diff --cached --quiet || git commit -m "Automation: publish video source frame"
         git push
         echo "frame_ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -83,6 +87,6 @@ jobs:
       run: |
         git config --global user.name "YulechkaBot"
         git config --global user.email "bot@github.com"
-        git add -A
+        git add art audio data.json history.json archive.json
         git diff --cached --quiet || git commit -m "Automation: new daily rhyme generated"
         git push
