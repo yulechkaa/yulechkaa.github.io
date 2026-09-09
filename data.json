@@ -1,28 +1,29 @@
 {
-  "rhyme": "розулечка",
-  "mood": "искристо-озорное",
-  "concept": "Скрипичный гриф плавно перетекает в стебель раскрывающейся розы, а её лепестки рассыпаются лёгкими золотыми нотами — гравюра меццо-тинто с тёплым золотым тиснением по глубокому бордовому фону.",
+  "rhyme": "блескулечка",
+  "mood": "стремительно-искристое",
+  "concept": "Мириады зеркальных осколков-искр закручиваются в два встречных вихря на верхнем и нижнем краю холста — фольгированное тиснение по глубокому индиго, дихроичный блеск, меняющий оттенок при повороте взгл",
   "palette": [
-    "#7a1f3d",
-    "#e8b4c4",
-    "#d9a441"
+    "#0f1b2d",
+    "#c7d0dc",
+    "#ffb84d"
   ],
-  "style": "bloom",
-  "art": "petals",
-  "font": "pacifico",
-  "anim": "fade",
+  "style": "frost",
+  "art": "orbits",
+  "font": "caveat",
+  "anim": "wave",
   "verse": [
-    "Твой ясный смех звучит отрадней скрипки,",
-    "Ты, Юлечка-розулечка, сияешь от улыбки."
+    "Твой взгляд искрится ярким вдохновеньем,",
+    "Ты, Юлечка-блескулечка, наполнишь жизнь везеньем."
   ],
   "verse_tts": [
-    "Твой ясный смех звучит отрадней скрипки,",
-    "Ты, +Юлечка, роз+улечка, сияешь от улыбки."
+    "Твой взгляд искрится ярким вдохновеньем,",
+    "Ты, +Юлечка, блеск+улечка, наполнишь жизнь везеньем."
   ],
-  "image": "art/2026-09-08.webp",
-  "video": "",
+  "image": "art/2026-09-09.webp",
+  "video": "art/2026-09-09.mp4",
   "svg": "",
-  "scene": "(function(){\n  function rand(a,b){return a+Math.random()*(b-a);}\n  let particles=[];\n  const N=64;\n  function spawn(){\n    const w=W(), h=H();\n    const zone = Math.random()<0.5 ? 'top':'bottom';\n    let y;\n    if(zone==='top') y = rand(-0.05,0.28)*h; else y = rand(0.72,1.05)*h;\n    return {\n      x: rand(0,w), y:y, z:zone,\n      size: rand(4,13),\n      speed: rand(0.05,0.16),\n      drift: rand(-0.25,0.25),\n      angle: rand(0,Math.PI*2),\n      spin: rand(-0.008,0.008),\n      alpha: rand(0.25,0.7),\n      hue: PALETTE[Math.floor(Math.random()*PALETTE.length)],\n      type: Math.random()<0.6 ? 'petal':'note',\n      phase: rand(0,Math.PI*2)\n    };\n  }\n  for(let i=0;i<N;i++) particles.push(spawn());\n\n  function drawPetal(p){\n    ctx.save();\n    ctx.translate(p.x,p.y);\n    ctx.rotate(p.angle);\n    ctx.globalAlpha = p.alpha;\n    ctx.beginPath();\n    ctx.fillStyle = p.hue;\n    ctx.moveTo(0,-p.size);\n    ctx.bezierCurveTo(p.size*0.8,-p.size*0.4, p.size*0.6,p.size*0.6, 0,p.size);\n    ctx.bezierCurveTo(-p.size*0.6,p.size*0.6, -p.size*0.8,-p.size*0.4, 0,-p.size);\n    ctx.fill();\n    ctx.restore();\n  }\n  function drawNote(p){\n    ctx.save();\n    ctx.translate(p.x,p.y);\n    ctx.rotate(p.angle*0.3);\n    ctx.globalAlpha = p.alpha*0.85;\n    ctx.fillStyle = p.hue;\n    ctx.beginPath();\n    ctx.ellipse(0,0,p.size*0.5,p.size*0.35,0.5,0,Math.PI*2);\n    ctx.fill();\n    ctx.fillRect(p.size*0.4,-p.size*1.6,p.size*0.12,p.size*1.6);\n    ctx.restore();\n  }\n\n  function frame(){\n    const w=W(), h=H();\n    ctx.clearRect(0,0,w,h);\n    for(const p of particles){\n      p.phase += 0.01;\n      p.x += Math.sin(p.phase)*p.drift;\n      p.y -= p.speed;\n      p.angle += p.spin;\n      if(p.z==='top'){\n        if(p.y < -0.08*h){ p.y = 0.28*h; p.x = Math.random()*w; }\n      } else {\n        if(p.y < 0.66*h){ p.y = 1.05*h; p.x = Math.random()*w; }\n      }\n      ctx.shadowBlur = 8;\n      ctx.shadowColor = p.hue;\n      if(p.type==='petal') drawPetal(p); else drawNote(p);\n      ctx.shadowBlur = 0;\n    }\n    requestAnimationFrame(frame);\n  }\n  requestAnimationFrame(frame);\n})();",
-  "date": "2026-09-08",
-  "audio": "audio/2026-09-08-985fd9d68a03.mp3"
+  "scene": "",
+  "date": "2026-09-09",
+  "video_model": "bytedance/seedance-1-5-pro",
+  "audio": "audio/2026-09-09-249c6862ec2f.mp3"
 }
