@@ -56,9 +56,9 @@ def main():
     date_str = (data.get("date") or "").strip()
     day_seed = sum(ord(c) for c in date_str)
     payload = json.dumps({
-        "title": "Для Юлечки 💌",
-        "body": teasers[day_seed % len(teasers)],
-        "url": "./",
+        "title": os.environ.get("PUSH_TITLE") or "Для Юлечки 💌",
+        "body": os.environ.get("PUSH_BODY") or teasers[day_seed % len(teasers)],
+        "url": os.environ.get("PUSH_URL") or "./",
     }, ensure_ascii=False)
 
     alive, sent = [], 0

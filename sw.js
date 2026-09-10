@@ -59,10 +59,11 @@ self.addEventListener("push", (e) => {
 
 self.addEventListener("notificationclick", (e) => {
     e.notification.close();
-    const url = (e.notification.data && e.notification.data.url) || "./";
+    const target = new URL((e.notification.data && e.notification.data.url) || "./", self.location.href);
+    const url = target.protocol === "https:" || target.origin === self.location.origin ? target.href : new URL("./", self.location.href).href;
     e.waitUntil(
         clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
-            for (const c of list) { if ("focus" in c) return c.focus(); }
+            for (const c of list) { if (c.url === url && "focus" in c) return c.focus(); }
             return clients.openWindow(url);
         })
     );

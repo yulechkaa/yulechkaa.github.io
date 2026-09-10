@@ -6,6 +6,19 @@ on:
     # на 10–40 минут, так что пуш реально приходит около полудня.
     - cron: '50 7 * * *'
   workflow_dispatch:       # Ручной запуск для теста
+    inputs:
+      title:
+        description: 'Заголовок разового уведомления'
+        required: false
+        type: string
+      body:
+        description: 'Текст разового уведомления'
+        required: false
+        type: string
+      url:
+        description: 'Ссылка при нажатии'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -32,6 +45,9 @@ jobs:
       - name: Send push
         env:
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          PUSH_TITLE: ${{ inputs.title }}
+          PUSH_BODY: ${{ inputs.body }}
+          PUSH_URL: ${{ inputs.url }}
         run: python notify.py
 
       - name: Commit cleaned subscriptions
