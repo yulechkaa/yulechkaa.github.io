@@ -1,28 +1,28 @@
 {
-  "rhyme": "ромашкулечка",
-  "mood": "безмятежно-солнечное",
-  "concept": "Лесная ромашка сложена из тёплых витражных лепестков, светящихся на просвет, будто окно в солнечную опушку, а невесомые лепестки-искры медленно плывут сквозь тёплую лесную дымку.",
+  "rhyme": "конфетулечка",
+  "mood": "медово-хрустальное",
+  "concept": "Витая карамельная лента разворачивается спиралью от нижнего края к верхнему, тая в рассветной дымке и рассыпая по пути невесомые нотные искры утреннего мотива — стеклянная скульптура-леденец, подсвече",
   "palette": [
-    "#fdf6e9",
-    "#f7c548",
-    "#4f7942"
+    "#f7a1c4",
+    "#ffd97d",
+    "#fff3e0"
   ],
-  "style": "bloom",
-  "art": "petals",
-  "font": "prata",
-  "anim": "glow",
+  "style": "dawn",
+  "art": "orbits",
+  "font": "yeseva",
+  "anim": "cascade",
   "verse": [
-    "Моя ты Юлечка-ромашкулечка лесная,",
-    "Живи, тревог и горестей не зная."
+    "Для милой Юлечки-конфетулечки звучит простой мотив,",
+    "Любое утро дивной сказкой щедро осветив."
   ],
   "verse_tts": [
-    "Моя ты +Юлечка, ромашк+улечка лесная,",
-    "Живи, тревог и горестей не зная."
+    "Для милой Юлечки-конфетулечки звучит простой мотив,",
+    "Любое утро дивной сказкой щедро осветив."
   ],
-  "image": "",
+  "image": "art/2026-09-12.webp",
   "video": "",
-  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"petalGrad\" x1=\"0\" y1=\"1\" x2=\"0\" y2=\"0\"><stop offset=\"0%\" stop-color=\"#fdf6e9\" stop-opacity=\"0.95\"/><stop offset=\"55%\" stop-color=\"#fdf6e9\" stop-opacity=\"0.85\"/><stop offset=\"100%\" stop-color=\"#f7c548\" stop-opacity=\"0.55\"/></linearGradient><radialGradient id=\"coreGrad\" cx=\"50%\" cy=\"45%\" r=\"60%\"><stop offset=\"0%\" stop-color=\"#fdf6e9\" stop-opacity=\"0.9\"/><stop offset=\"35%\" stop-color=\"#f7c548\" stop-opacity=\"1\"/><stop offset=\"100%\" stop-color=\"#f7c548\" stop-opacity=\"0.55\"/></radialGradient><radialGradient id=\"glowGrad\" cx=\"50%\" cy=\"50%\" r=\"50%\"><stop offset=\"0%\" stop-color=\"#f7c548\" stop-opacity=\"0.35\"/><stop offset=\"100%\" stop-color=\"#f7c548\" stop-opacity=\"0\"/></radialGradient><filter id=\"softBlur\" x=\"-50%\" y=\"-50%\" width=\"200%\" height=\"200%\"><feGaussianBlur stdDeviation=\"18\"/></filter><path id=\"petal\" d=\"M0,0 C -20,-70 -16,-170 0,-250 C 16,-170 20,-70 0,0 Z\" fill=\"url(#petalGrad)\" stroke=\"#4f7942\" stroke-width=\"2\" stroke-opacity=\"0.45\"/><path id=\"petalSmall\" d=\"M0,0 C -8,-28 -6,-68 0,-100 C 6,-68 8,-28 0,0 Z\" fill=\"url(#petalGrad)\" stroke=\"#4f7942\" stroke-width=\"1\" stroke-opacity=\"0.4\"/></defs><circle cx=\"240\" cy=\"740\" r=\"320\" fill=\"url(#glowGrad)\" filter=\"url(#softBlur)\"><animate attributeName=\"opacity\" values=\"0.5;0.85;0.5\" dur=\"9s\" repeatCount=\"indefinite\"/></circle><g fill=\"#4f7942\" opacity=\"0.32\"><path d=\"M-20,1000 Q60,860 150,1000 Z\"/><path d=\"M60,1000 Q160,840 260,1000 Z\"/><path d=\"M0,1000 Q-40,900 -60,1000 Z\"/><path d=\"M330,1000 Q400,900 470,1000 Z\"/></g><g fill=\"#4f7942\" opacity=\"0.2\"><path d=\"M-40,1000 Q120,880 300,1000 Z\"/><path d=\"M200,1000 Q320,860 500,1000 Z\"/></g><path d=\"M240,812 C 226,880 188,930 130,1000\" fill=\"none\" stroke=\"#4f7942\" stroke-width=\"15\" stroke-linecap=\"round\" opacity=\"0.85\"/><path d=\"M196,900 C 150,890 110,905 80,940 C 118,955 165,945 196,910 Z\" fill=\"#4f7942\" opacity=\"0.75\"/><g id=\"flowerPetals\" transform=\"translate(240,760)\"><animateTransform attributeName=\"transform\" type=\"rotate\" values=\"-3;3;-3\" additive=\"sum\" dur=\"14s\" repeatCount=\"indefinite\"/><g><use href=\"#petal\" transform=\"rotate(0)\"/><use href=\"#petal\" transform=\"rotate(22.5)\"/><use href=\"#petal\" transform=\"rotate(45)\"/><use href=\"#petal\" transform=\"rotate(67.5)\"/><use href=\"#petal\" transform=\"rotate(90)\"/><use href=\"#petal\" transform=\"rotate(112.5)\"/><use href=\"#petal\" transform=\"rotate(135)\"/><use href=\"#petal\" transform=\"rotate(157.5)\"/><use href=\"#petal\" transform=\"rotate(180)\"/><use href=\"#petal\" transform=\"rotate(202.5)\"/><use href=\"#petal\" transform=\"rotate(225)\"/><use href=\"#petal\" transform=\"rotate(247.5)\"/><use href=\"#petal\" transform=\"rotate(270)\"/><use href=\"#petal\" transform=\"rotate(292.5)\"/><use href=\"#petal\" transform=\"rotate(315)\"/><use href=\"#petal\" transform=\"rotate(337.5)\"/></g><path d=\"M0,0 C -20,-70 -16,-170 0,-250 C 16,-170 20,-70 0,0 Z\" fill=\"none\" stroke=\"#f7c548\" stroke-width=\"3\" stroke-dasharray=\"560\" stroke-dashoffset=\"560\" transform=\"rotate(0)\"><animate attributeName=\"stroke-dashoffset\" values=\"560;0;560\" dur=\"7s\" repeatCount=\"indefinite\"/></path><path d=\"M0,0 C -20,-70 -16,-170 0,-250 C 16,-170 20,-70 0,0 Z\" fill=\"none\" stroke=\"#fdf6e9\" stroke-width=\"2.5\" stroke-dasharray=\"560\" stroke-dashoffset=\"560\" transform=\"rotate(180)\"><animate attributeName=\"stroke-dashoffset\" values=\"560;0;560\" dur=\"7s\" begin=\"3.5s\" repeatCount=\"indefinite\"/></path><circle cx=\"0\" cy=\"0\" r=\"58\" fill=\"url(#coreGrad)\" stroke=\"#4f7942\" stroke-width=\"1.5\" stroke-opacity=\"0.3\"/><g fill=\"#4f7942\" opacity=\"0.45\"><circle cx=\"-18\" cy=\"-10\" r=\"2.4\"/><circle cx=\"14\" cy=\"-20\" r=\"2\"/><circle cx=\"22\" cy=\"8\" r=\"2.6\"/><circle cx=\"-8\" cy=\"22\" r=\"2.2\"/><circle cx=\"6\" cy=\"2\" r=\"2\"/><circle cx=\"-24\" cy=\"14\" r=\"2.3\"/><circle cx=\"0\" cy=\"-30\" r=\"2\"/><circle cx=\"26\" cy=\"-12\" r=\"2\"/><circle cx=\"-10\" cy=\"-24\" r=\"1.8\"/><circle cx=\"16\" cy=\"20\" r=\"2.1\"/></g></g><g><use href=\"#petalSmall\" transform=\"scale(0.8)\"><animateMotion path=\"M250,680 C 420,540 620,380 880,180\" dur=\"20s\" repeatCount=\"indefinite\" rotate=\"auto\"/><animate attributeName=\"opacity\" values=\"0;0.9;0.9;0\" keyTimes=\"0;0.15;0.8;1\" dur=\"20s\" repeatCount=\"indefinite\"/></use></g><g><use href=\"#petalSmall\" transform=\"scale(0.55)\"><animateMotion path=\"M230,720 C 380,600 560,440 780,260\" dur=\"24s\" begin=\"4s\" repeatCount=\"indefinite\" rotate=\"auto\"/><animate attributeName=\"opacity\" values=\"0;0.8;0.8;0\" keyTimes=\"0;0.15;0.8;1\" dur=\"24s\" begin=\"4s\" repeatCount=\"indefinite\"/></use></g><g><use href=\"#petalSmall\" transform=\"scale(0.65)\"><animateMotion path=\"M300,760 C 460,660 650,480 900,300\" dur=\"22s\" begin=\"9s\" repeatCount=\"indefinite\" rotate=\"auto\"/><animate attributeName=\"opacity\" values=\"0;0.85;0.85;0\" keyTimes=\"0;0.15;0.8;1\" dur=\"22s\" begin=\"9s\" repeatCount=\"indefinite\"/></use></g><g><use href=\"#petalSmall\" transform=\"scale(0.4)\"><animateMotion path=\"M210,650 C 340,520 520,360 760,180\" dur=\"26s\" begin=\"13s\" repeatCount=\"indefinite\" rotate=\"auto\"/><animate attributeName=\"opacity\" values=\"0;0.75;0.75;0\" keyTimes=\"0;0.15;0.8;1\" dur=\"26s\" begin=\"13s\" repeatCount=\"indefinite\"/></use></g></svg>",
-  "scene": "",
-  "date": "2026-09-11",
-  "audio": "audio/2026-09-11-367a6af60c72.mp3"
+  "svg": "",
+  "scene": "const particles=[];const N=70;for(let i=0;i<N;i++){particles.push({x:Math.random()*W(),y:H()+Math.random()*H()*0.5,r:1+Math.random()*2.2,speed:0.15+Math.random()*0.35,drift:Math.random()*0.02+0.005,phase:Math.random()*Math.PI*2,hueIdx:Math.floor(Math.random()*PALETTE.length),tail:[]});}\nfunction hexToRgb(h){h=h.replace('#','');const n=parseInt(h,16);return[(n>>16)&255,(n>>8)&255,n&255];}\nconst rgbs=PALETTE.map(hexToRgb);\nlet t=0;\nfunction frame(){\n t+=0.01;\n const w=W(),h=H();\n ctx.clearRect(0,0,w,h);\n // soft glow blobs top and bottom corners, avoiding center\n function blob(x,y,r,rgb,alpha){\n  const g=ctx.createRadialGradient(x,y,0,x,y,r);\n  g.addColorStop(0,`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`);\n  g.addColorStop(1,`rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`);\n  ctx.fillStyle=g;\n  ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();\n }\n blob(w*0.18, h*0.86 + Math.sin(t*0.6)*8, w*0.32, rgbs[1], 0.10);\n blob(w*0.82, h*0.12 + Math.cos(t*0.5)*6, w*0.28, rgbs[0], 0.08);\n\n for(const p of particles){\n  p.y -= p.speed;\n  p.x += Math.sin(t*2+p.phase)*p.drift*20;\n  if(p.y < -10){ p.y = h + 10; p.x = Math.random()*w; }\n  p.tail.push({x:p.x,y:p.y});\n  if(p.tail.length>10) p.tail.shift();\n  const rgb=rgbs[p.hueIdx];\n  // skip drawing near exact center to keep it calm\n  const dx=p.x-w/2, dy=p.y-h/2;\n  const distCenter=Math.sqrt(dx*dx+dy*dy);\n  const centerFade = distCenter < w*0.28 ? 0.25 : 1;\n  for(let i=0;i<p.tail.length;i++){\n   const pt=p.tail[i];\n   const a=(i/p.tail.length)*0.5*centerFade;\n   ctx.beginPath();\n   ctx.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${a})`;\n   ctx.arc(pt.x,pt.y,p.r*(i/p.tail.length),0,Math.PI*2);\n   ctx.fill();\n  }\n  ctx.save();\n  ctx.shadowBlur=8;\n  ctx.shadowColor=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.8)`;\n  ctx.beginPath();\n  ctx.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${0.7*centerFade})`;\n  ctx.arc(p.x,p.y,p.r,0,Math.PI*2);\n  ctx.fill();\n  ctx.restore();\n }\n requestAnimationFrame(frame);\n}\nrequestAnimationFrame(frame);",
+  "date": "2026-09-12",
+  "audio": "audio/2026-09-12-09441242dd11.mp3"
 }
