@@ -1,28 +1,29 @@
 {
-  "rhyme": "корицулечка",
-  "mood": "пряно-нежное",
-  "concept": "Свёрнутые спиралью палочки корицы курятся тёплым пряным паром, который, поднимаясь, рассыпается мелкими золотистыми искрами-желаниями в осеннем воздухе — бархатная гравюра пряностей с дымчатым сиянием",
+  "rhyme": "рубинулечка",
+  "mood": "трепетно-алое",
+  "concept": "Тонкая грань огранки рубина проходит вдоль правого края холста снизу вверх, разбивая рассветный свет на отдельные алые и золотые лучи, веером расходящиеся к верхнему краю, — витраж со свинцовыми жилка",
   "palette": [
-    "#b5652f",
-    "#f5ddb8",
-    "#6e3a2a"
+    "#9e1b32",
+    "#ffb199",
+    "#fdf1e6"
   ],
   "style": "dawn",
   "art": "rays",
-  "font": "marck",
-  "anim": "scale",
+  "font": "lobster",
+  "anim": "fade",
   "verse": [
-    "Ты, Юлечка-корицулечка, согрей теплом дыханья,",
-    "Исполнив самые заветные и добрые желанья."
+    "Ты, Юлечка-рубинулечка, сияй в лучах рассвета,",
+    "Заботой искренней и трепетной согрета."
   ],
   "verse_tts": [
-    "Ты, +Юлечка, кориц+улечка, согрей теплом дыханья,",
-    "Исполнив самые заветные и добрые желанья."
+    "Ты, +Юлечка, рубин+улечка, сияй в лучах рассвета,",
+    "Заботой искренней и трепетной согрета."
   ],
-  "image": "art/2026-09-16.webp",
-  "video": "",
+  "image": "art/2026-09-17.webp",
+  "video": "art/2026-09-17.mp4",
   "svg": "",
-  "scene": "let t=0;const N=70;const particles=[];function hexToRgba(hex,alpha){const h=hex.replace('#','');const r=parseInt(h.substring(0,2),16);const g=parseInt(h.substring(2,4),16);const b=parseInt(h.substring(4,6),16);return `rgba(${r},${g},${b},${alpha})`;}function spawn(){const x=Math.random()*W();return{x,baseX:x,y:H()+Math.random()*100,r:1+Math.random()*2.2,speed:0.18+Math.random()*0.35,ang:Math.random()*Math.PI*2,amp:8+Math.random()*24,alpha:0.15+Math.random()*0.45,hue:PALETTE[Math.floor(Math.random()*PALETTE.length)]};}for(let i=0;i<N;i++){particles.push(spawn());}let steamPhase=0;function drawSteam(){steamPhase+=0.004;ctx.save();ctx.lineWidth=1.2;const w=W(),h=H();for(let i=0;i<3;i++){const baseX=i%2===0?w*0.12:w*0.88;const offset=i*40;ctx.beginPath();ctx.strokeStyle=hexToRgba(PALETTE[1],0.16);for(let y=h;y>-50;y-=20){const x=baseX+Math.sin(steamPhase*2+y*0.01+offset)*18;if(y===h)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.stroke();}ctx.restore();}function draw(){ctx.clearRect(0,0,W(),H());t+=0.006;for(const p of particles){p.y-=p.speed;p.ang+=0.01;p.x=p.baseX+Math.sin(p.ang)*p.amp;if(p.y<-20){Object.assign(p,spawn());p.y=H()+Math.random()*60;}const distCenter=Math.abs(p.y-H()*0.5)/(H()*0.5);const centerFade=Math.min(1,distCenter*1.8+0.12);const a=p.alpha*centerFade;const grad=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*4);grad.addColorStop(0,hexToRgba(p.hue,a));grad.addColorStop(1,hexToRgba(p.hue,0));ctx.fillStyle=grad;ctx.beginPath();ctx.arc(p.x,p.y,p.r*4,0,Math.PI*2);ctx.fill();}drawSteam();requestAnimationFrame(draw);}requestAnimationFrame(draw);",
-  "date": "2026-09-16",
-  "audio": "audio/2026-09-16-cee6f58fc183.mp3"
+  "scene": "",
+  "date": "2026-09-17",
+  "video_model": "bytedance/seedance-1-5-pro",
+  "audio": "audio/2026-09-17-19be7d2fd545.mp3"
 }
