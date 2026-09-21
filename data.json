@@ -1,28 +1,29 @@
 {
-  "rhyme": "феюлечка",
-  "mood": "волшебно-невесомое",
-  "concept": "Полупрозрачные крылья феи прорисованы тончайшими нитями света в верхнем и нижнем углах холста, а с их кончиков медленно осыпается тёплая пыльца, превращающаяся в парящие огоньки — акварельная гравюра ",
+  "rhyme": "родникулечка",
+  "mood": "хрустально-ясное",
+  "concept": "Хрустальный родник пробивается тонкой сияющей нитью сквозь тёмный камень в верхней трети холста, а его брызги распадаются на невесомые звенящие капли-колокольчики, которые в нижней трети собираются в ",
   "palette": [
-    "#8e7cc3",
-    "#f6c453",
-    "#fdf3e7"
+    "#cfeff5",
+    "#4a7c8c",
+    "#f4fbfd"
   ],
-  "style": "bloom",
-  "art": "rays",
-  "font": "prata",
-  "anim": "glow",
+  "style": "frost",
+  "art": "waves",
+  "font": "yeseva",
+  "anim": "cascade",
   "verse": [
-    "Ты, Юлечка-феюлечка, теплом любви согрей,",
-    "И станет каждый новый день отрадней и светлей."
+    "Пусть Юлечка-родникулечка звенит ключом хрустальным,",
+    "Любой печальный миг в судьбе развеяв беспечально."
   ],
   "verse_tts": [
-    "Ты, +Юлечка, фе+юлечка, теплом любви согрей,",
-    "И станет каждый новый день отрадней и светлей."
+    "Пусть +Юлечка, родник+улечка звенит ключом хрустальным,",
+    "Любой печальный миг в судьбе развеяв беспечально."
   ],
-  "image": "art/2026-09-20.webp",
-  "video": "",
+  "image": "art/2026-09-21.webp",
+  "video": "art/2026-09-21.mp4",
   "svg": "",
-  "scene": "const N=140,parts=[];for(let i=0;i<N;i++){parts.push({x:Math.random()*W(),y:H()*0.6+Math.random()*H()*0.4,r:1+Math.random()*2.2,sp:0.15+Math.random()*0.35,ph:Math.random()*6.28,drift:(Math.random()-0.5)*0.4,tw:0.5+Math.random()*1.5,trail:[]});}\nconst rays=[];for(let i=0;i<5;i++){rays.push({ang:(-0.5+Math.random())*0.6+((i%2)?2.6:0),len:H()*0.35,x:(i%2)?W()*0.85:W()*0.15,y:(i%2)?H()*0.12:H()*0.9,op:0.05+Math.random()*0.08});}\nlet t=0;\nfunction frame(){\n t+=0.01;\n const w=W(),h=H();\n ctx.clearRect(0,0,w,h);\n ctx.save();\n rays.forEach((r,i)=>{\n const a=r.ang+Math.sin(t*0.3+i)*0.05;\n const grad=ctx.createLinearGradient(r.x,r.y,r.x+Math.cos(a)*r.len,r.y+Math.sin(a)*r.len);\n grad.addColorStop(0,'rgba(246,196,83,'+r.op+')');\n grad.addColorStop(1,'rgba(246,196,83,0)');\n ctx.strokeStyle=grad;\n ctx.lineWidth=14+8*Math.sin(t+i);\n ctx.beginPath();\n ctx.moveTo(r.x,r.y);\n ctx.lineTo(r.x+Math.cos(a)*r.len,r.y+Math.sin(a)*r.len);\n ctx.stroke();\n });\n ctx.restore();\n for(const p of parts){\n p.y-=p.sp;\n p.x+=Math.sin(t*2+p.ph)*p.drift;\n p.ph+=0.01;\n if(p.y<-10){p.y=h+10;p.x=Math.random()*w;}\n p.trail.push({x:p.x,y:p.y});\n if(p.trail.length>14)p.trail.shift();\n const flick=0.4+0.6*Math.abs(Math.sin(t*p.tw+p.ph));\n for(let j=0;j<p.trail.length;j++){\n const tp=p.trail[j];\n const a=(j/p.trail.length)*0.5*flick;\n const rad=p.r*(j/p.trail.length);\n const grad=ctx.createRadialGradient(tp.x,tp.y,0,tp.x,tp.y,rad*4+2);\n grad.addColorStop(0,'rgba(253,243,231,'+a+')');\n grad.addColorStop(0.5,'rgba(246,196,83,'+a*0.6+')');\n grad.addColorStop(1,'rgba(142,124,195,0)');\n ctx.fillStyle=grad;\n ctx.beginPath();\n ctx.arc(tp.x,tp.y,rad*4+2,0,6.28);\n ctx.fill();\n }\n }\n requestAnimationFrame(frame);\n}\nrequestAnimationFrame(frame);",
-  "date": "2026-09-20",
-  "audio": "audio/2026-09-20-5ffd8d51b5e6.mp3"
+  "scene": "",
+  "date": "2026-09-21",
+  "video_model": "bytedance/seedance-1-5-pro",
+  "audio": "audio/2026-09-21-a6eeb95fdaa3.mp3"
 }
