@@ -1,28 +1,28 @@
 {
-  "rhyme": "кленулечка",
-  "mood": "золотисто-осеннее",
-  "concept": "Осенний клён, листья которого медленно преобразуются в звуковые волны — каждый лист становится нотой, парящей в воздухе. Техника: многослойная гравюра с биолюминесцентными гребнями звука, где тепло-ба",
+  "rhyme": "мелодиюлечка",
+  "mood": "звонко-ликующее",
+  "concept": "Золотые нити звука взлетают от сложенных ладоней в нижней трети холста и превращаются в стаю светящихся птиц-нот, тающих в тёплом сентябрьском небе верхней трети — гравюра поющего света",
   "palette": [
-    "#d4572a",
-    "#f9e4b7",
-    "#2d5a4a"
+    "#e8a33d",
+    "#2f8f8a",
+    "#fff6e6"
   ],
-  "style": "dawn",
-  "art": "rays",
-  "font": "yeseva",
-  "anim": "glow",
+  "style": "bloom",
+  "art": "waves",
+  "font": "pacifico",
+  "anim": "drop",
   "verse": [
-    "Раскрасил клён багрянцем засыпающие края,",
-    "О, Юлечка-кленулечка, мелодия светлая моя."
+    "Звенишь в сентябре ты, Юлечка-мелодиюлечка, радостным пением,",
+    "Сердца наполняя восторгом и самым живым настроением."
   ],
   "verse_tts": [
-    "Раскрасил клён багрянцем засыпающие края,",
-    "О, +Юлечка, клен+улечка, мелодия светлая моя."
+    "Звенишь в сентябре ты, +Юлечка, мелоди+юлечка, радостным пением,",
+    "Сердца наполняя восторгом и самым живым настроением."
   ],
-  "image": "",
+  "image": "art/2026-09-24.webp",
   "video": "",
-  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><radialGradient id=\"glow1\" cx=\"50%\" cy=\"50%\" r=\"60%\"><stop offset=\"0%\" style=\"stop-color:#f9e4b7;stop-opacity:0.8\"/><stop offset=\"100%\" style=\"stop-color:#d4572a;stop-opacity:0.1\"/></radialGradient><linearGradient id=\"soundWave\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" style=\"stop-color:#d4572a;stop-opacity:0.6\"/><stop offset=\"50%\" style=\"stop-color:#f9e4b7;stop-opacity:0.8\"/><stop offset=\"100%\" style=\"stop-color:#2d5a4a;stop-opacity:0.4\"/></linearGradient><filter id=\"softGlow\"><feGaussianBlur stdDeviation=\"3\" result=\"coloredBlur\"/><feMerge><feMergeNode in=\"coloredBlur\"/><feMergeNode in=\"SourceGraphic\"/></feMerge></filter><filter id=\"shimmer\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.02\" numOctaves=\"3\" result=\"noise\" seed=\"2\"/><feDisplacementMap in=\"SourceGraphic\" in2=\"noise\" scale=\"2\" xChannelSelector=\"R\" yChannelSelector=\"G\"/></filter></defs><rect width=\"1000\" height=\"1000\" fill=\"none\"/><g opacity=\"0.15\"><circle cx=\"150\" cy=\"200\" r=\"80\" fill=\"#d4572a\"/><circle cx=\"850\" cy=\"750\" r=\"120\" fill=\"#2d5a4a\"/><circle cx=\"500\" cy=\"100\" r=\"60\" fill=\"#f9e4b7\"/></g><g id=\"leafCluster\" filter=\"url(#shimmer)\"><g id=\"leaf1\" opacity=\"0.85\"><path d=\"M 400 150 Q 380 180 390 220 Q 400 240 420 235 Q 410 200 400 150 Z\" fill=\"#d4572a\" stroke=\"#f9e4b7\" stroke-width=\"1.5\"/><path d=\"M 405 165 L 410 210\" stroke=\"#f9e4b7\" stroke-width=\"0.8\" opacity=\"0.6\"/><animate attributeName=\"opacity\" values=\"0.5;0.9;0.5\" dur=\"6s\" repeatCount=\"indefinite\"/><animateTransform attributeName=\"transform\" type=\"rotate\" values=\"0 400 180; 15 400 180; -10 400 180; 0 400 180\" dur=\"8s\" repeatCount=\"indefinite\"/></g><g id=\"leaf2\" opacity=\"0.75\"><path d=\"M 520 120 Q 510 150 515 195 Q 525 215 545 208 Q 535 170 520 120 Z\" fill=\"#d4572a\" stroke=\"#f9e4b7\" stroke-width=\"1.5\"/><path d=\"M 525 140 L 528 200\" stroke=\"#f9e4b7\" stroke-width=\"0.8\" opacity=\"0.6\"/><animate attributeName=\"opacity\" values=\"0.6;0.95;0.6\" dur=\"7s\" begin=\"0.5s\" repeatCount=\"indefinite\"/><animateTransform attributeName=\"transform\" type=\"rotate\" values=\"0 520 160; -18 520 160; 8 520 160; 0 520 160\" dur=\"9s\" begin=\"0.5s\" repeatCount=\"indefinite\"/></g><g id=\"leaf3\" opacity=\"0.8\"><path d=\"M 310 200 Q 295 225 305 270 Q 320 290 340 283 Q 328 245 310 200 Z\" fill=\"#d4572a\" stroke=\"#f9e4b7\" stroke-width=\"1.5\"/><path d=\"M 318 220 L 320 275\" stroke=\"#f9e4b7\" stroke-width=\"0.8\" opacity=\"0.6\"/><animate attributeName=\"opacity\" values=\"0.7;0.88;0.7\" dur=\"6.5s\" begin=\"1s\" repeatCount=\"indefinite\"/><animateTransform attributeName=\"transform\" type=\"rotate\" values=\"0 310 240; 12 310 240; -15 310 240; 0 310 240\" dur=\"8.5s\" begin=\"1s\" repeatCount=\"indefinite\"/></g><g id=\"leaf4\" opacity=\"0.78\"><path d=\"M 630 180 Q 615 210 625 255 Q 640 275 660 268 Q 648 230 630 180 Z\" fill=\"#d4572a\" stroke=\"#f9e4b7\" stroke-width=\"1.5\"/><path d=\"M 638 205 L 640 260\" stroke=\"#f9e4b7\" stroke-width=\"0.8\" opacity=\"0.6\"/><animate attributeName=\"opacity\" values=\"0.6;0.85;0.6\" dur=\"7.5s\" begin=\"1.5s\" repeatCount=\"indefinite\"/><animateTransform attributeName=\"transform\" type=\"rotate\" values=\"0 630 220; -20 630 220; 10 630 220; 0 630 220\" dur=\"9.5s\" begin=\"1.5s\" repeatCount=\"indefinite\"/></g></g><g id=\"soundWaves\" opacity=\"0.7\"><path d=\"M 250 500 Q 350 480 450 500 T 650 500\" stroke=\"#f9e4b7\" stroke-width=\"2\" fill=\"none\" filter=\"url(#softGlow)\"><animate attributeName=\"stroke-dasharray\" values=\"0,1000;1000,0\" dur=\"4s\" repeatCount=\"indefinite\"/></path><path d=\"M 300 550 Q 400 525 500 550 T 700 550\" stroke=\"#d4572a\" stroke-width=\"1.5\" fill=\"none\" opacity=\"0.6\" filter=\"url(#softGlow)\"><animate attributeName=\"stroke-dasharray\" values=\"0,1000;1000,0\" dur=\"5s\" repeatCount=\"indefinite\"/></path><path d=\"M 270 600 Q 370 570 470 600 T 670 600\" stroke=\"#2d5a4a\" stroke-width=\"1.8\" fill=\"none\" opacity=\"0.5\" filter=\"url(#softGlow)\"><animate attributeName=\"stroke-dasharray\" values=\"0,1000;1000,0\" dur=\"6s\" repeatCount=\"indefinite\"/></path></g><g id=\"lightRays\" opacity=\"0.4\"><line x1=\"500\" y1=\"0\" x2=\"450\" y2=\"400\" stroke=\"#f9e4b7\" stroke-width=\"3\" filter=\"url(#softGlow)\"><animate attributeName=\"opacity\" values=\"0.2;0.6;0.2\" dur=\"5s\" repeatCount=\"indefinite\"/></line><line x1=\"500\" y1=\"0\" x2=\"550\" y2=\"400\" stroke=\"#f9e4b7\" stroke-width=\"3\" filter=\"url(#softGlow)\"><animate attributeName=\"opacity\" values=\"0.3;0.5;0.3\" dur=\"6s\" begin=\"0.3s\" repeatCount=\"indefinite\"/></line><line x1=\"500\" y1=\"0\" x2=\"480\" y2=\"420\" stroke=\"#d4572a\" stroke-width=\"2\" filter=\"url(#softGlow)\"><animate attributeName=\"opacity\" values=\"0.1;0.4;0.1\" dur=\"7s\" begin=\"0.6s\" repeatCount=\"indefinite\"/></line></g><circle cx=\"500\" cy=\"500\" r=\"150\" fill=\"url(#glow1)\" filter=\"url(#shimmer)\" opacity=\"0.3\"><animate attributeName=\"r\" values=\"140;160;140\" dur=\"8s\" repeatCount=\"indefinite\"/></circle><g id=\"particleSwirl\" opacity=\"0.6\"><circle cx=\"420\" cy=\"380\" r=\"2\" fill=\"#f9e4b7\"><animateMotion dur=\"10s\" repeatCount=\"indefinite\"><mpath href=\"#path1\"/></animateMotion></circle><circle cx=\"580\" cy=\"620\" r=\"1.5\" fill=\"#d4572a\"><animateMotion dur=\"12s\" begin=\"1s\" repeatCount=\"indefinite\"><mpath href=\"#path2\"/></animateMotion></circle><circle cx=\"350\" cy=\"520\" r=\"2.5\" fill=\"#2d5a4a\"><animateMotion dur=\"11s\" begin=\"0.5s\" repeatCount=\"indefinite\"><mpath href=\"#path1\"/></animateMotion></circle><path id=\"path1\" d=\"M 420 380 Q 450 350 480 380 Q 500 420 470 450 Q 430 440 420 380\" fill=\"none\" opacity=\"0\"/><path id=\"path2\" d=\"M 580 620 Q 550 650 520 620 Q 500 580 530 550 Q 570 560 580 620\" fill=\"none\" opacity=\"0\"/></g></svg>",
-  "scene": "",
-  "date": "2026-09-23",
-  "audio": "audio/2026-09-23-a3ae4b9da15a.mp3"
+  "svg": "",
+  "scene": "const N=70;const particles=[];for(let i=0;i<N;i++){particles.push({x:Math.random()*W(),y:H()*0.55+Math.random()*H()*0.45,r:1+Math.random()*2.2,speed:0.15+Math.random()*0.35,phase:Math.random()*Math.PI*2,amp:8+Math.random()*18,trail:[]});}\nconst waves=[];for(let i=0;i<4;i++){waves.push({y:H()*0.15+i*18,amp:6+i*3,freq:0.006+i*0.001,phase:Math.random()*Math.PI*2,speed:0.15+i*0.05});}\nlet t=0;\nfunction draw(){\n t+=0.016;\n ctx.clearRect(0,0,W(),H());\n const cx=W()/2, cy=H()/2, safeR=Math.min(W(),H())*0.28;\n for(const w of waves){\n ctx.beginPath();\n for(let x=0;x<=W();x+=6){\n const y=w.y+Math.sin(x*w.freq+t*w.speed+w.phase)*w.amp;\n if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);\n }\n const grad=ctx.createLinearGradient(0,w.y-20,W(),w.y+20);\n grad.addColorStop(0,PALETTE[0]+'00');\n grad.addColorStop(0.5,PALETTE[1]+'55');\n grad.addColorStop(1,PALETTE[0]+'00');\n ctx.strokeStyle=grad;\n ctx.lineWidth=1.4;\n ctx.stroke();\n }\n for(const p of particles){\n p.y-=p.speed;\n p.phase+=0.01;\n const dx=Math.sin(p.phase)*p.amp*0.02;\n p.x+=dx;\n if(p.y< -20){p.y=H()+20;p.x=Math.random()*W();p.trail.length=0;}\n const dist=Math.hypot(p.x-cx,p.y-cy);\n let alpha=1;\n if(dist<safeR){alpha=Math.max(0.05,dist/safeR*0.5);}\n p.trail.push({x:p.x,y:p.y});\n if(p.trail.length>10)p.trail.shift();\n for(let i=0;i<p.trail.length;i++){\n const tp=p.trail[i];\n const ta=alpha*(i/p.trail.length)*0.5;\n ctx.beginPath();\n ctx.arc(tp.x,tp.y,p.r*0.7,0,Math.PI*2);\n ctx.fillStyle=PALETTE[2];\n ctx.globalAlpha=ta;\n ctx.fill();\n }\n ctx.globalAlpha=alpha;\n ctx.beginPath();\n ctx.arc(p.x,p.y,p.r,0,Math.PI*2);\n const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*4);\n g.addColorStop(0,PALETTE[1]);\n g.addColorStop(1,PALETTE[1]+'00');\n ctx.fillStyle=g;\n ctx.shadowBlur=6;\n ctx.shadowColor=PALETTE[1];\n ctx.fill();\n ctx.shadowBlur=0;\n ctx.globalAlpha=1;\n }\n requestAnimationFrame(draw);\n}\ndraw();",
+  "date": "2026-09-24",
+  "audio": "audio/2026-09-24-46c31685a2e2.mp3"
 }
