@@ -1,28 +1,29 @@
 {
-  "rhyme": "мелодиюлечка",
-  "mood": "звонко-ликующее",
-  "concept": "Золотые нити звука взлетают от сложенных ладоней в нижней трети холста и превращаются в стаю светящихся птиц-нот, тающих в тёплом сентябрьском небе верхней трети — гравюра поющего света",
+  "rhyme": "лавандулечка",
+  "mood": "сонно-тёплое",
+  "concept": "Лавандовые колосья в нижней трети холста истончаются в тонкие стеклянные нити старинной лампы, а её купол в верхней трети наполняется тёплым янтарным сиянием — ботаническая гравюра с внутренним светом",
   "palette": [
-    "#e8a33d",
-    "#2f8f8a",
-    "#fff6e6"
+    "#7b6a94",
+    "#e8ac5e",
+    "#fbf3e4"
   ],
-  "style": "bloom",
-  "art": "waves",
-  "font": "pacifico",
+  "style": "dusk",
+  "art": "petals",
+  "font": "marck",
   "anim": "drop",
   "verse": [
-    "Звенишь в сентябре ты, Юлечка-мелодиюлечка, радостным пением,",
-    "Сердца наполняя восторгом и самым живым настроением."
+    "В моем сердце цветёт прекрасная Юлечка-лавандулечка,",
+    "Словно тёплым уютным светом наполненная лампулечка."
   ],
   "verse_tts": [
-    "Звенишь в сентябре ты, +Юлечка, мелоди+юлечка, радостным пением,",
-    "Сердца наполняя восторгом и самым живым настроением."
+    "В моем сердце цветёт прекрасная +Юлечка, лаванд+улечка,",
+    "Словно тёплым уютным светом наполненная лампулечка."
   ],
-  "image": "art/2026-09-24.webp",
-  "video": "",
+  "image": "art/2026-09-25.webp",
+  "video": "art/2026-09-25.mp4",
   "svg": "",
-  "scene": "const N=70;const particles=[];for(let i=0;i<N;i++){particles.push({x:Math.random()*W(),y:H()*0.55+Math.random()*H()*0.45,r:1+Math.random()*2.2,speed:0.15+Math.random()*0.35,phase:Math.random()*Math.PI*2,amp:8+Math.random()*18,trail:[]});}\nconst waves=[];for(let i=0;i<4;i++){waves.push({y:H()*0.15+i*18,amp:6+i*3,freq:0.006+i*0.001,phase:Math.random()*Math.PI*2,speed:0.15+i*0.05});}\nlet t=0;\nfunction draw(){\n t+=0.016;\n ctx.clearRect(0,0,W(),H());\n const cx=W()/2, cy=H()/2, safeR=Math.min(W(),H())*0.28;\n for(const w of waves){\n ctx.beginPath();\n for(let x=0;x<=W();x+=6){\n const y=w.y+Math.sin(x*w.freq+t*w.speed+w.phase)*w.amp;\n if(x===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);\n }\n const grad=ctx.createLinearGradient(0,w.y-20,W(),w.y+20);\n grad.addColorStop(0,PALETTE[0]+'00');\n grad.addColorStop(0.5,PALETTE[1]+'55');\n grad.addColorStop(1,PALETTE[0]+'00');\n ctx.strokeStyle=grad;\n ctx.lineWidth=1.4;\n ctx.stroke();\n }\n for(const p of particles){\n p.y-=p.speed;\n p.phase+=0.01;\n const dx=Math.sin(p.phase)*p.amp*0.02;\n p.x+=dx;\n if(p.y< -20){p.y=H()+20;p.x=Math.random()*W();p.trail.length=0;}\n const dist=Math.hypot(p.x-cx,p.y-cy);\n let alpha=1;\n if(dist<safeR){alpha=Math.max(0.05,dist/safeR*0.5);}\n p.trail.push({x:p.x,y:p.y});\n if(p.trail.length>10)p.trail.shift();\n for(let i=0;i<p.trail.length;i++){\n const tp=p.trail[i];\n const ta=alpha*(i/p.trail.length)*0.5;\n ctx.beginPath();\n ctx.arc(tp.x,tp.y,p.r*0.7,0,Math.PI*2);\n ctx.fillStyle=PALETTE[2];\n ctx.globalAlpha=ta;\n ctx.fill();\n }\n ctx.globalAlpha=alpha;\n ctx.beginPath();\n ctx.arc(p.x,p.y,p.r,0,Math.PI*2);\n const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*4);\n g.addColorStop(0,PALETTE[1]);\n g.addColorStop(1,PALETTE[1]+'00');\n ctx.fillStyle=g;\n ctx.shadowBlur=6;\n ctx.shadowColor=PALETTE[1];\n ctx.fill();\n ctx.shadowBlur=0;\n ctx.globalAlpha=1;\n }\n requestAnimationFrame(draw);\n}\ndraw();",
-  "date": "2026-09-24",
-  "audio": "audio/2026-09-24-46c31685a2e2.mp3"
+  "scene": "",
+  "date": "2026-09-25",
+  "video_model": "bytedance/seedance-1-5-pro",
+  "audio": "audio/2026-09-25-dc5cbe8c197e.mp3"
 }
