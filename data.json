@@ -1,29 +1,28 @@
 {
-  "rhyme": "кораллулечка",
-  "mood": "тёплое-глубинное",
-  "concept": "Коралловый риф мягко пульсирует тёплым биолюминесцентным светом в нижней трети холста, а его отражение поднимается вверх россыпью тающих искр, собираясь в спокойный сумеречный горизонт над центром — п",
+  "rhyme": "калинулечка",
+  "mood": "тёплое-обнадёживающее",
+  "concept": "Гроздь калины пылает двумя тёплыми созвездиями по краям холста, а сквозь плывущую серую дымку между ними медленно поднимаются золотистые искры света — акварельный витраж на туманном стекле",
   "palette": [
-    "#e8735a",
-    "#1f3d4a",
-    "#f7e1c5"
+    "#a52c2c",
+    "#7c8a9c",
+    "#f2dfb8"
   ],
   "style": "dusk",
-  "art": "waves",
-  "font": "prata",
-  "anim": "glow",
+  "art": "constellation",
+  "font": "playfair",
+  "anim": "cascade",
   "verse": [
-    "Сентябрьский вечер, Юлечка-кораллулечка, украшен светом глаз,",
-    "Твоё тепло, как редкий дар, поддержит в самый хмурый миг."
+    "Пусть Юлечка-калинулечка горит, как редкий плод в саду,",
+    "Твою улыбку добрую сквозь дымку серую всегда найду."
   ],
   "verse_tts": [
-    "Сентябрьский вечер, +Юлечка, коралл+улечка, украшен светом глаз,",
-    "Твоё тепло, как редкий дар, поддержит в самый хмурый миг."
+    "Пусть +Юлечка, калин+улечка горит, как редкий плод в саду,",
+    "Твою улыбку добрую сквозь дымку серую всегда найду."
   ],
-  "image": "art/2026-09-29.webp",
-  "video": "art/2026-09-29.mp4",
+  "image": "",
+  "video": "",
   "svg": "",
-  "scene": "",
-  "date": "2026-09-29",
-  "video_model": "bytedance/seedance-1-5-pro",
-  "audio": "audio/2026-09-29-b6c4aa5886f8.mp3"
+  "scene": "(function(){\n  function hexToRgb(hex){\n    var h = hex.replace('#','');\n    return [parseInt(h.substr(0,2),16), parseInt(h.substr(2,2),16), parseInt(h.substr(4,2),16)];\n  }\n  var berryRgb = hexToRgb(PALETTE[0]);\n  var fogRgb = hexToRgb(PALETTE[1]);\n  var warmRgb = hexToRgb(PALETTE[2]);\n  function rgba(rgb,a){ return 'rgba('+rgb[0]+','+rgb[1]+','+rgb[2]+','+a+')'; }\n\n  var fogBlobs = [], branches = [], particles = [];\n  var inited = false, lastSpawn = 0;\n\n  function initScene(){\n    var w = W(), h = H();\n    var cx = w/2, cy = h/2;\n    var minDim = Math.min(w,h);\n\n    fogBlobs = [];\n    var fogCount = 20;\n    for(var i=0;i<fogCount;i++){\n      var angle = Math.random()*Math.PI*2;\n      var distF = 0.5 + Math.random()*0.5;\n      fogBlobs.push({\n        x: cx + Math.cos(angle)*distF*minDim*0.55,\n        y: cy + Math.sin(angle)*distF*minDim*0.55,\n        r: minDim*(0.08+Math.random()*0.14),\n        phase: Math.random()*Math.PI*2,\n        speed: 0.15+Math.random()*0.2,\n        baseAlpha: DARK ? (0.10+Math.random()*0.12) : (0.14+Math.random()*0.16)\n      });\n    }\n\n    branches = [];\n    var corners = [ {ang: -0.75, dist: 0.62}, {ang: 2.4, dist: 0.62} ];\n    corners.forEach(function(c, idx){\n      var bx = cx + Math.cos(c.ang)*c.dist*minDim*0.5;\n      var by = cy + Math.sin(c.ang)*c.dist*minDim*0.5;\n      var tipDist = c.dist*0.62;\n      var tx = cx + Math.cos(c.ang)*tipDist*minDim*0.5;\n      var ty = cy + Math.sin(c.ang)*tipDist*minDim*0.5;\n      var berries = [];\n      var count = 7+Math.floor(Math.random()*3);\n      for(var i=0;i<count;i++){\n        var a = Math.random()*Math.PI*2;\n        var rr = Math.random()*minDim*0.035;\n        berries.push({\n          ox: Math.cos(a)*rr,\n          oy: Math.sin(a)*rr,\n          r: minDim*(0.010+Math.random()*0.009),\n          phase: Math.random()*Math.PI*2,\n          speed: 0.6+Math.random()*0.6\n        });\n      }\n      branches.push({bx:bx, by:by, tx:tx, ty:ty, berries:berries, swayPhase: Math.random()*Math.PI*2, swaySpeed: 0.25+idx*0.05});\n    });\n\n    particles = [];\n    inited = true;\n  }\n\n  function spawnParticle(){\n    var w = W(), h = H();\n    var cx=w/2, cy=h/2;\n    if(branches.length===0) return;\n    var b = branches[Math.floor(Math.random()*branches.length)];\n    var angle = Math.atan2(b.ty-cy, b.tx-cx) + (Math.random()-0.5)*1.2;\n    particles.push({\n      x: b.tx + (Math.random()-0.5)*20,\n      y: b.ty + (Math.random()-0.5)*20,\n      vx: Math.cos(angle)*(6+Math.random()*10),\n      vy: Math.sin(angle)*(6+Math.random()*10) - 8,\n      life: 0,\n      maxLife: 3+Math.random()*2.5,\n      r: 1.2+Math.random()*2.2\n    });\n  }\n\n  function draw(t){\n    var w = W(), h = H();\n    if(!inited) initScene();\n\n    ctx.clearRect(0,0,w,h);\n\n    fogBlobs.forEach(function(f){\n      var pulse = 0.7+0.3*Math.sin(t*f.speed+f.phase);\n      var alpha = f.baseAlpha*pulse;\n      var r = f.r*(0.85+0.15*pulse);\n      var grad = ctx.createRadialGradient(f.x,f.y,0,f.x,f.y,r);\n      grad.addColorStop(0, rgba(fogRgb, alpha));\n      grad.addColorStop(1, rgba(fogRgb, 0));\n      ctx.fillStyle = grad;\n      ctx.beginPath();\n      ctx.arc(f.x,f.y,r,0,Math.PI*2);\n      ctx.fill();\n    });\n\n    if(t - lastSpawn > 0.12){\n      lastSpawn = t;\n      if(particles.length < 140) spawnParticle();\n    }\n\n    particles = particles.filter(function(p){ return p.life < p.maxLife; });\n    particles.forEach(function(p){\n      p.life += 1/60;\n      p.x += p.vx/60;\n      p.y += p.vy/60;\n      p.vy -= 2/60;\n      var lifeRatio = p.life/p.maxLife;\n      var alpha = Math.sin(lifeRatio*Math.PI)*0.55;\n      ctx.beginPath();\n      ctx.fillStyle = rgba(warmRgb, alpha);\n      ctx.shadowColor = rgba(warmRgb, alpha*0.8);\n      ctx.shadowBlur = 8;\n      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);\n      ctx.fill();\n    });\n    ctx.shadowBlur = 0;\n\n    branches.forEach(function(b){\n      var sway = Math.sin(t*b.swaySpeed+b.swayPhase)*0.05;\n      ctx.save();\n      ctx.translate(b.tx, b.ty);\n      ctx.rotate(sway);\n      ctx.translate(-b.tx, -b.ty);\n\n      ctx.strokeStyle = rgba(fogRgb, 0.35);\n      ctx.lineWidth = 2.2;\n      ctx.beginPath();\n      ctx.moveTo(b.bx, b.by);\n      var mx = (b.bx+b.tx)/2 + (b.by-b.ty)*0.15;\n      var my = (b.by+b.ty)/2 + (b.tx-b.bx)*0.15;\n      ctx.quadraticCurveTo(mx,my,b.tx,b.ty);\n      ctx.stroke();\n\n      b.berries.forEach(function(br){\n        var pulse = 0.75+0.25*Math.sin(t*br.speed+br.phase);\n        var bx = b.tx+br.ox;\n        var by = b.ty+br.oy;\n        var r = br.r*pulse;\n        var grad = ctx.createRadialGradient(bx-r*0.3, by-r*0.3, 0, bx, by, r);\n        grad.addColorStop(0, rgba([Math.min(255,berryRgb[0]+60),Math.min(255,berryRgb[1]+40),Math.min(255,berryRgb[2]+40)], 0.95));\n        grad.addColorStop(0.6, rgba(berryRgb, 0.9));\n        grad.addColorStop(1, rgba(berryRgb, 0.5));\n        ctx.beginPath();\n        ctx.fillStyle = grad;\n        ctx.shadowColor = rgba(berryRgb, 0.6*pulse);\n        ctx.shadowBlur = r*2.2;\n        ctx.arc(bx,by,r,0,Math.PI*2);\n        ctx.fill();\n      });\n      ctx.shadowBlur = 0;\n\n      ctx.restore();\n    });\n\n    requestAnimationFrame(function(now){ draw(now/1000); });\n  }\n\n  requestAnimationFrame(function(now){ draw(now/1000); });\n})();",
+  "date": "2026-09-30",
+  "audio": "audio/2026-09-30-68b3c8a459d9.mp3"
 }
