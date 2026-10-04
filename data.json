@@ -1,29 +1,28 @@
 {
-  "rhyme": "душулечка",
-  "mood": "лучисто-безмятежное",
-  "concept": "Улыбка прочерчена единой золотой нитью света техникой long-exposure в нижней трети холста, а в верхней — невесомые светящиеся сферы-пузыри медленно всплывают в рассветную тишину, как частицы тихой рад",
+  "rhyme": "глазурулечка",
+  "mood": "карамельно-радостное",
+  "concept": "Карамельная глазурь стекает золотыми лентами по диагонали холста, а лёгкие блики-капли медленно плывут вдоль неё, огибая тихий центр, — макросъёмка глянцевой сладости в свете осенней прогулки",
   "palette": [
-    "#f6c98a",
-    "#6a7fc9",
-    "#fdf4e6"
+    "#d98a3d",
+    "#f7e3c2",
+    "#5a7d9a"
   ],
   "style": "dawn",
   "art": "rays",
-  "font": "philosopher",
+  "font": "pacifico",
   "anim": "drop",
   "verse": [
-    "Улыбкой доброй Юлечка-душулечка одарит,",
-    "И безмятежным счастьем сердце вновь подарит."
+    "Сияет ярко Юлечка-глазурулечка,",
+    "Как добрый знак, октябрьская прогулочка."
   ],
   "verse_tts": [
-    "Улыбкой доброй +Юлечка, душ+улечка одарит,",
-    "И безмятежным счастьем сердце вновь подарит."
+    "Сияет ярко +Юлечка, глазур+улечка,",
+    "Как добрый знак, октябрьская прогулочка."
   ],
-  "image": "art/2026-10-03.webp",
-  "video": "art/2026-10-03.mp4",
+  "image": "",
+  "video": "",
   "svg": "",
-  "scene": "",
-  "date": "2026-10-03",
-  "video_model": "bytedance/seedance-1-5-pro",
-  "audio": "audio/2026-10-03-4a619ac435ec.mp3"
+  "scene": "(function(){\n  let time=0;\n  let particles=[];\n  const N=130;\n  function rand(a,b){return a+Math.random()*(b-a);}\n  function makeDrop(){\n    return {t:Math.random(), speed:rand(0.015,0.045), size:rand(1.5,4.5), offset:rand(0,Math.PI*2), amp:rand(10,34), trail:[], hue:Math.random()};\n  }\n  for(let i=0;i<N;i++) particles.push(makeDrop());\n\n  function pointFor(p,t){\n    const w=W(), h=H();\n    let tt=(p.t+t*p.speed)%1;\n    let bx=w*0.06+tt*w*0.88;\n    let by=h*0.06+tt*h*0.88;\n    let wobble=Math.sin(tt*Math.PI*4+p.offset+t*0.4)*p.amp;\n    let angle=Math.atan2(h,w);\n    let px=bx+Math.cos(angle+Math.PI/2)*wobble;\n    let py=by+Math.sin(angle+Math.PI/2)*wobble;\n    let cx=w/2, cy=h/2;\n    let dx=px-cx, dy=py-cy;\n    let dist=Math.sqrt(dx*dx+dy*dy)||0.001;\n    let minDist=Math.min(w,h)*0.3;\n    if(dist<minDist){\n      let push=(minDist-dist);\n      px+=dx/dist*push;\n      py+=dy/dist*push;\n    }\n    return {x:px,y:py};\n  }\n\n  let leaves=[];\n  const LN=14;\n  for(let i=0;i<LN;i++){\n    leaves.push({\n      ax: rand(0,1)<0.5? rand(0,0.22):rand(0.78,1),\n      ay: rand(0,1),\n      r: rand(6,13),\n      rot: rand(0,Math.PI*2),\n      rotSpeed: rand(-0.004,0.004),\n      phase: rand(0,Math.PI*2),\n      speed: rand(0.2,0.5),\n      colIdx: Math.floor(rand(0,3))\n    });\n  }\n\n  function hexA(hex, alpha){\n    if(!hex) return 'rgba(255,255,255,'+alpha+')';\n    const h=hex.replace('#','');\n    const r=parseInt(h.substring(0,2),16);\n    const g=parseInt(h.substring(2,4),16);\n    const b=parseInt(h.substring(4,6),16);\n    return 'rgba('+r+','+g+','+b+','+alpha+')';\n  }\n\n  function drawBokeh(x,y,r){\n    const g=ctx.createRadialGradient(x,y,0,x,y,r);\n    g.addColorStop(0, hexA(PALETTE[1]||PALETTE[0],0.28));\n    g.addColorStop(1, hexA(PALETTE[1]||PALETTE[0],0));\n    ctx.save();\n    ctx.fillStyle=g;\n    ctx.beginPath();\n    ctx.arc(x,y,r,0,Math.PI*2);\n    ctx.fill();\n    ctx.restore();\n  }\n\n  function frame(){\n    time+=0.016;\n    const w=W(), h=H();\n    ctx.clearRect(0,0,w,h);\n\n    for(let i=0;i<3;i++){\n      const grad=ctx.createLinearGradient(w*0.05,h*0.1,w*0.95,h*0.9);\n      grad.addColorStop(0, hexA(PALETTE[0],0.0));\n      grad.addColorStop(0.3+i*0.1, hexA(PALETTE[1]||PALETTE[0], 0.22));\n      grad.addColorStop(0.6+i*0.1, hexA(PALETTE[0], 0.12));\n      grad.addColorStop(1, hexA(PALETTE[1]||PALETTE[0], 0.0));\n      ctx.save();\n      ctx.strokeStyle=grad;\n      ctx.lineWidth=18+i*10;\n      ctx.lineCap='round';\n      ctx.beginPath();\n      let off=i*40 + Math.sin(time*0.2+i)*20;\n      ctx.moveTo(w*0.04, h*0.1+off);\n      ctx.bezierCurveTo(w*0.35, h*0.3+off, w*0.55,h*0.55+off, w*0.96, h*0.92+off);\n      ctx.stroke();\n      ctx.restore();\n    }\n\n    drawBokeh(w*0.12,h*0.14, w*0.22);\n    drawBokeh(w*0.88,h*0.86, w*0.2);\n\n    leaves.forEach(lf=>{\n      lf.rot+=lf.rotSpeed;\n      const lx = lf.ax*w + Math.sin(time*lf.speed+lf.phase)*w*0.03;\n      const ly = lf.ay*h + Math.cos(time*lf.speed*0.7+lf.phase)*h*0.02;\n      ctx.save();\n      ctx.translate(lx,ly);\n      ctx.rotate(lf.rot);\n      ctx.globalAlpha=0.5;\n      ctx.fillStyle=PALETTE[lf.colIdx%3];\n      ctx.beginPath();\n      ctx.ellipse(0,0,lf.r,lf.r*0.55,0,0,Math.PI*2);\n      ctx.fill();\n      ctx.restore();\n    });\n\n    particles.forEach(p=>{\n      const pt=pointFor(p,time);\n      p.trail.push({x:pt.x,y:pt.y});\n      if(p.trail.length>10) p.trail.shift();\n      for(let j=0;j<p.trail.length;j++){\n        const tp=p.trail[j];\n        const a=(j/p.trail.length);\n        ctx.save();\n        ctx.globalAlpha=a*0.55;\n        ctx.fillStyle=PALETTE[0];\n        ctx.beginPath();\n        ctx.arc(tp.x,tp.y,p.size*a,0,Math.PI*2);\n        ctx.fill();\n        ctx.restore();\n      }\n      ctx.save();\n      ctx.shadowColor=PALETTE[0];\n      ctx.shadowBlur=10;\n      ctx.globalAlpha=0.9;\n      ctx.fillStyle=PALETTE[2]||PALETTE[0];\n      ctx.beginPath();\n      ctx.arc(pt.x,pt.y,p.size,0,Math.PI*2);\n      ctx.fill();\n      ctx.restore();\n    });\n\n    requestAnimationFrame(frame);\n  }\n\n  requestAnimationFrame(frame);\n})();",
+  "date": "2026-10-04",
+  "audio": "audio/2026-10-04-afb58bd9ada8.mp3"
 }
