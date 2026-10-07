@@ -1,28 +1,28 @@
 {
-  "rhyme": "бисерулечка",
-  "mood": "зачарованно-искристое",
-  "concept": "Сумеречная холмистая равнина внизу и туманное небо вверху покрыты тончайшей сетью бисерных нитей — каждая бусинка ловит свет и превращает серый пейзаж в сияющий мираж",
+  "rhyme": "каштанулечка",
+  "mood": "озорно-солнечное",
+  "concept": "Тропа из резных каштановых листьев и глянцевых плодов стелется плотным золотым ковром в нижней трети холста, а в верхней — сквозь слоистые пасмурные облака медленно прорывается мягкий солнечный луч, в",
   "palette": [
-    "#b8879e",
-    "#33425c",
-    "#e8c87a"
+    "#6b4226",
+    "#e8a33d",
+    "#c9d6df"
   ],
-  "style": "dusk",
-  "art": "constellation",
-  "font": "marck",
-  "anim": "wave",
+  "style": "dawn",
+  "art": "rays",
+  "font": "caveat",
+  "anim": "scale",
   "verse": [
-    "Украсит Юлечка-бисерулечка тусклый пейзаж,",
-    "Как добрый, волшебный и чистый мираж."
+    "Шагает Юлечка-каштанулечка по золотым коврам,",
+    "Даря улыбку солнечную пасмурным осенним дням."
   ],
   "verse_tts": [
-    "Украсит +Юлечка, бисер+улечка тусклый пейзаж,",
-    "Как добрый, волшебный и чистый мираж."
+    "Шагает +Юлечка, каштан+улечка по золотым коврам,",
+    "Даря улыбку солнечную пасмурным осенним дням."
   ],
   "image": "",
   "video": "",
   "svg": "",
-  "scene": "const N=130;const parts=[];function rand(a,b){return a+Math.random()*(b-a);}for(let i=0;i<N;i++){const topZone=Math.random()<0.55;const y=topZone?rand(0,H()*0.32):rand(H()*0.68,H());const x=rand(0,W());parts.push({x,y,baseY:y,r:rand(1,3.2),phase:rand(0,Math.PI*2),speed:rand(0.2,0.5),drift:rand(-0.15,0.15),hue:PALETTE[Math.floor(Math.random()*PALETTE.length)],amp:rand(4,14)});}\nconst links=[];for(let i=0;i<22;i++){const a=parts[Math.floor(Math.random()*parts.length)];const b=parts[Math.floor(Math.random()*parts.length)];if(a!==b)links.push({a,b,phase:rand(0,Math.PI*2)});}\nlet t=0;function hexToRgba(hex,alpha){const h=hex.replace('#','');const r=parseInt(h.substring(0,2),16);const g=parseInt(h.substring(2,4),16);const b=parseInt(h.substring(4,6),16);return 'rgba('+r+','+g+','+b+','+alpha+')';}\nfunction frame(){t+=0.006;ctx.clearRect(0,0,W(),H());ctx.save();ctx.globalCompositeOperation='lighter';\nfor(const l of links){const op=0.08+0.06*Math.sin(t*0.7+l.phase);ctx.beginPath();ctx.moveTo(l.a.x+Math.sin(t+l.a.phase)*3,l.a.y+Math.sin(t*l.a.speed+l.a.phase)*l.a.amp);ctx.lineTo(l.b.x+Math.sin(t+l.b.phase)*3,l.b.y+Math.sin(t*l.b.speed+l.b.phase)*l.b.amp);ctx.strokeStyle=hexToRgba(l.a.hue,op);ctx.lineWidth=0.6;ctx.stroke();}\nfor(const p of parts){const dy=Math.sin(t*p.speed+p.phase)*p.amp;const dx=Math.sin(t*0.3+p.phase)*p.drift*10;const flick=0.45+0.55*Math.sin(t*1.3+p.phase*2);ctx.beginPath();ctx.arc(p.x+dx,p.baseY+dy,p.r,0,Math.PI*2);ctx.fillStyle=hexToRgba(p.hue,0.55*flick+0.15);ctx.shadowColor=hexToRgba(p.hue,0.9);ctx.shadowBlur=6*flick+2;ctx.fill();}\nctx.restore();requestAnimationFrame(frame);}\nrequestAnimationFrame(frame);",
-  "date": "2026-10-06",
-  "audio": "audio/2026-10-06-70d5b9bcd6a0.mp3"
+  "scene": "",
+  "date": "2026-10-07",
+  "audio": "audio/2026-10-07-5d38be4df531.mp3"
 }
