@@ -1,28 +1,28 @@
 {
-  "rhyme": "кнопулечка",
-  "mood": "лучисто-игривое",
-  "concept": "Маленький медный колокольчик парит в нижней трети холста, окружённый концентрическими волнами звука — тонкими дугами в стиле баухаус, расходящимися вверх по всему полотну; в верхней четверти дуги раст",
+  "rhyme": "нотулечка",
+  "mood": "мелодично-парящее",
+  "concept": "Нотный стан превращается в невесомые светящиеся ленты, что взлетают от нижнего края холста волнами и тают в мягкой туманной дымке у верхней кромки — каллиграфия звучащего света",
   "palette": [
-    "#f0e6d3",
-    "#c47a3a",
-    "#4a6fa5"
+    "#2e2a4a",
+    "#e8b4c8",
+    "#d9c27e"
   ],
-  "style": "bloom",
-  "art": "orbits",
-  "font": "comfortaa",
-  "anim": "blur",
+  "style": "aurora",
+  "art": "waves",
+  "font": "yeseva",
+  "anim": "glow",
   "verse": [
-    "Наша Юлечка-кнопулечка смехом ласковым звенит,",
-    "И заботою сердечною каждый уголок хранит."
+    "Словно песня, Юлечка-нотулечка звучит,",
+    "И в душе гармонию прекрасную творит."
   ],
   "verse_tts": [
-    "Наша +Юлечка, кноп+улечка смехом ласковым звенит,",
-    "И заботою сердечною каждый уголок хранит."
+    "Словно песня, +Юлечка, нот+улечка звучит,",
+    "И в душе гармонию прекрасную творит."
   ],
   "image": "",
   "video": "",
   "svg": "",
-  "scene": "const N=220;const TWO_PI=Math.PI*2;const cx=()=>W()*0.5;const cy=()=>H()*0.5;let t=0;const motes=[];for(let i=0;i<N;i++){motes.push({x:W()*0.2+Math.random()*W()*0.6,y:H()*(0.35+Math.random()*0.55),vx:(Math.random()-0.5)*0.18,vy:-(0.12+Math.random()*0.22),life:Math.random(),maxLife:180+Math.random()*220,r:0.7+Math.random()*1.6,phase:Math.random()*TWO_PI,amp:1.2+Math.random()*2.2,col:Math.random()<0.55?'#c47a3a':'#4a6fa5'});}const arcs=[];const arcCount=9;for(let i=0;i<arcCount;i++){arcs.push({progress:Math.random(),speed:0.0008+i*0.00015,radius:(H()*0.07)+(i*(H()*0.072)),alpha:0.13-i*0.011,width:0.7+i*0.08});}function hexToRgb(h){const r=parseInt(h.slice(1,3),16);const g=parseInt(h.slice(3,5),16);const b=parseInt(h.slice(5,7),16);return[r,g,b];}function drawArc(progress,radius,alpha,width){const startAngle=Math.PI+0.18;const endAngle=TWO_PI-0.18;const sweep=endAngle-startAngle;const currentEnd=startAngle+sweep*Math.min(progress,1);const bx=cx();const by=H()*0.72;ctx.save();ctx.beginPath();ctx.arc(bx,by,-radius,startAngle,currentEnd);ctx.strokeStyle=`rgba(196,122,58,${alpha})`;ctx.lineWidth=width;ctx.stroke();ctx.restore();}function frame(){t++;ctx.clearRect(0,0,W(),H());for(let a=0;a<arcCount;a++){const arc=arcs[a];arc.progress+=arc.speed*(1+(a*0.04));if(arc.progress>1.08)arc.progress=0;drawArc(arc.progress,arc.radius,arc.alpha*(0.7+0.3*Math.sin(t*0.012+a)),arc.width);}for(let i=0;i<N;i++){const m=motes[i];m.life++;if(m.life>m.maxLife){m.life=0;m.x=W()*0.15+Math.random()*W()*0.7;m.y=H()*(0.55+Math.random()*0.38);m.vy=-(0.1+Math.random()*0.2);m.vx=(Math.random()-0.5)*0.15;}const prog=m.life/m.maxLife;const alpha=prog<0.15?prog/0.15:prog>0.75?(1-(prog-0.75)/0.25):1;const wobble=Math.sin(m.phase+t*0.022)*m.amp;m.x+=m.vx+wobble*0.018;m.y+=m.vy;const rgb=hexToRgb(m.col);ctx.beginPath();ctx.arc(m.x,m.y,m.r*(0.7+0.3*Math.sin(t*0.03+m.phase)),0,TWO_PI);ctx.fillStyle=`rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha*0.55})`;ctx.fill();}const grd=ctx.createRadialGradient(cx(),H()*0.68,H()*0.01,cx(),H()*0.68,H()*0.18);grd.addColorStop(0,'rgba(240,230,211,0.13)');grd.addColorStop(1,'rgba(240,230,211,0)');ctx.beginPath();ctx.arc(cx(),H()*0.68,H()*0.18,0,TWO_PI);ctx.fillStyle=grd;ctx.fill();requestAnimationFrame(frame);}requestAnimationFrame(frame);",
-  "date": "2026-10-10",
-  "audio": "audio/2026-10-10-ac1139569687.mp3"
+  "scene": "",
+  "date": "2026-10-11",
+  "audio": "audio/2026-10-11-1c44d78351ec.mp3"
 }
