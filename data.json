@@ -1,28 +1,28 @@
 {
-  "rhyme": "нотулечка",
-  "mood": "мелодично-парящее",
-  "concept": "Нотный стан превращается в невесомые светящиеся ленты, что взлетают от нижнего края холста волнами и тают в мягкой туманной дымке у верхней кромки — каллиграфия звучащего света",
+  "rhyme": "акварелюлечка",
+  "mood": "живописно-нежное",
+  "concept": "Акварельные слои — размытые горизонты цвета, где тёплые оттенки заката плывут сквозь прозрачные пласты осенней краски, как кисть художника, медленно разводящая пигменты в воде. Центр композиции — лёгк",
   "palette": [
-    "#2e2a4a",
-    "#e8b4c8",
-    "#d9c27e"
+    "#d4a574",
+    "#6b5b4a",
+    "#f5e6d3"
   ],
-  "style": "aurora",
-  "art": "waves",
+  "style": "dusk",
+  "art": "petals",
   "font": "yeseva",
-  "anim": "glow",
+  "anim": "fade",
   "verse": [
-    "Словно песня, Юлечка-нотулечка звучит,",
-    "И в душе гармонию прекрасную творит."
+    "Словно добрая Юлечка-акварелюлечка в свете заката,",
+    "Ты нежными красками осени чистой богата."
   ],
   "verse_tts": [
-    "Словно песня, +Юлечка, нот+улечка звучит,",
-    "И в душе гармонию прекрасную творит."
+    "Словно добрая +Юлечка, акварел+юлечка в свете заката,",
+    "Ты нежными красками осени чистой богата."
   ],
   "image": "",
   "video": "",
   "svg": "",
-  "scene": "",
-  "date": "2026-10-11",
-  "audio": "audio/2026-10-11-1c44d78351ec.mp3"
+  "scene": "const W_val = W(); const H_val = H(); ctx.clearRect(0, 0, W_val, H_val); const p = PALETTE; const time = (Date.now() % 8000) / 8000; const centerX = W_val * 0.5; const centerY = H_val * 0.5; const grad1 = ctx.createRadialGradient(centerX, centerY * 0.7, 0, centerX, centerY * 0.7, Math.max(W_val, H_val)); grad1.addColorStop(0, p[0] + '33'); grad1.addColorStop(0.5, p[1] + '22'); grad1.addColorStop(1, p[2] + '11'); ctx.fillStyle = grad1; ctx.fillRect(0, 0, W_val, H_val); class Particle { constructor() { this.x = Math.random() * W_val; this.y = Math.random() * H_val; this.vx = (Math.random() - 0.5) * 0.3; this.vy = (Math.random() - 0.5) * 0.3; this.life = Math.random() * 0.6 + 0.4; this.age = 0; this.hue = Math.floor(Math.random() * 3); } update() { this.x += this.vx; this.y += this.vy; this.age += 0.003; this.vy += 0.05; if (this.x < 0 || this.x > W_val || this.y < 0 || this.y > H_val || this.age > this.life) { this.reset(); } } reset() { this.x = Math.random() * W_val; this.y = Math.random() * H_val * 0.3; this.vx = (Math.random() - 0.5) * 0.3; this.vy = (Math.random() - 0.5) * 0.2; this.age = 0; this.life = Math.random() * 0.6 + 0.4; } draw() { const alpha = Math.max(0, Math.sin(this.age / this.life * Math.PI) * 0.4); const color = p[this.hue]; ctx.fillStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0'); const size = 2 + Math.sin(this.age * Math.PI * 2) * 1; ctx.beginPath(); ctx.arc(this.x, this.y, size, 0, Math.PI * 2); ctx.fill(); } } const particles = []; for (let i = 0; i < 180; i++) { particles.push(new Particle()); } let frame = 0; function animate() { frame++; ctx.fillStyle = 'rgba(255, 255, 255, 0.02)'; ctx.fillRect(0, 0, W_val, H_val); particles.forEach(p => { p.update(); p.draw(); }); const waveY = centerY + Math.sin(time * Math.PI * 2 + frame * 0.01) * 8; const gradWave = ctx.createLinearGradient(0, waveY - 30, 0, waveY + 30); gradWave.addColorStop(0, p[0] + '08'); gradWave.addColorStop(0.5, p[0] + '20'); gradWave.addColorStop(1, p[0] + '08'); ctx.fillStyle = gradWave; ctx.fillRect(0, waveY - 40, W_val, 80); requestAnimationFrame(animate); } animate();",
+  "date": "2026-10-12",
+  "audio": "audio/2026-10-12-25739bee93de.mp3"
 }
