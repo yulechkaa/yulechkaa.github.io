@@ -1,28 +1,28 @@
 {
-  "rhyme": "акварелюлечка",
-  "mood": "живописно-нежное",
-  "concept": "Акварельные слои — размытые горизонты цвета, где тёплые оттенки заката плывут сквозь прозрачные пласты осенней краски, как кисть художника, медленно разводящая пигменты в воде. Центр композиции — лёгк",
+  "rhyme": "муслинулечка",
+  "mood": "томно-золотистое",
+  "concept": "Тонкий муслин, пронизанный закатным светом: золотые лучи проходят сквозь полупрозрачную ткань, создавая мягкий, дрожащий паттерн складок, где каждая нить ловит огонь октябрьского дня. Складки медленно",
   "palette": [
-    "#d4a574",
-    "#6b5b4a",
-    "#f5e6d3"
+    "#d4af37",
+    "#8b6f47",
+    "#f5f1e8"
   ],
   "style": "dusk",
-  "art": "petals",
-  "font": "yeseva",
-  "anim": "fade",
+  "art": "rays",
+  "font": "playfair",
+  "anim": "glow",
   "verse": [
-    "Словно добрая Юлечка-акварелюлечка в свете заката,",
-    "Ты нежными красками осени чистой богата."
+    "Октябрьский тихий день горит огнём,",
+    "Мы с Юлечкой-муслинулечкой вдвоём."
   ],
   "verse_tts": [
-    "Словно добрая +Юлечка, акварел+юлечка в свете заката,",
-    "Ты нежными красками осени чистой богата."
+    "Октябрьский тихий день горит огнём,",
+    "Мы с Юлечкой-муслинулечкой вдвоём."
   ],
   "image": "",
   "video": "",
-  "svg": "",
-  "scene": "const W_val = W(); const H_val = H(); ctx.clearRect(0, 0, W_val, H_val); const p = PALETTE; const time = (Date.now() % 8000) / 8000; const centerX = W_val * 0.5; const centerY = H_val * 0.5; const grad1 = ctx.createRadialGradient(centerX, centerY * 0.7, 0, centerX, centerY * 0.7, Math.max(W_val, H_val)); grad1.addColorStop(0, p[0] + '33'); grad1.addColorStop(0.5, p[1] + '22'); grad1.addColorStop(1, p[2] + '11'); ctx.fillStyle = grad1; ctx.fillRect(0, 0, W_val, H_val); class Particle { constructor() { this.x = Math.random() * W_val; this.y = Math.random() * H_val; this.vx = (Math.random() - 0.5) * 0.3; this.vy = (Math.random() - 0.5) * 0.3; this.life = Math.random() * 0.6 + 0.4; this.age = 0; this.hue = Math.floor(Math.random() * 3); } update() { this.x += this.vx; this.y += this.vy; this.age += 0.003; this.vy += 0.05; if (this.x < 0 || this.x > W_val || this.y < 0 || this.y > H_val || this.age > this.life) { this.reset(); } } reset() { this.x = Math.random() * W_val; this.y = Math.random() * H_val * 0.3; this.vx = (Math.random() - 0.5) * 0.3; this.vy = (Math.random() - 0.5) * 0.2; this.age = 0; this.life = Math.random() * 0.6 + 0.4; } draw() { const alpha = Math.max(0, Math.sin(this.age / this.life * Math.PI) * 0.4); const color = p[this.hue]; ctx.fillStyle = color + Math.floor(alpha * 255).toString(16).padStart(2, '0'); const size = 2 + Math.sin(this.age * Math.PI * 2) * 1; ctx.beginPath(); ctx.arc(this.x, this.y, size, 0, Math.PI * 2); ctx.fill(); } } const particles = []; for (let i = 0; i < 180; i++) { particles.push(new Particle()); } let frame = 0; function animate() { frame++; ctx.fillStyle = 'rgba(255, 255, 255, 0.02)'; ctx.fillRect(0, 0, W_val, H_val); particles.forEach(p => { p.update(); p.draw(); }); const waveY = centerY + Math.sin(time * Math.PI * 2 + frame * 0.01) * 8; const gradWave = ctx.createLinearGradient(0, waveY - 30, 0, waveY + 30); gradWave.addColorStop(0, p[0] + '08'); gradWave.addColorStop(0.5, p[0] + '20'); gradWave.addColorStop(1, p[0] + '08'); ctx.fillStyle = gradWave; ctx.fillRect(0, waveY - 40, W_val, 80); requestAnimationFrame(animate); } animate();",
-  "date": "2026-10-12",
-  "audio": "audio/2026-10-12-25739bee93de.mp3"
+  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><radialGradient id=\"warmGlow\" cx=\"50%\" cy=\"40%\"><stop offset=\"0%\" style=\"stop-color:#f5f1e8;stop-opacity:1\"/><stop offset=\"100%\" style=\"stop-color:#8b6f47;stop-opacity:0.3\"/></radialGradient><linearGradient id=\"sunsetRays\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" style=\"stop-color:#d4af37;stop-opacity:0.8\"/><stop offset=\"50%\" style=\"stop-color:#d4af37;stop-opacity:0.3\"/><stop offset=\"100%\" style=\"stop-color:#8b6f47;stop-opacity:0\"/></linearGradient><filter id=\"softGlow\"><feGaussianBlur in=\"SourceGraphic\" stdDeviation=\"3\"/></filter><filter id=\"deepGlow\"><feGaussianBlur in=\"SourceGraphic\" stdDeviation=\"8\"/></filter></defs><rect width=\"1000\" height=\"1000\" fill=\"url(#warmGlow)\" opacity=\"0.6\"/><g id=\"rayGroup\" opacity=\"0.7\"><line x1=\"500\" y1=\"0\" x2=\"450\" y2=\"1000\" stroke=\"url(#sunsetRays)\" stroke-width=\"45\" filter=\"url(#deepGlow)\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 500\" to=\"15 500 500\" dur=\"45s\" repeatCount=\"indefinite\"/></line><line x1=\"500\" y1=\"0\" x2=\"500\" y2=\"1000\" stroke=\"url(#sunsetRays)\" stroke-width=\"55\" opacity=\"0.6\" filter=\"url(#deepGlow)\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 500\" to=\"-12 500 500\" dur=\"52s\" repeatCount=\"indefinite\"/></line><line x1=\"500\" y1=\"0\" x2=\"550\" y2=\"1000\" stroke=\"url(#sunsetRays)\" stroke-width=\"40\" opacity=\"0.5\" filter=\"url(#deepGlow)\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 500\" to=\"8 500 500\" dur=\"48s\" repeatCount=\"indefinite\"/></line></g><g id=\"muslinFolds\" opacity=\"0.85\"><path d=\"M 150 200 Q 250 150 350 200 T 550 200 T 750 200 T 950 200\" stroke=\"#d4af37\" stroke-width=\"2.5\" fill=\"none\" opacity=\"0.4\"><animate attributeName=\"d\" from=\"M 150 200 Q 250 150 350 200 T 550 200 T 750 200 T 950 200\" to=\"M 150 210 Q 250 160 350 210 T 550 210 T 750 210 T 950 210\" dur=\"8s\" repeatCount=\"indefinite\" values=\"M 150 200 Q 250 150 350 200 T 550 200 T 750 200 T 950 200;M 150 215 Q 250 170 350 215 T 550 215 T 750 215 T 950 215;M 150 200 Q 250 150 350 200 T 550 200 T 750 200 T 950 200\" keyTimes=\"0;0.5;1\"/></path><path d=\"M 100 350 Q 200 300 300 350 T 500 350 T 700 350 T 900 350\" stroke=\"#d4af37\" stroke-width=\"2\" fill=\"none\" opacity=\"0.3\"><animate attributeName=\"d\" from=\"M 100 350 Q 200 300 300 350 T 500 350 T 700 350 T 900 350\" to=\"M 100 370 Q 200 320 300 370 T 500 370 T 700 370 T 900 370\" dur=\"10s\" repeatCount=\"indefinite\" values=\"M 100 350 Q 200 300 300 350 T 500 350 T 700 350 T 900 350;M 100 375 Q 200 330 300 375 T 500 375 T 700 375 T 900 375;M 100 350 Q 200 300 300 350 T 500 350 T 700 350 T 900 350\" keyTimes=\"0;0.5;1\"/></path><path d=\"M 80 520 Q 180 450 280 520 T 480 520 T 680 520 T 880 520\" stroke=\"#d4af37\" stroke-width=\"2.2\" fill=\"none\" opacity=\"0.35\"><animate attributeName=\"d\" from=\"M 80 520 Q 180 450 280 520 T 480 520 T 680 520 T 880 520\" to=\"M 80 545 Q 180 470 280 545 T 480 545 T 680 545 T 880 545\" dur=\"9s\" repeatCount=\"indefinite\" values=\"M 80 520 Q 180 450 280 520 T 480 520 T 680 520 T 880 520;M 80 550 Q 180 485 280 550 T 480 550 T 680 550 T 880 550;M 80 520 Q 180 450 280 520 T 480 520 T 680 520 T 880 520\" keyTimes=\"0;0.5;1\"/></path><path d=\"M 120 700 Q 220 640 320 700 T 520 700 T 720 700 T 920 700\" stroke=\"#d4af37\" stroke-width=\"1.8\" fill=\"none\" opacity=\"0.25\"><animate attributeName=\"d\" from=\"M 120 700 Q 220 640 320 700 T 520 700 T 720 700 T 920 700\" to=\"M 120 725 Q 220 665 320 725 T 520 725 T 720 725 T 920 725\" dur=\"11s\" repeatCount=\"indefinite\" values=\"M 120 700 Q 220 640 320 700 T 520 700 T 720 700 T 920 700;M 120 735 Q 220 675 320 735 T 520 735 T 720 735 T 920 735;M 120 700 Q 220 640 320 700 T 520 700 T 720 700 T 920 700\" keyTimes=\"0;0.5;1\"/></path></g><g id=\"lightParticles\" opacity=\"0.6\"><circle cx=\"250\" cy=\"300\" r=\"3\" fill=\"#f5f1e8\"><animate attributeName=\"cy\" from=\"300\" to=\"50\" dur=\"6s\" repeatCount=\"indefinite\"/><animate attributeName=\"opacity\" from=\"0.8\" to=\"0.1\" dur=\"6s\" repeatCount=\"indefinite\"/></circle><circle cx=\"480\" cy=\"450\" r=\"2.5\" fill=\"#f5f1e8\"><animate attributeName=\"cy\" from=\"450\" to=\"150\" dur=\"7s\" repeatCount=\"indefinite\"/><animate attributeName=\"opacity\" from=\"0.7\" to=\"0.05\" dur=\"7s\" repeatCount=\"indefinite\"/></circle><circle cx=\"720\" cy=\"380\" r=\"3.2\" fill=\"#f5f1e8\"><animate attributeName=\"cy\" from=\"380\" to=\"80\" dur=\"5.5s\" repeatCount=\"indefinite\"/><animate attributeName=\"opacity\" from=\"0.75\" to=\"0.1\" dur=\"5.5s\" repeatCount=\"indefinite\"/></circle><circle cx=\"350\" cy=\"600\" r=\"2\" fill=\"#f5f1e8\"><animate attributeName=\"cy\" from=\"600\" to=\"250\" dur=\"8s\" repeatCount=\"indefinite\"/><animate attributeName=\"opacity\" from=\"0.6\" to=\"0\" dur=\"8s\" repeatCount=\"indefinite\"/></circle><circle cx=\"650\" cy=\"550\" r=\"2.8\" fill=\"#f5f1e8\"><animate attributeName=\"cy\" from=\"550\" to=\"180\" dur=\"6.5s\" repeatCount=\"indefinite\"/><animate attributeName=\"opacity\" from=\"0.8\" to=\"0.1\" dur=\"6.5s\" repeatCount=\"indefinite\"/></circle></g><g id=\"softOverlay\" opacity=\"0.2\"><rect width=\"1000\" height=\"1000\" fill=\"url(#sunsetRays)\" filter=\"url(#softGlow)\"/></g></svg>",
+  "scene": "",
+  "date": "2026-10-13",
+  "audio": "audio/2026-10-13-46eb5cddb3bd.mp3"
 }
