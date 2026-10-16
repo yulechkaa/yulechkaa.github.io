@@ -1,28 +1,28 @@
 {
-  "rhyme": "сонатулечка",
-  "mood": "бархатно-лиричное",
-  "concept": "Тонкие струны сонаты и каллиграфические строки свиваются в невесомые звуковые волны из лунного света, обнимающие ночной покой",
+  "rhyme": "капелюлечка",
+  "mood": "искристо-тёплое",
+  "concept": "Мягкие серебристые капли росы стекают и порождают расходящиеся круги тёплого сияния, оставляя центр прозрачным и спокойным",
   "palette": [
-    "#1b2a32",
-    "#dfc7b0",
-    "#63899e"
+    "#4a6572",
+    "#e0b084",
+    "#f7f2eb"
   ],
-  "style": "dusk",
+  "style": "mesh",
   "art": "waves",
-  "font": "marck",
-  "anim": "wave",
+  "font": "pacifico",
+  "anim": "scale",
   "verse": [
-    "Пусть дарит Юлечка-сонатулечка покой,",
-    "Коснувшись сердца трепетной строкой."
+    "Смеётся нежно Юлечка-капелюлечка, играя ясным серебром,",
+    "И наполняет каждый миг неугасающим теплом."
   ],
   "verse_tts": [
-    "Пусть дарит +Юлечка, сонат+улечка покой,",
-    "Коснувшись сердца трепетной строкой."
+    "Смеётся нежно +Юлечка, капел+юлечка, играя ясным серебром,",
+    "И наполняет каждый миг неугасающим теплом."
   ],
   "image": "",
   "video": "",
   "svg": "",
-  "scene": "",
-  "date": "2026-10-15",
-  "audio": "audio/2026-10-15-3c5a12b6cbcd.mp3"
+  "scene": "const drops=Array.from({length:22},()=>({x:Math.random(),y:Math.random(),r:1+Math.random()*2.5,speed:0.0003+Math.random()*0.0006,phase:Math.random()*Math.PI*2,rings:[]}));function hexToRgba(hex,a){const c=parseInt(hex.replace('#',''),16);return`rgba(${(c>>16)&255},${(c>>8)&255},${c&255},${a})`;}function frame(t){const w=W(),h=H();ctx.clearRect(0,0,w,h);const cx=w*0.5,cy=h*0.5;drops.forEach(d=>{d.y+=d.speed;d.phase+=0.02;if(d.y>1){d.y=0;d.x=Math.random();}const px=d.x*w,py=d.y*h;const dx=px-cx,dy=py-cy,dist=Math.hypot(dx,dy);const minD=Math.min(w,h)*0.28;const edgeAlpha=Math.min(1,Math.max(0,(dist-minD)/(minD*0.8)));if(edgeAlpha>0.05){if(Math.random()<0.015&&d.rings.length<3){d.rings.push({r:d.r,alpha:0.4*edgeAlpha});}ctx.beginPath();ctx.arc(px,py,d.r+Math.sin(d.phase)*0.5,0,Math.PI*2);ctx.fillStyle=hexToRgba(PALETTE[2],0.75*edgeAlpha);ctx.fill();ctx.beginPath();ctx.arc(px,py,d.r*2,0,Math.PI*2);ctx.fillStyle=hexToRgba(PALETTE[1],0.15*edgeAlpha);ctx.fill();}for(let i=d.rings.length-1;i>=0;i--){const r=d.rings[i];r.r+=0.4;r.alpha*=0.985;ctx.beginPath();ctx.arc(px,py,r.r,0,Math.PI*2);ctx.strokeStyle=hexToRgba(PALETTE[1],r.alpha);ctx.lineWidth=0.75;ctx.stroke();if(r.alpha<0.02)d.rings.splice(i,1);}});requestAnimationFrame(frame);}requestAnimationFrame(frame);",
+  "date": "2026-10-16",
+  "audio": "audio/2026-10-16-93079a3c39bf.mp3"
 }
