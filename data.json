@@ -1,28 +1,28 @@
 {
-  "rhyme": "свирелюлечка",
-  "mood": "окрылённо-нежное",
-  "concept": "Тонкие вихри тёплого ветра и лёгкие силуэты порхающих крыльев свиваются в мягкий арочный контур распахнутого окна.",
+  "rhyme": "грушулечка",
+  "mood": "медово-уютное",
+  "concept": "Золотистые силуэты медовых спелых груш и тонких осенних веток обрамляют вечерний мягкий свет",
   "palette": [
-    "#f7d9c4",
-    "#e7a3b6",
-    "#c8a2d8"
+    "#4a3828",
+    "#d99b43",
+    "#f2dfb6"
   ],
-  "style": "dawn",
-  "art": "rays",
-  "font": "caveat",
-  "anim": "cascade",
+  "style": "dusk",
+  "art": "lattice",
+  "font": "lobster",
+  "anim": "glow",
   "verse": [
-    "Когда смеётся Юлечка-свирелюлечка, порхая у окна,",
-    "Уютной нежностью и радостью комната полна."
+    "Когда смеётся тихо Юлечка-грушулечка,",
+    "Любой осенний вечер полнится уютом и теплом."
   ],
   "verse_tts": [
-    "Когда смеётся +Юлечка, свирел+юлечка, порхая у окна,",
-    "Уютной нежностью и радостью комната полна."
+    "Когда смеётся тихо +Юлечка, груш+улечка,",
+    "Любой осенний вечер полнится уютом и теплом."
   ],
   "image": "",
   "video": "",
-  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"svDawn\" x1=\"0%\" y1=\"100%\" x2=\"100%\" y2=\"0%\"><stop offset=\"0%\" stop-color=\"#2b5c54\" stop-opacity=\"0.7\"/><stop offset=\"60%\" stop-color=\"#e89f65\" stop-opacity=\"0.8\"/><stop offset=\"100%\" stop-color=\"#fbf7ee\" stop-opacity=\"0.9\"/></linearGradient><linearGradient id=\"svGold\" x1=\"0%\" y1=\"0%\" x2=\"0%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#fbf7ee\" stop-opacity=\"0.6\"/><stop offset=\"100%\" stop-color=\"#e89f65\" stop-opacity=\"0.2\"/></linearGradient><radialGradient id=\"svGlow\" cx=\"50%\" cy=\"50%\" r=\"50%\"><stop offset=\"0%\" stop-color=\"#fbf7ee\" stop-opacity=\"0.15\"/><stop offset=\"70%\" stop-color=\"#e89f65\" stop-opacity=\"0.05\"/><stop offset=\"100%\" stop-color=\"#2b5c54\" stop-opacity=\"0\"/></radialGradient></defs><circle cx=\"500\" cy=\"500\" r=\"380\" fill=\"url(#svGlow)\"/><g stroke=\"url(#svDawn)\" fill=\"none\" stroke-linecap=\"round\"><path d=\"M220 860 V 420 A 280 280 0 0 1 780 420 V 860\" stroke-width=\"1.4\" stroke-opacity=\"0.45\" stroke-dasharray=\"6 8\"/><path d=\"M250 860 V 430 A 250 250 0 0 1 750 430 V 860\" stroke-width=\"0.8\" stroke-opacity=\"0.3\"/><path d=\"M500 140 V 280\" stroke-width=\"1.2\" stroke-opacity=\"0.5\"/><path d=\"M220 540 H 290 M710 540 H 780\" stroke-width=\"1\" stroke-opacity=\"0.4\"/></g><g id=\"swirls\" stroke=\"url(#svDawn)\" fill=\"none\" stroke-linecap=\"round\"><path d=\"M120 780 Q 220 620 300 660 T 420 590\" stroke-width=\"1.2\" stroke-opacity=\"0.4\"><animate attributeName=\"stroke-opacity\" values=\"0.2;0.5;0.2\" dur=\"7s\" repeatCount=\"indefinite\"/></path><path d=\"M880 780 Q 780 620 700 660 T 580 590\" stroke-width=\"1.2\" stroke-opacity=\"0.4\"><animate attributeName=\"stroke-opacity\" values=\"0.5;0.2;0.5\" dur=\"7s\" repeatCount=\"indefinite\"/></path><path d=\"M180 320 C 260 210 390 190 470 230\" stroke-width=\"1\" stroke-opacity=\"0.35\"/><path d=\"M820 320 C 740 210 610 190 530 230\" stroke-width=\"1\" stroke-opacity=\"0.35\"/></g><g id=\"birds\" fill=\"none\" stroke=\"#e89f65\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><g transform=\"translate(280, 240) scale(0.85)\"><path d=\"M-20 6 Q -8 -12 0 0 Q 8 -12 20 6\" stroke-opacity=\"0.75\"/><animateTransform attributeName=\"transform\" type=\"translate\" values=\"280 240; 286 230; 280 240\" dur=\"6s\" repeatCount=\"indefinite\"/></g><g transform=\"translate(710, 260) scale(0.7)\"><path d=\"M-20 6 Q -8 -12 0 0 Q 8 -12 20 6\" stroke-opacity=\"0.6\"/><animateTransform attributeName=\"transform\" type=\"translate\" values=\"710 260; 704 252; 710 260\" dur=\"5s\" repeatCount=\"indefinite\"/></g><g transform=\"translate(340, 180) scale(0.6)\"><path d=\"M-20 6 Q -8 -12 0 0 Q 8 -12 20 6\" stroke-opacity=\"0.5\"/><animateTransform attributeName=\"transform\" type=\"translate\" values=\"340 180; 345 174; 340 180\" dur=\"7s\" repeatCount=\"indefinite\"/></g><g transform=\"translate(650, 190) scale(0.55)\"><path d=\"M-20 6 Q -8 -12 0 0 Q 8 -12 20 6\" stroke-opacity=\"0.55\"/><animateTransform attributeName=\"transform\" type=\"translate\" values=\"650 190; 646 182; 650 190\" dur=\"6.5s\" repeatCount=\"indefinite\"/></g></g><g id=\"motes\"><circle cx=\"320\" cy=\"640\" r=\"2\" fill=\"#fbf7ee\"><animate attributeName=\"opacity\" values=\"0.2;0.8;0.2\" dur=\"4s\" repeatCount=\"indefinite\"/></circle><circle cx=\"680\" cy=\"620\" r=\"2.5\" fill=\"#e89f65\"><animate attributeName=\"opacity\" values=\"0.3;0.9;0.3\" dur=\"5.2s\" repeatCount=\"indefinite\"/></circle><circle cx=\"240\" cy=\"460\" r=\"1.8\" fill=\"#fbf7ee\"><animate attributeName=\"opacity\" values=\"0.1;0.7;0.1\" dur=\"4.5s\" repeatCount=\"indefinite\"/></circle><circle cx=\"760\" cy=\"470\" r=\"2.2\" fill=\"#e89f65\"><animate attributeName=\"opacity\" values=\"0.2;0.8;0.2\" dur=\"5.8s\" repeatCount=\"indefinite\"/></circle><circle cx=\"500\" cy=\"190\" r=\"2\" fill=\"#fbf7ee\"><animate attributeName=\"opacity\" values=\"0.3;1;0.3\" dur=\"3.5s\" repeatCount=\"indefinite\"/></circle></g><g transform=\"translate(500,500)\"><g><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0\" to=\"360\" dur=\"120s\" repeatCount=\"indefinite\"/><circle cx=\"0\" cy=\"0\" r=\"340\" stroke=\"url(#svDawn)\" stroke-width=\"0.6\" stroke-dasharray=\"3 18\" fill=\"none\" opacity=\"0.4\"/><circle cx=\"0\" cy=\"0\" r=\"300\" stroke=\"#e89f65\" stroke-width=\"0.5\" stroke-dasharray=\"1 14\" fill=\"none\" opacity=\"0.3\"/></g></g></svg>",
-  "scene": "",
-  "date": "2026-10-17",
-  "audio": "audio/2026-10-17-a1661484c0c0.mp3"
+  "svg": "",
+  "scene": "const N=28;const P=[];for(let i=0;i<N;i++){P.push({x:Math.random(),y:Math.random(),r:1.2+Math.random()*2.2,vx:(Math.random()-0.5)*0.0003,vy:-0.0004-Math.random()*0.0005,o:0.2+Math.random()*0.6,p:Math.random()*Math.PI*2});}function loop(){const w=W(),h=H();ctx.clearRect(0,0,w,h);for(let i=0;i<N;i++){const p=P[i];p.p+=0.02;p.x+=p.vx+Math.sin(p.p)*0.0002;p.y+=p.vy;if(p.y<0){p.y=1;p.x=Math.random();}const cx=p.x*w,cy=p.y*h;const distCenter=Math.abs(p.y-0.5);const alpha=Math.min(p.o*(0.3+distCenter*1.4),0.75);ctx.beginPath();ctx.arc(cx,cy,p.r,0,Math.PI*2);ctx.fillStyle=PALETTE[1];ctx.globalAlpha=alpha;ctx.shadowBlur=8;ctx.shadowColor=PALETTE[2];ctx.fill();}ctx.shadowBlur=0;ctx.globalAlpha=1;requestAnimationFrame(loop);}loop();",
+  "date": "2026-10-18",
+  "audio": "audio/2026-10-18-1926465ca18a.mp3"
 }
