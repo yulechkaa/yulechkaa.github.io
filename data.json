@@ -1,28 +1,28 @@
 {
-  "rhyme": "пастилулечка",
-  "mood": "воздушно-ласковое",
-  "concept": "Воздушные слои яблочно-розовой пастилы и тончайшие ленты утреннего света образуют мягкое обрамление осенней тишины.",
+  "rhyme": "забавулечка",
+  "mood": "игриво-лучистое",
+  "concept": "Невесомая паутина солнечных бликов и танцующих искорок, напоминающих звонкий смех.",
   "palette": [
-    "#f7d9c4",
-    "#e7a3b6",
-    "#c8a2d8"
+    "#fdebd0",
+    "#d35400",
+    "#7fb3d5"
   ],
   "style": "dawn",
   "art": "rays",
-  "font": "comfortaa",
-  "anim": "blur",
+  "font": "pacifico",
+  "anim": "wave",
   "verse": [
-    "В осенней тишине сияет Юлечка-пастилулечка,",
-    "И сердце согревает мне твоя живая улыбочка."
+    "Вновь Юлечка-забавулечка смеётся так беспечно,",
+    "И кажется, что счастье в доме будет вечно."
   ],
   "verse_tts": [
-    "В осенней тишине сияет +Юлечка, пастил+улечка,",
-    "И сердце согревает мне твоя живая улыбочка."
+    "Вновь +Юлечка, забав+улечка смеётся так беспечно,",
+    "И кажется, что счастье в доме будет вечно."
   ],
   "image": "",
   "video": "",
   "svg": "",
-  "scene": "",
-  "date": "2026-10-19",
-  "audio": "audio/2026-10-19-aaabb8ffe157.mp3"
+  "scene": "let L=Array.from({length:40},()=>({x:Math.random()*W(),y:Math.random()*H(),vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,r:Math.random()*4,c:PALETTE[Math.floor(Math.random()*3)]}));function R(){ctx.clearRect(0,0,W(),H());L.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W())p.vx*=-1;if(p.y<0||p.y>H())p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.28);ctx.fillStyle=p.c;ctx.globalAlpha=0.15;ctx.fill();ctx.beginPath();L.forEach(p2=>{let d=Math.hypot(p.x-p2.x,p.y-p2.y);if(d<120){ctx.moveTo(p.x,p.y);ctx.lineTo(p2.x,p2.y)}});ctx.strokeStyle=p.c;ctx.lineWidth=0.4;ctx.globalAlpha=0.08;ctx.stroke()});requestAnimationFrame(R)}R();",
+  "date": "2026-10-20",
+  "audio": "audio/2026-10-20-df0a469e09ea.mp3"
 }
