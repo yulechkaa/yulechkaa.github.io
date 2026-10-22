@@ -1,28 +1,28 @@
 {
-  "rhyme": "кашемирулечка",
-  "mood": "обволакивающе-мягкое",
-  "concept": "Тончайшие золотистые линии, имитирующие текстуру дорогой шерсти, медленно колышутся, словно ткань на утреннем ветру.",
+  "rhyme": "велюрулечка",
+  "mood": "пленительно-тёплое",
+  "concept": "Текучие мягкие складки глубокого терракотово-велюрового пледа и невесомые тёплые искры, обрамляющие светлое умиротворённое пространство.",
   "palette": [
-    "#be9b7b",
-    "#fff9f0",
-    "#d4af37"
+    "#f7d9c4",
+    "#e7a3b6",
+    "#c8a2d8"
   ],
-  "style": "bloom",
+  "style": "dusk",
   "art": "waves",
-  "font": "yeseva",
-  "anim": "fade",
+  "font": "prata",
+  "anim": "glow",
   "verse": [
-    "Пусть Юлечка-кашемирулечка в мягкое утро проснётся,",
-    "И счастье к тебе, словно солнечный лучик, в ответ прикоснётся."
+    "Своим теплом балует Юлечка-велюрулечка,",
+    "Как мягкий плед у тихого огня."
   ],
   "verse_tts": [
-    "Пусть +Юлечка, кашемир+улечка в мягкое утро проснётся,",
-    "И счастье к тебе, словно солнечный лучик, в ответ прикоснётся."
+    "Своим теплом балует +Юлечка, велюр+улечка,",
+    "Как мягкий плед у тихого огня."
   ],
   "image": "",
   "video": "",
-  "svg": "<svg viewBox=\"0 0 1000 1000\" xmlns=\"http://www.w3.org/2000/svg\"><defs><linearGradient id=\"threadGrad\" x1=\"0%\" y1=\"0%\" x2=\"100%\" y2=\"100%\"><stop offset=\"0%\" stop-color=\"#be9b7b\" stop-opacity=\"0.4\"/><stop offset=\"50%\" stop-color=\"#d4af37\" stop-opacity=\"0.2\"/><stop offset=\"100%\" stop-color=\"#fff9f0\" stop-opacity=\"0.1\"/></linearGradient></defs><g><path d=\"M-200,500 Q250,200 500,500 T1200,500\" fill=\"none\" stroke=\"url(#threadGrad)\" stroke-width=\"1.5\"><animateTransform attributeName=\"transform\" type=\"translate\" from=\"-50 0\" to=\"50 0\" dur=\"15s\" repeatCount=\"indefinite\" autoreverse=\"true\"/><animate attributeName=\"stroke-opacity\" values=\"0.2;0.6;0.2\" dur=\"8s\" repeatCount=\"indefinite\"/></path><path d=\"M-200,600 Q250,300 500,600 T1200,600\" fill=\"none\" stroke=\"url(#threadGrad)\" stroke-width=\"1\"><animateTransform attributeName=\"transform\" type=\"translate\" from=\"50 0\" to=\"-50 0\" dur=\"20s\" repeatCount=\"indefinite\" autoreverse=\"true\"/><animate attributeName=\"stroke-opacity\" values=\"0.1;0.4;0.1\" dur=\"12s\" repeatCount=\"indefinite\"/></path><path d=\"M-200,400 Q250,100 500,400 T1200,400\" fill=\"none\" stroke=\"url(#threadGrad)\" stroke-width=\"2\"><animateTransform attributeName=\"transform\" type=\"translate\" from=\"-30 0\" to=\"30 0\" dur=\"18s\" repeatCount=\"indefinite\" autoreverse=\"true\"/><animate attributeName=\"stroke-opacity\" values=\"0.3;0.7;0.3\" dur=\"10s\" repeatCount=\"indefinite\"/></path><path d=\"M-200,450 Q300,750 600,450 T1400,450\" fill=\"none\" stroke=\"#d4af37\" stroke-width=\"0.8\" stroke-dasharray=\"5,10\"><animateTransform attributeName=\"transform\" type=\"rotate\" from=\"0 500 500\" to=\"5 500 500\" dur=\"40s\" repeatCount=\"indefinite\" autoreverse=\"true\"/><animate attributeName=\"opacity\" values=\"0.2;0.5;0.2\" dur=\"5s\" repeatCount=\"indefinite\"/></path><circle cx=\"500\" cy=\"500\" r=\"300\" fill=\"url(#threadGrad)\" fill-opacity=\"0.05\"><animate attributeName=\"r\" values=\"280;320;280\" dur=\"15s\" repeatCount=\"indefinite\"/></circle></g></svg>",
-  "scene": "",
-  "date": "2026-10-21",
-  "audio": "audio/2026-10-21-92d7c8f239d8.mp3"
+  "svg": "",
+  "scene": "let pts = []; const init = () => { pts = Array.from({length: 42}, () => ({ x: Math.random(), y: Math.random(), r: 1.5 + Math.random() * 3, vx: (Math.random() - 0.5) * 0.0003, vy: -0.0003 - Math.random() * 0.0005, a: 0.2 + Math.random() * 0.4, c: PALETTE[Math.floor(Math.random() * PALETTE.length)], phase: Math.random() * Math.PI * 2 })); }; init(); function frame(t) { const w = W(), h = H(); ctx.clearRect(0, 0, w, h); pts.forEach(p => { p.y += p.vy; p.x += p.vx + Math.sin(t * 0.001 + p.phase) * 0.0002; if (p.y < -0.05) p.y = 1.05; if (p.x < -0.05) p.x = 1.05; if (p.x > 1.05) p.x = -0.05; const cx = Math.abs(p.x - 0.5), cy = Math.abs(p.y - 0.5); const dist = Math.sqrt(cx * cx + cy * cy); const edgeAlpha = Math.min(1, dist * 2.2); const alpha = p.a * edgeAlpha * (0.6 + 0.4 * Math.sin(t * 0.002 + p.phase)); ctx.beginPath(); ctx.arc(p.x * w, p.y * h, p.r, 0, Math.PI * 2); ctx.fillStyle = p.c; ctx.globalAlpha = Math.max(0, alpha); ctx.shadowBlur = 8; ctx.shadowColor = p.c; ctx.fill(); }); ctx.shadowBlur = 0; ctx.globalAlpha = 1; requestAnimationFrame(frame); } requestAnimationFrame(frame);",
+  "date": "2026-10-22",
+  "audio": "audio/2026-10-22-7b38e879ddbc.mp3"
 }
