@@ -1,29 +1,28 @@
 {
-  "rhyme": "крохулечка",
-  "mood": "трепетно-тающее",
-  "concept": "Макроузор инея на стекле медленно тает под взмахом крошечной ладони, превращаясь в стайку тёплых золотистых искр, невесомо поднимающихся вверх",
+  "rhyme": "сливулечка",
+  "mood": "бархатно-сочное",
+  "concept": "Крупная спелая слива в глубоких сумерках покрыта живым сизым пруинозным туманом, который медленно колышется, а с её бока срывается капля нектара, стекающая диагональным светящимся следом через холст.",
   "palette": [
-    "#9fd8e3",
-    "#2b3a52",
-    "#f6c89a"
+    "#4a2545",
+    "#b7c4d6",
+    "#f0b8a0"
   ],
-  "style": "frost",
-  "art": "lattice",
-  "font": "philosopher",
+  "style": "dusk",
+  "art": "waves",
+  "font": "playfair",
   "anim": "drop",
   "verse": [
-    "Пусть Юлечка-крохулечка ладошкою взмахнёт,",
-    "И в сердце от любви растает хрупкий лёд."
+    "Словно спелая и ласковая Юлечка-сливулечка,",
+    "Ты приносишь сладость в каждый наш денёк."
   ],
   "verse_tts": [
-    "Пусть +Юлечка, крох+улечка ладошкою взмахнёт,",
-    "И в сердце от любви растает хрупкий лёд."
+    "Словно спелая и ласковая +Юлечка, слив+улечка,",
+    "Ты приносишь сладость в каждый наш денёк."
   ],
-  "image": "art/2026-10-23.webp",
-  "video": "art/2026-10-23.mp4",
+  "image": "",
+  "video": "",
   "svg": "",
-  "scene": "",
-  "date": "2026-10-23",
-  "video_model": "bytedance/seedance-1-5-pro",
-  "audio": "audio/2026-10-23-c335f2f5f257.mp3"
+  "scene": "let t0 = performance.now();\nfunction hexToRgb(hex){const n=parseInt(hex.slice(1),16);return [(n>>16)&255,(n>>8)&255,n&255];}\nconst deepRGB=hexToRgb(PALETTE[0]);\nconst hazeRGB=hexToRgb(PALETTE[1]);\nconst warmRGB=hexToRgb(PALETTE[2]);\n\nconst dust=[];\nfor(let i=0;i<70;i++){\n  dust.push({a:Math.random()*Math.PI*2,r:0.55+Math.random()*0.65,speed:0.05+Math.random()*0.08,size:1+Math.random()*2.4,phase:Math.random()*Math.PI*2,pulseSpeed:0.3+Math.random()*0.5});\n}\n\nconst pollen=[];\nfor(let i=0;i<40;i++){\n  pollen.push({x:Math.random(),y:Math.random(),size:0.6+Math.random()*1.8,driftX:(Math.random()-0.5)*0.00012,driftY:-0.00008-Math.random()*0.00012,phase:Math.random()*Math.PI*2});\n}\n\nconst droplets=[];\nconst dropCount=4;\nfor(let i=0;i<dropCount;i++){\n  droplets.push({t:i/dropCount,speed:0.00016+Math.random()*0.00006,size:5+Math.random()*4,trail:[]});\n}\n\nfunction draw(now){\n  const dt=now-t0; t0=now;\n  const w=W(), h=H();\n  ctx.clearRect(0,0,w,h);\n  const cx=w*0.21, cy=h*0.76;\n  const R=Math.min(w,h)*0.165;\n  const time=now*0.001;\n\n  ctx.save();\n  ctx.translate(cx, cy-R*0.95);\n  ctx.rotate(-0.25);\n  ctx.strokeStyle='rgba('+deepRGB.join(',')+',0.55)';\n  ctx.lineWidth=Math.max(2,R*0.045);\n  ctx.lineCap='round';\n  ctx.beginPath();\n  ctx.moveTo(0,0);\n  ctx.quadraticCurveTo(R*0.15,-R*0.35,R*0.05,-R*0.62);\n  ctx.stroke();\n  ctx.fillStyle='rgba('+hazeRGB.join(',')+',0.35)';\n  ctx.beginPath();\n  ctx.ellipse(R*0.18,-R*0.3,R*0.22,R*0.11,0.6,0,Math.PI*2);\n  ctx.fill();\n  ctx.restore();\n\n  const grad=ctx.createRadialGradient(cx-R*0.35, cy-R*0.4, R*0.1, cx, cy, R*1.15);\n  grad.addColorStop(0,'rgba('+warmRGB.join(',')+',0.55)');\n  grad.addColorStop(0.35,'rgba('+deepRGB.join(',')+',0.95)');\n  grad.addColorStop(1,'rgba('+deepRGB.map(c=>Math.max(0,c-40)).join(',')+',1)');\n  ctx.save();\n  ctx.beginPath();\n  ctx.ellipse(cx, cy, R, R*1.08, 0, 0, Math.PI*2);\n  ctx.fillStyle=grad;\n  ctx.fill();\n\n  ctx.strokeStyle='rgba(0,0,0,0.18)';\n  ctx.lineWidth=Math.max(1.5, R*0.02);\n  ctx.beginPath();\n  ctx.moveTo(cx, cy-R*1.0);\n  ctx.quadraticCurveTo(cx-R*0.08, cy, cx, cy+R*1.05);\n  ctx.stroke();\n\n  ctx.globalCompositeOperation='lighter';\n  const hl=ctx.createRadialGradient(cx-R*0.4, cy-R*0.5,0, cx-R*0.4, cy-R*0.5, R*0.5);\n  hl.addColorStop(0,'rgba(255,255,255,0.35)');\n  hl.addColorStop(1,'rgba(255,255,255,0)');\n  ctx.fillStyle=hl;\n  ctx.beginPath();\n  ctx.ellipse(cx-R*0.4, cy-R*0.5, R*0.5, R*0.4, 0,0,Math.PI*2);\n  ctx.fill();\n  ctx.globalCompositeOperation='source-over';\n  ctx.restore();\n\n  for(const d of dust){\n    d.a += d.speed*0.01;\n    const rr=R*d.r;\n    const px=cx+Math.cos(d.a)*rr;\n    const py=cy+Math.sin(d.a)*rr*1.06;\n    const pulse=0.25+0.2*Math.sin(time*d.pulseSpeed+d.phase);\n    ctx.beginPath();\n    ctx.fillStyle='rgba('+hazeRGB.join(',')+','+pulse.toFixed(3)+')';\n    ctx.arc(px,py,d.size,0,Math.PI*2);\n    ctx.fill();\n  }\n\n  for(const dr of droplets){\n    dr.t += dr.speed*dt;\n    if(dr.t>1){ dr.t-=1; dr.trail=[]; }\n    const startX=cx+R*0.55, startY=cy-R*0.2;\n    const endX=w*0.78, endY=h*0.18;\n    const ease=dr.t;\n    const px=startX+(endX-startX)*ease;\n    const py=startY+(endY-startY)*ease - Math.sin(ease*Math.PI)*h*0.06;\n    dr.trail.push({x:px,y:py});\n    if(dr.trail.length>14) dr.trail.shift();\n    for(let i=0;i<dr.trail.length;i++){\n      const pnt=dr.trail[i];\n      const alpha=(i/dr.trail.length)*0.4;\n      ctx.beginPath();\n      ctx.fillStyle='rgba('+warmRGB.join(',')+','+alpha.toFixed(3)+')';\n      ctx.arc(pnt.x,pnt.y,dr.size*(i/dr.trail.length),0,Math.PI*2);\n      ctx.fill();\n    }\n    ctx.save();\n    ctx.shadowColor='rgba('+deepRGB.join(',')+',0.6)';\n    ctx.shadowBlur=8;\n    ctx.beginPath();\n    ctx.fillStyle='rgba('+deepRGB.join(',')+',0.85)';\n    ctx.ellipse(px,py,dr.size*0.8,dr.size,0,0,Math.PI*2);\n    ctx.fill();\n    ctx.restore();\n    ctx.beginPath();\n    ctx.fillStyle='rgba(255,255,255,0.5)';\n    ctx.arc(px-dr.size*0.25,py-dr.size*0.3,dr.size*0.25,0,Math.PI*2);\n    ctx.fill();\n  }\n\n  for(const p of pollen){\n    p.x += p.driftX*dt;\n    p.y += p.driftY*dt;\n    if(p.y<-0.05) p.y=1.05;\n    if(p.x<-0.05) p.x=1.05;\n    if(p.x>1.05) p.x=-0.05;\n    const px=p.x*w, py=p.y*h;\n    const distToCenter=Math.hypot(px-w*0.5, py-h*0.5);\n    const maxFade=Math.min(w,h)*0.3;\n    const fade=distToCenter<maxFade ? distToCenter/maxFade : 1;\n    const glow=0.25+0.15*Math.sin(time*0.6+p.phase);\n    ctx.beginPath();\n    ctx.fillStyle='rgba('+warmRGB.join(',')+','+(glow*fade*0.6).toFixed(3)+')';\n    ctx.arc(px,py,p.size,0,Math.PI*2);\n    ctx.fill();\n  }\n\n  requestAnimationFrame(draw);\n}\nrequestAnimationFrame(draw);",
+  "date": "2026-10-24",
+  "audio": "audio/2026-10-24-d3bdd50c1e10.mp3"
 }
