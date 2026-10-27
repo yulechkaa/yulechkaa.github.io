@@ -1,28 +1,29 @@
 {
-  "rhyme": "лисичкулечка",
-  "mood": "лукаво-тёплое",
-  "concept": "Силуэт пушистой лисицы соткан из тонких нитей рыжего света и крадётся вдоль мощёной листьями улочки, тающей в мягком утреннем сиянии",
+  "rhyme": "бантулечка",
+  "mood": "тепло-ностальгическое",
+  "concept": "Шёлковый бант, вырезанный из бумаги многослойной техникой, парит над кружащимися кленовыми листьями, и мягкие бумажные тени складываются в тёплый вечерний воздух октября.",
   "palette": [
-    "#c6531f",
-    "#e8b94a",
-    "#2e4a3f"
+    "#b5533c",
+    "#f0dcb8",
+    "#3e2a44"
   ],
-  "style": "dawn",
-  "art": "rays",
-  "font": "caveat",
-  "anim": "cascade",
+  "style": "dusk",
+  "art": "petals",
+  "font": "lobster",
+  "anim": "wave",
   "verse": [
-    "Среди осенних рыжих трав, Юлечка-лисичкулечка,",
-    "Ты даришь радость и тепло, как солнечная улочка."
+    "Пусть согревает нас Юлечка-бантулечка добрым взглядом,",
+    "Когда октябрьский вечер кружит тихим листопадом."
   ],
   "verse_tts": [
-    "Среди осенних рыжих трав, +Юлечка, лисичк+улечка,",
-    "Ты даришь радость и тепло, как солнечная улочка."
+    "Пусть согревает нас +Юлечка, бант+улечка добрым взглядом,",
+    "Когда октябрьский вечер кружит тихим листопадом."
   ],
-  "image": "art/2026-10-26.webp",
-  "video": "",
+  "image": "art/2026-10-27.webp",
+  "video": "art/2026-10-27.mp4",
   "svg": "",
-  "scene": "(function(){\n  var leaves=[];\n  var dust=[];\n  var nLeaves=46;\n  var nDust=70;\n  function rand(a,b){return a+Math.random()*(b-a);}\n  function mkLeaf(){\n    var side = Math.random()<0.5?0:1;\n    return {\n      x: side===0? rand(0,W()*0.32) : rand(W()*0.68,W()),\n      y: rand(-H()*0.3,H()*0.1),\n      speedY: rand(6,14)/60,\n      speedX: rand(-6,6)/60,\n      size: rand(5,11),\n      rot: rand(0,Math.PI*2),\n      rotSpeed: rand(-0.6,0.6)/60,\n      sway: rand(0.5,1.5),\n      phase: rand(0,Math.PI*2),\n      color: PALETTE[Math.floor(rand(0,3))],\n      alpha: rand(0.45,0.85)\n    };\n  }\n  function mkDust(){\n    var side = Math.random()<0.5?0:1;\n    return {\n      x: side===0? rand(0,W()*0.28) : rand(W()*0.72,W()),\n      y: rand(0,H()),\n      r: rand(0.6,2.2),\n      speed: rand(2,8)/60,\n      drift: rand(-4,4)/60,\n      alpha: rand(0.2,0.6),\n      flickerPhase: rand(0,Math.PI*2),\n      flickerSpeed: rand(0.01,0.03)\n    };\n  }\n  for(var i=0;i<nLeaves;i++) leaves.push(mkLeaf());\n  for(var j=0;j<nDust;j++) dust.push(mkDust());\n\n  var t=0;\n  function frame(){\n    t+=1;\n    var w=W(), h=H();\n    ctx.clearRect(0,0,w,h);\n\n    // soft warm rays from top corners\n    ctx.save();\n    ctx.globalCompositeOperation='lighter';\n    var grad1=ctx.createRadialGradient(w*0.1,h*0.05,0,w*0.1,h*0.05,h*0.5);\n    grad1.addColorStop(0, hexA(PALETTE[1],0.18));\n    grad1.addColorStop(1, hexA(PALETTE[1],0));\n    ctx.fillStyle=grad1;\n    ctx.fillRect(0,0,w,h);\n\n    var grad2=ctx.createRadialGradient(w*0.92,h*0.95,0,w*0.92,h*0.95,h*0.5);\n    grad2.addColorStop(0, hexA(PALETTE[0],0.14));\n    grad2.addColorStop(1, hexA(PALETTE[0],0));\n    ctx.fillStyle=grad2;\n    ctx.fillRect(0,0,w,h);\n    ctx.restore();\n\n    // dust / light specks\n    for(var k=0;k<dust.length;k++){\n      var d=dust[k];\n      d.y -= d.speed;\n      d.x += d.drift + Math.sin((t+d.flickerPhase)*0.02)*0.15;\n      d.flickerPhase+=d.flickerSpeed;\n      if(d.y< -10){ d.y=h+10; }\n      if(d.x<0) d.x=0; if(d.x>w) d.x=w;\n      var fl = 0.5+0.5*Math.sin(t*d.flickerSpeed+d.flickerPhase);\n      ctx.beginPath();\n      ctx.fillStyle = hexA(PALETTE[1], d.alpha*fl);\n      ctx.arc(d.x,d.y,d.r,0,Math.PI*2);\n      ctx.fill();\n    }\n\n    // falling leaves\n    for(var m=0;m<leaves.length;m++){\n      var lf=leaves[m];\n      lf.y += lf.speedY*6;\n      lf.x += lf.speedX*2 + Math.sin(t*0.01+lf.phase)*lf.sway*0.3;\n      lf.rot += lf.rotSpeed;\n      if(lf.y> h+20){\n        var nl = mkLeaf();\n        nl.y = -20;\n        leaves[m]=nl;\n        continue;\n      }\n      ctx.save();\n      ctx.translate(lf.x,lf.y);\n      ctx.rotate(lf.rot);\n      ctx.globalAlpha=lf.alpha;\n      ctx.fillStyle=lf.color;\n      ctx.beginPath();\n      ctx.ellipse(0,0,lf.size,lf.size*0.55,0,0,Math.PI*2);\n      ctx.fill();\n      ctx.restore();\n    }\n\n    requestAnimationFrame(frame);\n  }\n\n  function hexA(hex, a){\n    var c = hex.replace('#','');\n    var r=parseInt(c.substring(0,2),16);\n    var g=parseInt(c.substring(2,4),16);\n    var b=parseInt(c.substring(4,6),16);\n    return 'rgba('+r+','+g+','+b+','+a+')';\n  }\n\n  requestAnimationFrame(frame);\n})();",
-  "date": "2026-10-26",
-  "audio": "audio/2026-10-26-ebdf51fc9942.mp3"
+  "scene": "",
+  "date": "2026-10-27",
+  "video_model": "bytedance/seedance-1-5-pro",
+  "audio": "audio/2026-10-27-bf3e7ada80c7.mp3"
 }
