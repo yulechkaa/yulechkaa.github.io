@@ -1,28 +1,29 @@
 {
-  "rhyme": "брусникулечка",
-  "mood": "искристо-морозное",
-  "concept": "Макроузор ледяной изморози на тёмно-гранатовых ягодах брусники, сквозь трещинки которой просачивается тёплый солнечный свет, собираясь в одну живую каплю.",
+  "rhyme": "хрусталечка",
+  "mood": "хрустально-ясное",
+  "concept": "Грани подвешенного хрусталя медленно поворачиваются в тихом воздухе, рассыпая тонкие радужные лучи, которые сходятся в спокойном сиянии ровно в центре листа",
   "palette": [
-    "#a31e34",
-    "#d7e8ec",
-    "#e8a853"
+    "#aed9e0",
+    "#e8d6f0",
+    "#f4c77b"
   ],
   "style": "frost",
   "art": "lattice",
-  "font": "yeseva",
-  "anim": "fade",
+  "font": "prata",
+  "anim": "glow",
   "verse": [
-    "Словно в терпком инее Юлечка-брусникулечка,",
-    "Ты приносишь радость в мир, будто солнца капелька."
+    "Свети, моя родная Юлечка-хрусталечка,",
+    "Даря любовь и чистый свет в глазах."
   ],
   "verse_tts": [
-    "Словно в терпком инее +Юлечка, брусник+улечка,",
-    "Ты приносишь радость в мир, будто солнца капелька."
+    "Свети, моя родная +Юлечка, хруст+алечка,",
+    "Даря любовь и чистый свет в глазах."
   ],
-  "image": "art/2026-10-30.webp",
-  "video": "",
+  "image": "art/2026-10-31.webp",
+  "video": "art/2026-10-31.mp4",
   "svg": "",
-  "scene": "(function(){\n function hexToRgb(hex){hex=hex.replace('#','');let b=parseInt(hex,16);return [(b>>16)&255,(b>>8)&255,b&255];}\n let frostRgb=hexToRgb(PALETTE[1]||'#d7e8ec');\n let goldRgb=hexToRgb(PALETTE[2]||'#e8a853');\n let berryRgb=hexToRgb(PALETTE[0]||'#a31e34');\n let particles=[],glints=[],berries=[];\n let w=W(),h=H();\n function init(){\n  particles=[];\n  let count=170;\n  for(let i=0;i<count;i++){\n   particles.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.6+0.4,speed:Math.random()*0.14+0.03,drift:Math.random()*0.6-0.3,phase:Math.random()*Math.PI*2,alpha:Math.random()*0.5+0.3});\n  }\n  glints=[];\n  for(let i=0;i<10;i++){\n   let top=Math.random()<0.5;\n   glints.push({x:Math.random()*w,y: top?Math.random()*h*0.26:h*0.74+Math.random()*h*0.26,r:Math.random()*2.5+1.8,phase:Math.random()*Math.PI*2,speed:Math.random()*0.018+0.008});\n  }\n  berries=[];\n  for(let i=0;i<6;i++){\n   let top=Math.random()<0.5;\n   berries.push({x:Math.random()*w,y: top?Math.random()*h*0.2:h*0.8+Math.random()*h*0.2,r:Math.random()*2+2,phase:Math.random()*Math.PI*2});\n  }\n }\n init();\n let t=0;\n function frame(){\n  t+=1;\n  w=W(); h=H();\n  ctx.clearRect(0,0,w,h);\n  for(let p of particles){\n   p.y+=p.speed;\n   p.x+=Math.sin(t*0.008+p.phase)*p.drift*0.05;\n   if(p.y>h){p.y=-4;p.x=Math.random()*w;}\n   let centerDist=Math.abs(p.y-h*0.5)/(h*0.5);\n   let fade=Math.min(1,centerDist*1.9);\n   let a=p.alpha*fade*(0.5+0.5*Math.sin(t*0.02+p.phase));\n   ctx.beginPath();\n   ctx.fillStyle=`rgba(${frostRgb[0]},${frostRgb[1]},${frostRgb[2]},${a})`;\n   ctx.arc(p.x,p.y,p.r,0,Math.PI*2);\n   ctx.fill();\n  }\n  for(let g of glints){\n   let a=0.35+0.35*Math.sin(t*g.speed+g.phase);\n   let grad=ctx.createRadialGradient(g.x,g.y,0,g.x,g.y,g.r*7);\n   grad.addColorStop(0,`rgba(${goldRgb[0]},${goldRgb[1]},${goldRgb[2]},${a*0.55})`);\n   grad.addColorStop(1,`rgba(${goldRgb[0]},${goldRgb[1]},${goldRgb[2]},0)`);\n   ctx.fillStyle=grad;\n   ctx.beginPath();\n   ctx.arc(g.x,g.y,g.r*7,0,Math.PI*2);\n   ctx.fill();\n   ctx.beginPath();\n   ctx.fillStyle=`rgba(255,240,210,${a})`;\n   ctx.arc(g.x,g.y,g.r*0.5,0,Math.PI*2);\n   ctx.fill();\n  }\n  for(let b of berries){\n   let pulse=0.6+0.4*Math.sin(t*0.015+b.phase);\n   ctx.beginPath();\n   ctx.fillStyle=`rgba(${berryRgb[0]},${berryRgb[1]},${berryRgb[2]},${0.55*pulse})`;\n   ctx.arc(b.x,b.y,b.r,0,Math.PI*2);\n   ctx.fill();\n   ctx.beginPath();\n   ctx.fillStyle=`rgba(255,255,255,${0.4*pulse})`;\n   ctx.arc(b.x-b.r*0.3,b.y-b.r*0.3,b.r*0.3,0,Math.PI*2);\n   ctx.fill();\n  }\n  requestAnimationFrame(frame);\n }\n requestAnimationFrame(frame);\n})();",
-  "date": "2026-10-30",
-  "audio": "audio/2026-10-30-74ce2047e198.mp3"
+  "scene": "",
+  "date": "2026-10-31",
+  "video_model": "bytedance/seedance-1-5-pro",
+  "audio": "audio/2026-10-31-07cf5bf4d32c.mp3"
 }
