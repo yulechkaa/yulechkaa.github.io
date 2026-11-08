@@ -1,28 +1,29 @@
 {
-  "rhyme": "шифонулечка",
-  "mood": "невесомо-игривое",
-  "concept": "Невесомый шифоновый шарф цвета жемчуга взмывает на морозном ветру и сплетается с кружевом позёмки в один прозрачный танцующий узор",
+  "rhyme": "кофточкулечка",
+  "mood": "тёпло-укутывающее",
+  "concept": "Крупная вязаная кофточка из тёплой шерсти парит по краям листа, а сквозь её объёмные петли и косы мягко проступает последний янтарный отблеск заката, тающий в густой морозной синеве неба.",
   "palette": [
-    "#e8e4f0",
-    "#9fb8c9",
-    "#c77b96"
+    "#d97b4a",
+    "#2b2f4a",
+    "#f3e4c9"
   ],
-  "style": "frost",
-  "art": "waves",
-  "font": "pacifico",
-  "anim": "scale",
+  "style": "dusk",
+  "art": "lattice",
+  "font": "unbounded",
+  "anim": "fade",
   "verse": [
-    "Пусть согревает сердце Юлечка-шифонулечка,",
-    "Когда танцует в ноябре позёмка-недотрога."
+    "Пусть согревает сердце Юлечка-кофточкулечка,",
+    "Когда в морозном небе гаснет дня свечечка."
   ],
   "verse_tts": [
-    "Пусть согревает сердце +Юлечка, шифон+улечка,",
-    "Когда танцует в ноябре позёмка-недотрога."
+    "Пусть согревает сердце +Юлечка, кофточк+улечка,",
+    "Когда в морозном небе гаснет дня свечечка."
   ],
-  "image": "art/2026-11-07.webp",
-  "video": "",
+  "image": "art/2026-11-08.webp",
+  "video": "art/2026-11-08.mp4",
   "svg": "",
-  "scene": "const N=70;const strands=[];for(let i=0;i<N;i++){strands.push({x:Math.random()*W(),y:Math.random()*H(),a:Math.random()*Math.PI*2,r:1+Math.random()*2.2,sp:0.15+Math.random()*0.35,ph:Math.random()*6.28,len:20+Math.random()*40,hueIdx:Math.floor(Math.random()*PALETTE.length)});}\nfunction hex2rgba(hex,al){const h=hex.replace('#','');const r=parseInt(h.substring(0,2),16);const g=parseInt(h.substring(2,4),16);const b=parseInt(h.substring(4,6),16);return 'rgba('+r+','+g+','+b+','+al+')';}\nlet t=0;\nfunction frame(){\n  t+=0.006;\n  ctx.clearRect(0,0,W(),H());\n  const w=W(),h=H();\n  const cx=w/2, cy=h/2, safe=Math.min(w,h)*0.26;\n  for(const s of strands){\n    s.ph+=s.sp*0.02;\n    const driftX = Math.sin(s.ph+t*2)*18;\n    const driftY = Math.cos(s.ph*0.7+t*1.3)*10;\n    const px = s.x + driftX;\n    const py = (s.y + t*40*s.sp)%( h+60) - 30 + driftY;\n    const dx = px-cx, dy=py-cy;\n    const dist=Math.sqrt(dx*dx+dy*dy);\n    let alpha = 0.55;\n    if(dist<safe){ alpha *= Math.max(0, (dist/safe)); }\n    const col = PALETTE[s.hueIdx%PALETTE.length];\n    ctx.save();\n    ctx.translate(px,py);\n    ctx.rotate(s.a + Math.sin(t+s.ph)*0.3);\n    const grad = ctx.createLinearGradient(-s.len/2,0,s.len/2,0);\n    grad.addColorStop(0, hex2rgba(col,0));\n    grad.addColorStop(0.5, hex2rgba(col, alpha*0.8));\n    grad.addColorStop(1, hex2rgba(col,0));\n    ctx.strokeStyle = grad;\n    ctx.lineWidth = s.r;\n    ctx.lineCap='round';\n    ctx.beginPath();\n    ctx.moveTo(-s.len/2, Math.sin(t*3+s.ph)*4);\n    ctx.quadraticCurveTo(0, Math.cos(t*2+s.ph)*8, s.len/2, Math.sin(t*3+s.ph+1)*4);\n    ctx.stroke();\n    ctx.restore();\n  }\n  // soft floating dust particles\n  for(let i=0;i<40;i++){\n    const ang = t*0.5 + i*0.3;\n    const rad = 60 + (i%7)*30 + Math.sin(t*1.5+i)*10;\n    const px = cx + Math.cos(ang+i)*rad*2.3;\n    const py = cy + Math.sin(ang*1.2+i)*rad*3.1;\n    const dist = Math.hypot(px-cx,py-cy);\n    if(dist<safe*0.9) continue;\n    const col = PALETTE[i%PALETTE.length];\n    ctx.beginPath();\n    ctx.fillStyle = hex2rgba(col, 0.35);\n    ctx.arc(px,py,1.3+Math.sin(t*2+i)*0.6,0,Math.PI*2);\n    ctx.fill();\n  }\n  requestAnimationFrame(frame);\n}\nrequestAnimationFrame(frame);",
-  "date": "2026-11-07",
-  "audio": "audio/2026-11-07-0f259fe86082.mp3"
+  "scene": "",
+  "date": "2026-11-08",
+  "video_model": "bytedance/seedance-1-5-pro",
+  "audio": "audio/2026-11-08-934e4307eeed.mp3"
 }
