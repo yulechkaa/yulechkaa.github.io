@@ -1,28 +1,28 @@
 {
-  "rhyme": "прянулечка",
-  "mood": "снежно-пряничное",
-  "concept": "Расписной пряник в форме оконца, покрытый сахарной глазурью и мёдом, светится тёплым изнутри в нижнем углу листа, а из приоткрытой ставни навстречу ему медленно влетают крупные пушистые снежинки перво",
+  "rhyme": "пледулечка",
+  "mood": "сонно-укромное",
+  "concept": "Тёплый шерстяной плед, сложенный крупными ленивыми волнами по верхнему и нижнему краю листа, словно раскрытые объятия, светится изнутри мягким янтарным светом, пробивающимся сквозь плотное плетение во",
   "palette": [
-    "#c97d3c",
-    "#f4ead9",
-    "#2e3a59"
+    "#a8653e",
+    "#e9d7b8",
+    "#4b3b53"
   ],
   "style": "dusk",
-  "art": "rays",
-  "font": "playfair",
-  "anim": "drop",
+  "art": "waves",
+  "font": "marck",
+  "anim": "glow",
   "verse": [
-    "Своим теплом согреет Юлечка-прянулечка,",
-    "Когда летит снежок в открытое окошко."
+    "Ты согреваешь, Юлечка-пледулечка,",
+    "В твоих объятьях дорога каждая минуточка."
   ],
   "verse_tts": [
-    "Своим теплом согреет +Юлечка, прян+улечка,",
-    "Когда летит снежок в открытое окошко."
+    "Ты согреваешь, +Юлечка, плед+улечка,",
+    "В твоих объятьях дорога каждая минуточка."
   ],
-  "image": "art/2026-11-11.webp",
+  "image": "art/2026-11-12.webp",
   "video": "",
   "svg": "",
-  "scene": "const snow=[];const N1=140;for(let i=0;i<N1;i++){snow.push({x:Math.random()*W(),y:Math.random()*H(),r:1.2+Math.random()*2.6,sp:0.15+Math.random()*0.35,sway:Math.random()*Math.PI*2,swaySp:0.004+Math.random()*0.01,op:0.25+Math.random()*0.45});}\nconst sparks=[];const N2=70;for(let i=0;i<N2;i++){const edge=Math.random()<0.5;sparks.push({x: edge? Math.random()*W()*0.28 : W()-Math.random()*W()*0.28,y:H()*0.7+Math.random()*H()*0.3,vy:-(0.12+Math.random()*0.3),vx:(Math.random()-0.5)*0.08,r:0.8+Math.random()*2,life:Math.random()*200,op:0.2+Math.random()*0.5});}\nfunction isCenterZone(x,y){const cx=W()/2,cy=H()/2;const dx=(x-cx)/(W()*0.32);const dy=(y-cy)/(H()*0.22);return (dx*dx+dy*dy)<1;}\nfunction tick(){const w=W(),h=H();ctx.clearRect(0,0,w,h);\n for(const s of snow){s.y+=s.sp;s.sway+=s.swaySp;const dx=Math.sin(s.sway)*0.6;const x=s.x+dx;const y=s.y;if(s.y>h+10){s.y=-10;s.x=Math.random()*w;}\n let op=s.op;if(isCenterZone(x,y))op*=0.15;\n ctx.beginPath();ctx.fillStyle=PALETTE[1];ctx.globalAlpha=op;ctx.arc(x,y,s.r,0,Math.PI*2);ctx.fill();}\n ctx.globalAlpha=1;\n for(const p of sparks){p.y+=p.vy;p.x+=p.vx;p.life+=1;if(p.life>260||p.y< -20){p.y=h*0.72+Math.random()*h*0.28;const edge=Math.random()<0.5;p.x=edge?Math.random()*w*0.28:w-Math.random()*w*0.28;p.life=0;}\n let op=p.op;if(isCenterZone(p.x,p.y))op*=0.1;\n ctx.save();ctx.shadowColor=PALETTE[0];ctx.shadowBlur=6;ctx.beginPath();ctx.fillStyle=PALETTE[0];ctx.globalAlpha=op;ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.restore();}\n requestAnimationFrame(tick);} tick();",
-  "date": "2026-11-11",
-  "audio": "audio/2026-11-11-f641bd0e3d57.mp3"
+  "scene": "",
+  "date": "2026-11-12",
+  "audio": "audio/2026-11-12-b24c53d771be.mp3"
 }
