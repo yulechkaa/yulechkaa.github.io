@@ -1,28 +1,28 @@
 {
-  "rhyme": "пледулечка",
-  "mood": "сонно-укромное",
-  "concept": "Тёплый шерстяной плед, сложенный крупными ленивыми волнами по верхнему и нижнему краю листа, словно раскрытые объятия, светится изнутри мягким янтарным светом, пробивающимся сквозь плотное плетение во",
+  "rhyme": "трюфелюлечка",
+  "mood": "бархатно-тающее",
+  "concept": "Тёмный шоколадный трюфель, подёрнутый какао-пудрой, мерцает тёплым светом в уголке листа, а вокруг него медленно кружат невесомые кленовые вертолётики, вплетённые в спиралевидный завиток осеннего ветр",
   "palette": [
-    "#a8653e",
-    "#e9d7b8",
-    "#4b3b53"
+    "#2e1a14",
+    "#c17a3f",
+    "#b8a9c9"
   ],
   "style": "dusk",
-  "art": "waves",
-  "font": "marck",
-  "anim": "glow",
+  "art": "orbits",
+  "font": "caveat",
+  "anim": "scale",
   "verse": [
-    "Ты согреваешь, Юлечка-пледулечка,",
-    "В твоих объятьях дорога каждая минуточка."
+    "Согрей своим дыханьем, Юлечка-трюфелюлечка,",
+    "Пока гуляет в парке ветра завитулечка."
   ],
   "verse_tts": [
-    "Ты согреваешь, +Юлечка, плед+улечка,",
-    "В твоих объятьях дорога каждая минуточка."
+    "Согрей своим дыханьем, +Юлечка, трюфел+юлечка,",
+    "Пока гуляет в парке ветра завитулечка."
   ],
-  "image": "art/2026-11-12.webp",
+  "image": "",
   "video": "",
   "svg": "",
-  "scene": "",
-  "date": "2026-11-12",
-  "audio": "audio/2026-11-12-b24c53d771be.mp3"
+  "scene": "const cx=W()/2, cy=H()/2;\nlet t=0;\nconst minR=Math.min(W(),H())*0.30;\nconst maxR=Math.min(W(),H())*0.52;\nconst N=90;\nconst leaves=[];\nfor(let i=0;i<N;i++){\n  leaves.push({\n    angle: Math.random()*Math.PI*2,\n    speed: 0.0015+Math.random()*0.0015,\n    freq: 0.3+Math.random()*0.5,\n    phase: Math.random()*Math.PI*2,\n    size: 4+Math.random()*6,\n    spin: Math.random()*Math.PI*2,\n    spinSpeed:(Math.random()-0.5)*0.02,\n    trail: [],\n    colorIdx: Math.floor(Math.random()*3)\n  });\n}\nconst trufX=W()*0.78, trufY=H()*0.74;\nconst trufR=Math.min(W(),H())*0.13;\nconst dust=[];\nfor(let i=0;i<50;i++){\n  dust.push({\n    a:Math.random()*Math.PI*2,\n    r: trufR*(0.3+Math.random()*1.4),\n    speed:0.0008+Math.random()*0.0012,\n    size:1+Math.random()*2,\n    alpha:0.3+Math.random()*0.5\n  });\n}\nfunction hexToRgb(hex){\n  const n=parseInt(hex.slice(1),16);\n  return [(n>>16)&255,(n>>8)&255,n&255];\n}\nconst rgbPal=PALETTE.map(hexToRgb);\nfunction frame(){\n  const w=W(), h=H();\n  ctx.clearRect(0,0,w,h);\n  t+=1;\n\n  const g=ctx.createRadialGradient(trufX,trufY,trufR*0.1,trufX,trufY,trufR*2.2);\n  g.addColorStop(0, `rgba(${rgbPal[1][0]},${rgbPal[1][1]},${rgbPal[1][2]},0.35)`);\n  g.addColorStop(1, 'rgba(0,0,0,0)');\n  ctx.fillStyle=g;\n  ctx.beginPath();\n  ctx.arc(trufX,trufY,trufR*2.2,0,Math.PI*2);\n  ctx.fill();\n\n  const tg=ctx.createRadialGradient(trufX-trufR*0.3,trufY-trufR*0.3,trufR*0.1,trufX,trufY,trufR);\n  tg.addColorStop(0, PALETTE[1]);\n  tg.addColorStop(1, PALETTE[0]);\n  ctx.save();\n  ctx.shadowColor=`rgba(${rgbPal[1][0]},${rgbPal[1][1]},${rgbPal[1][2]},0.5)`;\n  ctx.shadowBlur=30;\n  ctx.fillStyle=tg;\n  ctx.beginPath();\n  ctx.arc(trufX,trufY,trufR,0,Math.PI*2);\n  ctx.fill();\n  ctx.restore();\n\n  ctx.save();\n  for(let i=0;i<24;i++){\n    const ang=i/24*Math.PI*2+t*0.001;\n    const rr=trufR*(0.3+0.6*((i%5)/5));\n    const dx=trufX+Math.cos(ang)*rr;\n    const dy=trufY+Math.sin(ang)*rr*0.9;\n    ctx.fillStyle=`rgba(${rgbPal[2][0]},${rgbPal[2][1]},${rgbPal[2][2]},0.25)`;\n    ctx.beginPath();\n    ctx.arc(dx,dy,1.5,0,Math.PI*2);\n    ctx.fill();\n  }\n  ctx.restore();\n\n  dust.forEach(d=>{\n    d.a+=d.speed;\n    const x=trufX+Math.cos(d.a)*d.r;\n    const y=trufY+Math.sin(d.a)*d.r*0.85 - Math.sin(t*0.01)*2;\n    ctx.beginPath();\n    ctx.fillStyle=`rgba(${rgbPal[2][0]},${rgbPal[2][1]},${rgbPal[2][2]},${d.alpha})`;\n    ctx.arc(x,y,d.size,0,Math.PI*2);\n    ctx.fill();\n  });\n\n  leaves.forEach(leaf=>{\n    leaf.angle+=leaf.speed;\n    leaf.spin+=leaf.spinSpeed;\n    const rad=minR+(maxR-minR)*(0.5+0.5*Math.sin(t*0.004*leaf.freq+leaf.phase));\n    const x=cx+Math.cos(leaf.angle)*rad;\n    const y=cy+Math.sin(leaf.angle)*rad*0.72;\n\n    leaf.trail.push({x,y});\n    if(leaf.trail.length>14) leaf.trail.shift();\n\n    for(let j=0;j<leaf.trail.length;j++){\n      const p=leaf.trail[j];\n      const alpha=(j/leaf.trail.length)*0.35;\n      const c=rgbPal[leaf.colorIdx];\n      ctx.beginPath();\n      ctx.fillStyle=`rgba(${c[0]},${c[1]},${c[2]},${alpha})`;\n      ctx.arc(p.x,p.y, leaf.size*0.35*(j/leaf.trail.length), 0, Math.PI*2);\n      ctx.fill();\n    }\n\n    ctx.save();\n    ctx.translate(x,y);\n    ctx.rotate(leaf.spin);\n    const c=rgbPal[leaf.colorIdx];\n    ctx.fillStyle=`rgba(${c[0]},${c[1]},${c[2]},0.75)`;\n    ctx.beginPath();\n    ctx.ellipse(0,0, leaf.size, leaf.size*0.4, 0, 0, Math.PI*2);\n    ctx.fill();\n    ctx.restore();\n  });\n\n  requestAnimationFrame(frame);\n}\nrequestAnimationFrame(frame);",
+  "date": "2026-11-13",
+  "audio": "audio/2026-11-13-a5d6472e99fa.mp3"
 }
