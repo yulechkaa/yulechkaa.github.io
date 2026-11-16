@@ -1,28 +1,28 @@
 {
-  "rhyme": "свитерулечка",
-  "mood": "хрустально-уютное",
-  "concept": "Крупная рельефная вязка свитера терракотового цвета стекает с верхнего края листа, а внизу тонкие ветви сада одеты кружевом инея — будто нить тепла прорастает сквозь морозный узор, срастаясь с ним в е",
+  "rhyme": "пончикулечка",
+  "mood": "пышно-озорное",
+  "concept": "Румяное кольцо пончика парит в верхнем углу, истекая тягучей розовой глазурью, а снизу поднимается тёплый сахарный пар, закручивающийся в лёгкие завитки вокруг светлого центра страницы.",
   "palette": [
-    "#3b4a6b",
-    "#d98a4a",
-    "#eef2f0"
+    "#c9823e",
+    "#fbe9d0",
+    "#f2a6b8"
   ],
-  "style": "frost",
-  "art": "lattice",
-  "font": "comfortaa",
-  "anim": "blur",
+  "style": "bloom",
+  "art": "orbits",
+  "font": "lobster",
+  "anim": "scale",
   "verse": [
-    "Ты согреешь нежным словом, Юлечка-свитерулечка,",
-    "Когда инеем покрыто каждое в саду местечко."
+    "Ты согреваешь в ненастье, как тёплая булочка,",
+    "Сладкая, добрая Юлечка-пончикулечка."
   ],
   "verse_tts": [
-    "Ты согреешь нежным словом, +Юлечка, свитер+улечка,",
-    "Когда инеем покрыто каждое в саду местечко."
+    "Ты согреваешь в ненастье, как тёплая булочка,",
+    "Сладкая, добрая +Юлечка, пончик+улечка."
   ],
-  "image": "art/2026-11-15.webp",
+  "image": "art/2026-11-16.webp",
   "video": "",
   "svg": "",
-  "scene": "(function(){\n  const particles = [];\n  const N = 130;\n  for(let i=0;i<N;i++){\n    const edge = Math.random()<0.5;\n    let y;\n    if(edge) y = Math.random()*H()*0.3; else y = H()*0.7+Math.random()*H()*0.3;\n    particles.push({\n      x: Math.random()*W(),\n      y: y,\n      baseY: y,\n      r: 0.5+Math.random()*2.0,\n      speed: 0.04+Math.random()*0.12,\n      drift: (Math.random()-0.5)*0.25,\n      phase: Math.random()*Math.PI*2,\n      flicker: 0.5+Math.random()*1.5,\n      color: PALETTE[Math.floor(Math.random()*PALETTE.length)]\n    });\n  }\n  const threads=[];\n  for(let i=0;i<7;i++){\n    threads.push({\n      x: Math.random()*W(),\n      y: Math.random()<0.5? Math.random()*H()*0.22 : H()*0.78+Math.random()*H()*0.22,\n      len: 50+Math.random()*110,\n      angle: Math.random()*Math.PI*2,\n      speed:0.002+Math.random()*0.004,\n      opacity:0.12+Math.random()*0.18\n    });\n  }\n\n  let t=0;\n  function frame(){\n    t+=1;\n    ctx.clearRect(0,0,W(),H());\n\n    threads.forEach(th=>{\n      th.angle+=th.speed;\n      const x2 = th.x+Math.cos(th.angle)*th.len;\n      const y2 = th.y+Math.sin(th.angle)*th.len;\n      const grad = ctx.createLinearGradient(th.x,th.y,x2,y2);\n      grad.addColorStop(0,'rgba(255,255,255,0)');\n      grad.addColorStop(0.5,`rgba(255,255,255,${th.opacity})`);\n      grad.addColorStop(1,'rgba(255,255,255,0)');\n      ctx.strokeStyle=grad;\n      ctx.lineWidth=1;\n      ctx.beginPath();\n      ctx.moveTo(th.x,th.y);\n      ctx.lineTo(x2,y2);\n      ctx.stroke();\n    });\n\n    particles.forEach(p=>{\n      p.y += p.speed;\n      p.x += Math.sin(t*0.01+p.phase)*p.drift;\n      if(p.y>p.baseY+35) p.y=p.baseY-35;\n      const flick = 0.35+0.65*Math.abs(Math.sin(t*0.02*p.flicker+p.phase));\n      ctx.beginPath();\n      ctx.fillStyle=p.color;\n      ctx.globalAlpha = flick*0.75;\n      ctx.shadowBlur=6;\n      ctx.shadowColor=p.color;\n      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);\n      ctx.fill();\n    });\n    ctx.globalAlpha=1;\n    ctx.shadowBlur=0;\n    requestAnimationFrame(frame);\n  }\n  frame();\n})();",
-  "date": "2026-11-15",
-  "audio": "audio/2026-11-15-665685f92750.mp3"
+  "scene": "",
+  "date": "2026-11-16",
+  "audio": "audio/2026-11-16-09569cb75b26.mp3"
 }
