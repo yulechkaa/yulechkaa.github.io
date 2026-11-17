@@ -1,28 +1,28 @@
 {
-  "rhyme": "пончикулечка",
-  "mood": "пышно-озорное",
-  "concept": "Румяное кольцо пончика парит в верхнем углу, истекая тягучей розовой глазурью, а снизу поднимается тёплый сахарный пар, закручивающийся в лёгкие завитки вокруг светлого центра страницы.",
+  "rhyme": "теплулечка",
+  "mood": "тёпло-зовущее",
+  "concept": "Тёплый свет окон далёкого вечернего города медленно проступает сквозь золотистую дымку боке, будто сам вечер идёт навстречу огоньками-открытием",
   "palette": [
-    "#c9823e",
-    "#fbe9d0",
-    "#f2a6b8"
+    "#e8a15c",
+    "#3a2a4a",
+    "#f4d9a0"
   ],
-  "style": "bloom",
-  "art": "orbits",
-  "font": "lobster",
-  "anim": "scale",
+  "style": "dusk",
+  "art": "rays",
+  "font": "unbounded",
+  "anim": "fade",
   "verse": [
-    "Ты согреваешь в ненастье, как тёплая булочка,",
-    "Сладкая, добрая Юлечка-пончикулечка."
+    "Как дорог мне этот сияющий вечер,",
+    "Где Юлечка-теплулечка выйдет навстречу."
   ],
   "verse_tts": [
-    "Ты согреваешь в ненастье, как тёплая булочка,",
-    "Сладкая, добрая +Юлечка, пончик+улечка."
+    "Как дорог мне этот сияющий вечер,",
+    "Где +Юлечка, тепл+улечка выйдет навстречу."
   ],
-  "image": "art/2026-11-16.webp",
+  "image": "",
   "video": "",
   "svg": "",
-  "scene": "",
-  "date": "2026-11-16",
-  "audio": "audio/2026-11-16-09569cb75b26.mp3"
+  "scene": "(function(){\n  function rand(a,b){return a+Math.random()*(b-a);}\n  const N = 90;\n  let particles = [];\n  function initParticles(){\n    particles = [];\n    for(let i=0;i<N;i++){\n      let x,y,tries=0;\n      do{\n        x = rand(0,W());\n        y = rand(0,H());\n        tries++;\n      } while(tries<8 && Math.hypot(x-W()/2,y-H()/2) < Math.min(W(),H())*0.22 && Math.random()<0.85);\n      particles.push({\n        x:x, y:y,\n        r: rand(4,22),\n        baseAlpha: rand(0.15,0.55),\n        phase: rand(0,Math.PI*2),\n        speed: rand(0.15,0.4),\n        drift: rand(-0.3,0.3),\n        colorIdx: Math.floor(Math.random()*PALETTE.length)\n      });\n    }\n  }\n  initParticles();\n\n  function buildingsData(){\n    let arr=[];\n    let n=6;\n    for(let i=0;i<n;i++){\n      arr.push({ w: rand(30,70), h: rand(80,260) });\n    }\n    return arr;\n  }\n  const leftB = buildingsData();\n  const rightB = buildingsData();\n\n  function drawBuildings(arr, side, time){\n    let x = side==='l' ? -10 : W()+10;\n    for(let i=0;i<arr.length;i++){\n      const b = arr[i];\n      const bw = b.w, bh = b.h;\n      let bx = side==='l' ? x : x - bw;\n      const by = H() - bh;\n      ctx.fillStyle = 'rgba(58,42,74,0.35)';\n      ctx.fillRect(bx, by, bw, bh);\n      const rows = Math.max(2, Math.floor(bh/28));\n      const cols = Math.max(1, Math.floor(bw/18));\n      for(let r=0;r<rows;r++){\n        for(let c=0;c<cols;c++){\n          const wx = bx + 6 + c*(bw-12)/cols;\n          const wy = by + 10 + r*(bh-20)/rows;\n          const flick = 0.4 + 0.6*Math.abs(Math.sin(time*0.0006 + i*2+r*3+c));\n          ctx.fillStyle = 'rgba(244,217,160,'+(0.25*flick)+')';\n          ctx.fillRect(wx, wy, 6, 8);\n        }\n      }\n      x = side==='l' ? x + bw + rand(4,14) : x - bw - rand(4,14);\n    }\n  }\n\n  function frame(time){\n    ctx.clearRect(0,0,W(),H());\n    const w = W(), h = H();\n\n    const gradL = ctx.createRadialGradient(0,h,10,0,h,w*0.5);\n    gradL.addColorStop(0,'rgba(232,161,92,0.18)');\n    gradL.addColorStop(1,'rgba(232,161,92,0)');\n    ctx.fillStyle = gradL;\n    ctx.fillRect(0,0,w,h);\n\n    const gradR = ctx.createRadialGradient(w,h,10,w,h,w*0.5);\n    gradR.addColorStop(0,'rgba(232,161,92,0.18)');\n    gradR.addColorStop(1,'rgba(232,161,92,0)');\n    ctx.fillStyle = gradR;\n    ctx.fillRect(0,0,w,h);\n\n    drawBuildings(leftB,'l',time);\n    drawBuildings(rightB,'r',time);\n\n    for(let p of particles){\n      p.y -= p.speed*0.5;\n      p.x += Math.sin(time*0.0003+p.phase)*p.drift*0.3;\n      if(p.y < -30){ p.y = h+30; p.x = rand(0,w); }\n      const alpha = p.baseAlpha*(0.6+0.4*Math.sin(time*0.001+p.phase));\n      const col = PALETTE[p.colorIdx % PALETTE.length];\n      ctx.save();\n      ctx.globalAlpha = alpha;\n      ctx.shadowBlur = p.r*1.5;\n      ctx.shadowColor = col;\n      ctx.fillStyle = col;\n      ctx.beginPath();\n      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);\n      ctx.fill();\n      ctx.restore();\n    }\n\n    requestAnimationFrame(frame);\n  }\n  requestAnimationFrame(frame);\n})();",
+  "date": "2026-11-17",
+  "audio": "audio/2026-11-17-d90311667cfb.mp3"
 }
