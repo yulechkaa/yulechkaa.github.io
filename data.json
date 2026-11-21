@@ -1,28 +1,28 @@
 {
-  "rhyme": "сапфирулечка",
-  "mood": "трепетно-сияющее",
-  "concept": "Крупный гранёный сапфир-кабошон медленно поворачивается в верхнем углу листа, рассыпая по острым граням холодные синие и тёплые золотые блики, а в нижней трети зеркально светится второй такой же камен",
+  "rhyme": "изюмулечка",
+  "mood": "терпко-нежное",
+  "concept": "Тяжёлая гроздь тёмного изюма свисает с верхнего правого угла листа, каждая ягода мерцает изнутри тёплым янтарным светом сквозь морщинистую кожицу, а в нижней части листа медленно оседает тонкая серебр",
   "palette": [
-    "#0b1f4d",
-    "#2e6fba",
-    "#e6c988"
+    "#3a1f2e",
+    "#caa43c",
+    "#f2e4c4"
   ],
-  "style": "aurora",
-  "art": "constellation",
-  "font": "playfair",
-  "anim": "glow",
+  "style": "dusk",
+  "art": "orbits",
+  "font": "marck",
+  "anim": "drop",
   "verse": [
-    "Пускай твои очи блестят, как две искорки,",
-    "Моя дорогая Юлечка-сапфирулечка."
+    "Когда в ноябре наступает густая прохлада,",
+    "Ты, Юлечка-изюмулечка, — сердца отрада."
   ],
   "verse_tts": [
-    "Пускай твои очи блестят, как две искорки,",
-    "Моя дорогая +Юлечка, сапфир+улечка."
+    "Когда в ноябре наступает густая прохлада,",
+    "Ты, +Юлечка, изюм+улечка, — сердца отрада."
   ],
-  "image": "art/2026-11-20.webp",
+  "image": "",
   "video": "",
   "svg": "",
-  "scene": "",
-  "date": "2026-11-20",
-  "audio": "audio/2026-11-20-1cbf70fb26ed.mp3"
+  "scene": "(function(){\n  var berries = [\n    {cx:0.74,cy:0.07,r:0.042,ph:0.1},\n    {cx:0.80,cy:0.05,r:0.042,ph:0.5},\n    {cx:0.86,cy:0.07,r:0.040,ph:0.9},\n    {cx:0.70,cy:0.12,r:0.045,ph:1.3},\n    {cx:0.77,cy:0.11,r:0.046,ph:1.7},\n    {cx:0.83,cy:0.12,r:0.045,ph:2.1},\n    {cx:0.89,cy:0.13,r:0.043,ph:2.5},\n    {cx:0.68,cy:0.17,r:0.043,ph:2.9},\n    {cx:0.74,cy:0.17,r:0.044,ph:3.3},\n    {cx:0.80,cy:0.18,r:0.043,ph:3.7},\n    {cx:0.86,cy:0.18,r:0.041,ph:4.1},\n    {cx:0.70,cy:0.23,r:0.038,ph:4.5},\n    {cx:0.76,cy:0.24,r:0.039,ph:4.9},\n    {cx:0.82,cy:0.24,r:0.037,ph:5.3},\n    {cx:0.72,cy:0.29,r:0.033,ph:5.7},\n    {cx:0.78,cy:0.30,r:0.032,ph:6.1},\n    {cx:0.75,cy:0.35,r:0.028,ph:6.5}\n  ];\n\n  var fog = [];\n  var fogCount = 70;\n  for(var i=0;i<fogCount;i++){\n    fog.push({\n      x: Math.random(),\n      y: 0.55 + Math.random()*0.5,\n      r: 0.6 + Math.random()*1.8,\n      sp: 0.03 + Math.random()*0.07,\n      ph: Math.random()*Math.PI*2,\n      sway: (Math.random()-0.5)*0.0008\n    });\n  }\n\n  var t = 0;\n\n  function draw(){\n    var w = W(), h = H();\n    ctx.clearRect(0,0,w,h);\n    t += 0.012;\n    var m = Math.min(w,h);\n\n    // ambient warm glow behind cluster\n    ctx.save();\n    var ag = ctx.createRadialGradient(w*0.80,h*0.15,0,w*0.80,h*0.15,m*0.32);\n    ag.addColorStop(0, PALETTE[1]+'33');\n    ag.addColorStop(1, PALETTE[1]+'00');\n    ctx.fillStyle = ag;\n    ctx.fillRect(0,0,w,h);\n    ctx.restore();\n\n    // stem\n    ctx.save();\n    ctx.strokeStyle = PALETTE[1];\n    ctx.globalAlpha = 0.45;\n    ctx.lineWidth = 2;\n    ctx.beginPath();\n    ctx.moveTo(w*0.84, -10);\n    ctx.quadraticCurveTo(w*0.78, h*0.03, w*0.76, h*0.065);\n    ctx.stroke();\n\n    // tendril spiral\n    ctx.beginPath();\n    var tx = w*0.88, ty = h*0.015;\n    for(var a=0; a<Math.PI*3.2; a+=0.2){\n      var rr = (0.018 - a*0.0022) * m;\n      if(rr<0) break;\n      var px = tx + Math.cos(a+t*0.2)*rr;\n      var py = ty + Math.sin(a+t*0.2)*rr + a*2;\n      if(a===0){ ctx.moveTo(px,py); } else { ctx.lineTo(px,py); }\n    }\n    ctx.globalAlpha = 0.35;\n    ctx.stroke();\n    ctx.restore();\n\n    // berries\n    berries.forEach(function(b){\n      var bx = w*b.cx + Math.sin(t*0.3+b.ph)*1.5;\n      var by = h*b.cy + Math.cos(t*0.25+b.ph)*1.5;\n      var r = b.r * m;\n\n      var grad = ctx.createRadialGradient(bx-r*0.35, by-r*0.35, r*0.08, bx, by, r);\n      grad.addColorStop(0, PALETTE[1]+'dd');\n      grad.addColorStop(0.55, PALETTE[0]+'ee');\n      grad.addColorStop(1, PALETTE[0]+'44');\n\n      ctx.save();\n      ctx.shadowColor = PALETTE[1];\n      ctx.shadowBlur = 10 + 6*Math.sin(t*0.6+b.ph);\n      ctx.fillStyle = grad;\n      ctx.beginPath();\n      ctx.ellipse(bx, by, r, r*1.06, 0, 0, Math.PI*2);\n      ctx.fill();\n      ctx.restore();\n\n      ctx.save();\n      ctx.globalAlpha = 0.22 + 0.08*Math.sin(t*0.8+b.ph);\n      ctx.fillStyle = PALETTE[2];\n      ctx.beginPath();\n      ctx.ellipse(bx - r*0.32, by - r*0.38, r*0.26, r*0.17, -0.5, 0, Math.PI*2);\n      ctx.fill();\n      ctx.restore();\n    });\n\n    // slow settling frost particles, lower region, avoiding center\n    fog.forEach(function(p){\n      p.y += p.sp*0.0015;\n      p.x += p.sway;\n      if(p.y > 1.08){ p.y = 0.55; p.x = Math.random(); }\n      if(p.x<-0.05) p.x = 1.05;\n      if(p.x>1.05) p.x = -0.05;\n\n      var px = p.x*w, py = p.y*h;\n      var alpha = 0.10 + 0.12*Math.sin(t*1.4+p.ph);\n      ctx.save();\n      ctx.globalAlpha = Math.max(0, alpha);\n      ctx.fillStyle = PALETTE[2];\n      ctx.beginPath();\n      ctx.arc(px, py, p.r, 0, Math.PI*2);\n      ctx.fill();\n      ctx.restore();\n    });\n\n    requestAnimationFrame(draw);\n  }\n  requestAnimationFrame(draw);\n})();",
+  "date": "2026-11-21",
+  "audio": "audio/2026-11-21-601c60f4f8af.mp3"
 }
