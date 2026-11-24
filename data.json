@@ -1,28 +1,28 @@
 {
-  "rhyme": "орешкулечка",
-  "mood": "уютно-плутовское",
-  "concept": "Расписной лесной орех, будто бережно сохранённая ёлочная игрушка, светится тёплым янтарём сквозь приоткрытую скорлупу среди веточек лещины и кружащих сухих листьев.",
+  "rhyme": "печенюлечка",
+  "mood": "сияюще-хрустящее",
+  "concept": "Фигурное песочное печенье в форме солнца с глазурными лучами парит в верхней трети листа, источая тёплое карамельное сияние, а в нижней трети стелется мягкая лиловая осенняя дымка с редкими золотыми к",
   "palette": [
-    "#6b4226",
-    "#e8b86d",
-    "#9ab98f"
+    "#d98c3d",
+    "#fdf1dd",
+    "#4a2f4f"
   ],
-  "style": "dusk",
+  "style": "dawn",
   "art": "rays",
-  "font": "pacifico",
-  "anim": "cascade",
+  "font": "comfortaa",
+  "anim": "blur",
   "verse": [
-    "Пусть греет сердце в ноябре, Юлечка-орешкулечка,",
-    "Как самая любимая и добрая игрушечка."
+    "В ноябре холодном станет сердцу жарче,",
+    "Юлечка-печенюлечка светит солнца ярче."
   ],
   "verse_tts": [
-    "Пусть греет сердце в ноябре, +Юлечка, орешк+улечка,",
-    "Как самая любимая и добрая игрушечка."
+    "В ноябре холодном станет сердцу жарче,",
+    "+Юлечка, печен+юлечка светит солнца ярче."
   ],
-  "image": "art/2026-11-23.webp",
+  "image": "art/2026-11-24.webp",
   "video": "",
   "svg": "",
-  "scene": "const rnd=(a,b)=>a+Math.random()*(b-a);\nlet W_=W(),H_=H();\nconst dust=[];\nfor(let i=0;i<90;i++){\n  dust.push({\n    x:rnd(0,W_),\n    y:rnd(0,H_),\n    r:rnd(0.6,2.2),\n    spd:rnd(0.08,0.3),\n    drift:rnd(-0.15,0.15),\n    phase:rnd(0,Math.PI*2),\n    speed2:rnd(0.004,0.012),\n    zone: Math.random()<0.5?'top':'bottom'\n  });\n}\nconst threads=[];\nfor(let i=0;i<5;i++){\n  threads.push({\n    x:rnd(W_*0.1,W_*0.3)+ (i%2===0?0:W_*0.5),\n    baseY: i<3? rnd(H_*0.06,H_*0.18) : rnd(H_*0.82,H_*0.94),\n    len:rnd(40,90),\n    phase:rnd(0,Math.PI*2),\n    speed:rnd(0.3,0.6)\n  });\n}\nlet t=0;\nfunction frame(){\n  t+=0.016;\n  W_=W(); H_=H();\n  ctx.clearRect(0,0,W_,H_);\n  const midY=H_*0.5;\n  const safeTop=H_*0.32, safeBot=H_*0.68;\n\n  // мягкие золотые блики сверху/снизу, избегая центра\n  for(const d of dust){\n    d.y -= d.spd;\n    d.x += Math.sin(t*d.speed2*10+d.phase)*d.drift;\n    if(d.y<-10){ d.y=H_+10; d.x=rnd(0,W_); }\n    // затухание в центре\n    let alpha=1;\n    if(d.y>safeTop && d.y<safeBot){\n      const distCenter=Math.abs(d.y-midY)/(midY-safeTop);\n      alpha=Math.max(0,1-distCenter)*0.15;\n    } else {\n      alpha=0.55;\n    }\n    const flick=0.6+0.4*Math.sin(t*2+d.phase);\n    ctx.beginPath();\n    ctx.fillStyle = PALETTE[1];\n    ctx.globalAlpha = alpha*flick*0.8;\n    ctx.arc(d.x,d.y,d.r,0,Math.PI*2);\n    ctx.fill();\n  }\n  ctx.globalAlpha=1;\n\n  // тонкие покачивающиеся нити (как подвес игрушки)\n  for(const th of threads){\n    const sway = Math.sin(t*th.speed+th.phase)*8;\n    const x0=th.x+sway;\n    const y0=th.baseY;\n    const x1=th.x+sway*1.6;\n    const y1=th.baseY + (th.baseY<midY? th.len : -th.len);\n    const grad=ctx.createLinearGradient(x0,y0,x1,y1);\n    grad.addColorStop(0, PALETTE[1]+'cc');\n    grad.addColorStop(1, PALETTE[1]+'00');\n    ctx.strokeStyle=grad;\n    ctx.lineWidth=1.1;\n    ctx.beginPath();\n    ctx.moveTo(x0,y0);\n    ctx.quadraticCurveTo((x0+x1)/2+Math.sin(t*th.speed*1.3)*5, (y0+y1)/2, x1,y1);\n    ctx.stroke();\n\n    // маленький светящийся узелок-орешек на конце нити\n    const glow=ctx.createRadialGradient(x1,y1,0,x1,y1,10);\n    glow.addColorStop(0, PALETTE[2]+'aa');\n    glow.addColorStop(1, PALETTE[2]+'00');\n    ctx.fillStyle=glow;\n    ctx.beginPath();\n    ctx.arc(x1,y1,10,0,Math.PI*2);\n    ctx.fill();\n  }\n\n  requestAnimationFrame(frame);\n}\nrequestAnimationFrame(frame);",
-  "date": "2026-11-23",
-  "audio": "audio/2026-11-23-a7eee936bb50.mp3"
+  "scene": "",
+  "date": "2026-11-24",
+  "audio": "audio/2026-11-24-009ac86ada60.mp3"
 }
