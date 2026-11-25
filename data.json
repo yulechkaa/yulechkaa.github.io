@@ -1,28 +1,28 @@
 {
-  "rhyme": "печенюлечка",
-  "mood": "сияюще-хрустящее",
-  "concept": "Фигурное песочное печенье в форме солнца с глазурными лучами парит в верхней трети листа, источая тёплое карамельное сияние, а в нижней трети стелется мягкая лиловая осенняя дымка с редкими золотыми к",
+  "rhyme": "карамелюлечка",
+  "mood": "сиропно-туманное",
+  "concept": "Тягучие карамельные нити медленно вьются сквозь акварельную хмарь ноябрьского неба у самых краёв листа, рассыпая по туману тёплую сахарную пыль, а середина страницы остаётся тихой прогалиной света, гд",
   "palette": [
-    "#d98c3d",
-    "#fdf1dd",
-    "#4a2f4f"
+    "#b97a3f",
+    "#8d93a1",
+    "#f6e4c2"
   ],
-  "style": "dawn",
+  "style": "dusk",
   "art": "rays",
-  "font": "comfortaa",
-  "anim": "blur",
+  "font": "philosopher",
+  "anim": "scale",
   "verse": [
-    "В ноябре холодном станет сердцу жарче,",
-    "Юлечка-печенюлечка светит солнца ярче."
+    "Скрасит ноябрьскую серость в небе прогулочка,",
+    "Если со мной дорогая Юлечка-карамелюлечка."
   ],
   "verse_tts": [
-    "В ноябре холодном станет сердцу жарче,",
-    "+Юлечка, печен+юлечка светит солнца ярче."
+    "Скрасит ноябрьскую серость в небе прогулочка,",
+    "Если со мной дорогая +Юлечка, карамел+юлечка."
   ],
-  "image": "art/2026-11-24.webp",
+  "image": "",
   "video": "",
   "svg": "",
-  "scene": "",
-  "date": "2026-11-24",
-  "audio": "audio/2026-11-24-009ac86ada60.mp3"
+  "scene": "(function(){\n  let t=0;\n  function hexToRgb(hex){ hex=hex.replace('#',''); const n=parseInt(hex,16); return [(n>>16)&255,(n>>8)&255,n&255]; }\n  const cols = PALETTE.map(hexToRgb);\n\n  const strands = [];\n  const strandCount = 5;\n  for(let i=0;i<strandCount;i++){\n    strands.push({\n      side: i%2===0?'left':'right',\n      yBase: Math.random()*0.35 + (i%2===0?0.06:0.55),\n      amp: 36+Math.random()*55,\n      speed: 0.18+Math.random()*0.28,\n      phase: Math.random()*Math.PI*2,\n      width: 2+Math.random()*3,\n      colorIdx: i%cols.length,\n      len: 0.22+Math.random()*0.14\n    });\n  }\n\n  const particles = [];\n  const pCount = 110;\n  for(let i=0;i<pCount;i++){\n    particles.push({\n      x: Math.random(),\n      y: Math.random(),\n      r: 0.5+Math.random()*1.7,\n      speed: 0.05+Math.random()*0.11,\n      drift: (Math.random()-0.5)*0.028,\n      phase: Math.random()*Math.PI*2,\n      colorIdx: Math.floor(Math.random()*cols.length)\n    });\n  }\n\n  const fogs = [];\n  for(let i=0;i<4;i++){\n    fogs.push({\n      x: i%2===0 ? 0.08+Math.random()*0.14 : 0.76+Math.random()*0.16,\n      y: Math.random(),\n      r: 140+Math.random()*110,\n      speed: 0.018+Math.random()*0.03,\n      phase: Math.random()*Math.PI*2,\n      colorIdx: i%cols.length\n    });\n  }\n\n  function draw(){\n    const w=W(), h=H();\n    ctx.clearRect(0,0,w,h);\n    t+=0.008;\n\n    fogs.forEach(f=>{\n      const cx = f.x*w + Math.sin(t*f.speed+f.phase)*18;\n      const cy = f.y*h + Math.cos(t*f.speed*0.8+f.phase)*18;\n      const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,f.r);\n      const c = cols[f.colorIdx];\n      grad.addColorStop(0, 'rgba('+c[0]+','+c[1]+','+c[2]+',0.10)');\n      grad.addColorStop(1, 'rgba('+c[0]+','+c[1]+','+c[2]+',0)');\n      ctx.fillStyle = grad;\n      ctx.beginPath();\n      ctx.arc(cx,cy,f.r,0,Math.PI*2);\n      ctx.fill();\n    });\n\n    strands.forEach(s=>{\n      const c = cols[s.colorIdx];\n      ctx.save();\n      ctx.lineCap='round';\n      ctx.lineWidth = s.width;\n      ctx.shadowBlur = 12;\n      ctx.shadowColor = 'rgba('+c[0]+','+c[1]+','+c[2]+',0.5)';\n      ctx.strokeStyle = 'rgba('+c[0]+','+c[1]+','+c[2]+',0.55)';\n      ctx.beginPath();\n      const steps=40;\n      for(let i=0;i<=steps;i++){\n        const p=i/steps;\n        let xBase;\n        if(s.side==='left'){ xBase = p*s.len*w; } else { xBase = w - p*s.len*w; }\n        const y = s.yBase*h + Math.sin(p*Math.PI*2.2 + t*s.speed*2 + s.phase)*s.amp*(1-p*0.3);\n        if(i===0) ctx.moveTo(xBase,y); else ctx.lineTo(xBase,y);\n      }\n      ctx.stroke();\n      ctx.restore();\n    });\n\n    particles.forEach(p=>{\n      p.y -= p.speed*0.003;\n      p.x += p.drift*0.003;\n      if(p.y<-0.05){ p.y=1.05; p.x=Math.random(); }\n      if(p.x<-0.05) p.x=1.05;\n      if(p.x>1.05) p.x=-0.05;\n      const px = p.x*w, py = p.y*h;\n      const c = cols[p.colorIdx];\n      const shimmer = 0.4+0.5*Math.sin(t*2+p.phase);\n      ctx.beginPath();\n      ctx.fillStyle = 'rgba('+c[0]+','+c[1]+','+c[2]+','+(0.28+shimmer*0.38)+')';\n      ctx.arc(px,py,p.r,0,Math.PI*2);\n      ctx.fill();\n    });\n\n    requestAnimationFrame(draw);\n  }\n  draw();\n})();",
+  "date": "2026-11-25",
+  "audio": "audio/2026-11-25-f580a15803f9.mp3"
 }
