@@ -1,28 +1,28 @@
 {
-  "rhyme": "кремулечка",
-  "mood": "бархатно-сонное",
-  "concept": "Густая волна тёплого кремового света медленно разливается по нижнему краю листа сквозь синий бархат сумерек, а в верхней трети гаснущие блики дальних окон тают в мягкой дымке, оставляя середину листа ",
+  "rhyme": "пирожкулечка",
+  "mood": "дымчато-ласковое",
+  "concept": "Румяный пирожок с золотистой трещинкой корочки парит в нижней трети листа, источая мягкое тепловое свечение, а вверх от него медленно поднимается прозрачная дымка пара, расплываясь в глубокой лиловой ",
   "palette": [
-    "#e8d9b5",
-    "#1f2b4a",
-    "#c98a4b"
+    "#c97b3d",
+    "#2b2440",
+    "#f3d9a0"
   ],
   "style": "dusk",
-  "art": "waves",
-  "font": "yeseva",
-  "anim": "wave",
+  "art": "rays",
+  "font": "prata",
+  "anim": "drop",
   "verse": [
-    "В тихом сумраке гаснут огни за окном,",
-    "Юлечка-кремулечка согреет теплом."
+    "В сумерках ноября станет теплей,",
+    "Юлечка-пирожкулечка, сердце согрей."
   ],
   "verse_tts": [
-    "В тихом сумраке гаснут огни за окном,",
-    "+Юлечка, крем+улечка согреет теплом."
+    "В сумерках ноября станет теплей,",
+    "+Юлечка, пирожк+улечка, сердце согрей."
   ],
-  "image": "art/2026-11-27.webp",
+  "image": "art/2026-11-28.webp",
   "video": "",
   "svg": "",
-  "scene": "const W_=W,H_=H;const lights=[];for(let i=0;i<26;i++){lights.push({x:Math.random()*W_(),y:Math.random()*H_()*0.32,r:6+Math.random()*10,phase:Math.random()*Math.PI*2,speed:0.3+Math.random()*0.4,drift:(Math.random()-0.5)*0.15});}\nconst cream=[];for(let i=0;i<60;i++){cream.push({x:Math.random()*W_(),y:H_()*0.72+Math.random()*H_()*0.26,r:14+Math.random()*26,phase:Math.random()*Math.PI*2,speed:0.15+Math.random()*0.25,ox:(Math.random()-0.5)*40});}\nlet t=0;\nfunction frame(){\n t+=0.012;\n const w=W_(),h=H_();\n ctx.clearRect(0,0,w,h);\n // верхние гаснущие огни\n for(const l of lights){\n const flick=0.35+0.3*Math.sin(t*l.speed+l.phase);\n const x=l.x+Math.sin(t*0.2+l.phase)*l.drift*20;\n const y=l.y+Math.cos(t*0.15+l.phase)*4;\n const grad=ctx.createRadialGradient(x,y,0,x,y,l.r*2.2);\n grad.addColorStop(0,'rgba(201,138,75,'+(0.55*flick)+')');\n grad.addColorStop(0.5,'rgba(232,217,181,'+(0.18*flick)+')');\n grad.addColorStop(1,'rgba(232,217,181,0)');\n ctx.fillStyle=grad;\n ctx.beginPath();\n ctx.arc(x,y,l.r*2.2,0,Math.PI*2);\n ctx.fill();\n }\n // нижняя кремовая волна из мягких бликов\n for(const c of cream){\n const rise=Math.sin(t*c.speed+c.phase)*10;\n const x=c.x+Math.sin(t*0.1+c.phase)*c.ox;\n const y=c.y+rise;\n const grad=ctx.createRadialGradient(x,y,0,x,y,c.r);\n grad.addColorStop(0,'rgba(232,217,181,0.5)');\n grad.addColorStop(0.6,'rgba(201,138,75,0.15)');\n grad.addColorStop(1,'rgba(232,217,181,0)');\n ctx.fillStyle=grad;\n ctx.beginPath();\n ctx.arc(x,y,c.r,0,Math.PI*2);\n ctx.fill();\n }\n // тонкая линия горизонта сумрака\n const hy=h*0.52;\n ctx.strokeStyle='rgba(31,43,74,0.12)';\n ctx.lineWidth=1.5;\n ctx.beginPath();\n ctx.moveTo(0,hy+Math.sin(t*0.3)*6);\n for(let x=0;x<=w;x+=40){\n ctx.lineTo(x,hy+Math.sin(t*0.3+x*0.01)*6);\n }\n ctx.stroke();\n requestAnimationFrame(frame);\n}\nrequestAnimationFrame(frame);",
-  "date": "2026-11-27",
-  "audio": "audio/2026-11-27-e17441d11dd8.mp3"
+  "scene": "",
+  "date": "2026-11-28",
+  "audio": "audio/2026-11-28-4aad57529299.mp3"
 }
